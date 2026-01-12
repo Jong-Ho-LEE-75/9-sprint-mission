@@ -3,25 +3,37 @@ package entity;
 import java.util.UUID;
 
 public class Message {
-    private final UUID id;
+    private final String id;
+    private String content;
+    private String userId;
+    private String channelId;
     private final Long createdAt;
-    private Long UpdatedAt;
+    private Long updatedAt;
 
-    private UUID userId; // message 작성자
-    private UUID channelId; // message 등록된 채널
-    private String content; // message 내용
-
-    public Message(UUID userId, UUID channelId, String content) {
-        this.id = UUID.randomUUID();
-        this.createdAt = System.currentTimeMillis();
-        UpdatedAt = this.createdAt;
+    public Message(String content, String userId, String channelId) {
+        this.id = UUID.randomUUID().toString();
+        this.content = content;
         this.userId = userId;
         this.channelId = channelId;
-        this.content = content;
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = this.createdAt;
     }
 
-    public UUID getId() {
+    // Getter 메소드들
+    public String getId() {
         return id;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getChannelId() {
+        return channelId;
     }
 
     public Long getCreatedAt() {
@@ -29,24 +41,22 @@ public class Message {
     }
 
     public Long getUpdatedAt() {
-        return UpdatedAt;
+        return updatedAt;
     }
 
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public UUID getChannelId() {
-        return channelId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    // Update method
-    public void update(String content) {
+    // Update 메소드
+    public void update(String content, String userId, String channelId) {
         this.content = content;
-        this.UpdatedAt = System.currentTimeMillis();
+        this.userId = userId;
+        this.channelId = channelId;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("메시지 [내용: %s, 작성자ID: %s..., 채널ID: %s...]",
+                content,
+                userId.substring(0, 8),
+                channelId.substring(0, 8));
     }
 }

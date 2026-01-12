@@ -3,39 +3,29 @@ package entity;
 import java.util.UUID;
 
 public class Channel {
-    private final UUID id;
+    private final String id;
+    private String name;
+    private String description;
+    private String type;
     private final Long createdAt;
     private Long updatedAt;
 
-    private String userName;
-    private String description;
-    private String type;
-
-    public Channel(String userName, String description, String type) {
-        this.id = UUID.randomUUID();
+    public Channel(String name, String description, String type) {
+        this.id = UUID.randomUUID().toString();
+        this.name = name;
+        this.description = description;
+        this.type = type;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
-        this.userName = userName;
-        this.description = description; // 설명, 서술
-        this.type = type; // online, offline, away 등)
     }
 
-    // Getter - 정보를 가저오는 함수들
-
-    public UUID getId() {
+    // Getter 메소드들
+    public String getId() {
         return id;
     }
 
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getUserName() {
-        return userName;
+    public String getName() {
+        return name;
     }
 
     public String getDescription() {
@@ -46,11 +36,27 @@ public class Channel {
         return type;
     }
 
-    // Update - 정보를 수정하는 함수
-    public void update(String userName, String description, String type) {
-        this.userName = userName;
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    // Update 메소드
+    public void update(String name, String description, String type) {
+        this.name = name;
         this.description = description;
         this.type = type;
-        this.updatedAt = System.currentTimeMillis(); // 수정시간 갱신
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("채널 [이름: %s, 설명: %s, 타입: %s]",
+                name,
+                description,
+                type);
     }
 }

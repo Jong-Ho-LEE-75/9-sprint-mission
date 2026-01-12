@@ -1,30 +1,39 @@
 package entity;
 
-// UUID 사용을 위해 필요
 import java.util.UUID;
 
 public class User {
-    private final UUID id;
+    private final String id;
+    private String username;
+    private String email;
+    private String nickname;
     private final Long createdAt;
     private Long updatedAt;
 
-    private String userName;
-    private String email;
-    private String status;
-
-    public User(String userName, String email, String status) {
-        this.id = UUID.randomUUID();
+    public User(String username, String email, String nickname) {
+        this.id = UUID.randomUUID().toString();
+        this.username = username;
+        this.email = email;
+        this.nickname = nickname;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = this.createdAt;
-        this.userName = userName;
-        this.email = email;
-        this.status = status; // online, offline, away 등)
     }
 
-    // Getter - 정보를 가저오는 함수들
-
-    public UUID getId() {
+    // Getter 메소드들
+    public String getId() {
         return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 
     public Long getCreatedAt() {
@@ -35,23 +44,19 @@ public class User {
         return updatedAt;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    // Update - 정보를 수정하는 함수
-    public void update(String userName, String email, String status) {
-        this.userName = userName;
+    // Update 메소드
+    public void update(String username, String email, String nickname) {
+        this.username = username;
         this.email = email;
-        this.status = status;
-        this.updatedAt = System.currentTimeMillis(); // 수정시간 갱신
+        this.nickname = nickname;
+        this.updatedAt = System.currentTimeMillis();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("사용자 [사용자명: %s, 이메일: %s, 닉네임: %s]",
+                username,
+                email,
+                nickname);
     }
 }
