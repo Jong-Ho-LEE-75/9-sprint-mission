@@ -1,46 +1,45 @@
 package service.jcf;
 
 import entity.Channel;
+import entity.ChannelType;
 import service.ChannelService;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class JCFChannelService implements ChannelService {
-    private final Map<String, Channel> data;
+    private final Map<UUID, Channel> channelMap;
 
     public JCFChannelService() {
-        this.data = new HashMap<>();
+        this.channelMap = new HashMap<>();
     }
 
     @Override
-    public Channel create(Channel channel) {
-        data.put(channel.getId(), channel);
+    public Channel create(ChannelType type, String name, String description) {
+        Channel channel = new Channel(type, name, description);
+        channelMap.put(channel.getId(), channel);
         return channel;
     }
 
     @Override
-    public Channel findById(String id) {
-        return data.get(id);
+    public Channel find(UUID id) {
+        return channelMap.get(id);
     }
 
     @Override
     public List<Channel> findAll() {
-        return data.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(channelMap.values());
     }
 
     @Override
-    public Channel update(String id, String name, String description, String type) {
-        Channel channel = data.get(id);
+    public Channel update(UUID id, String name, String description) {
+        Channel channel = channelMap.get(id);
         if (channel != null) {
-            channel.update(name, description, type);
+            channel.update(name, description);
         }
         return channel;
     }
 
     @Override
-    public void delete(String id) {
-        data.remove(id);
+    public void delete(UUID id) {
+        channelMap.remove(id);
     }
 }

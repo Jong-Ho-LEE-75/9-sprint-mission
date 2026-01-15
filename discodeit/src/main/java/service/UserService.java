@@ -2,11 +2,12 @@ package service;
 
 import entity.User;
 import java.util.List;
+import java.util.UUID;
 
 public interface UserService {
-    User create(User user);
-    User findById(String id);
+    User create(String userName, String email, String password);
+    User find(UUID id); // Long -> UUID
     List<User> findAll();
-    User update(String id, String username, String email, String nickname);
-    void delete(String id);
+    User update(UUID id, String userName, String email, String password);
+    void delete(UUID id); // Long -> UUID
 }
