@@ -1,0 +1,146 @@
+╔════════════════════════════════════════════════════════════════╗
+║        Discodeit 심화 요구사항 테스트 리포트                          ║
+║        관심사 분리를 통한 레이어 간 의존성 주입                          ║
+╠════════════════════════════════════════════════════════════════╣
+║  실행 시간: 2026-01-20 16:22:00                                   ║
+╚════════════════════════════════════════════════════════════════╝
+
+============================================================
+  Basic 서비스 + JCF Repository 테스트
+============================================================
+(메모리 기반, Repository 패턴 적용)
+
+--- Basic+JCF User CRUD 테스트 ---
+  [PASS] User 생성: 7e34b818-be40-4ddb-889b-53e3231bee70
+  [PASS] User 단건 조회: testUser
+  [PASS] User 전체 조회: 1건
+  [PASS] User 수정: updatedUser
+  [PASS] User 삭제: 1 -> 0
+
+--- Basic+JCF Channel CRUD 테스트 ---
+  [PASS] PUBLIC Channel 생성: 공개채널
+  [PASS] PRIVATE Channel 생성: 비공개채널
+  [PASS] Channel 단건 조회: 공개채널
+  [PASS] Channel 전체 조회: 2건
+  [PASS] Channel 수정: 수정된채널
+  [PASS] Channel 삭제: 2 -> 0
+
+--- Basic+JCF 템플릿 테스트 ---
+메시지 생성: 5b820a09-b12a-4609-8c76-2f041b1fbe9b
+  - 내용: 안녕하세요.
+  - 채널ID: e3120eee-89d9-4a27-a000-39962a885827
+  - 작성자ID: a9cd8df0-7a87-422d-94f2-8ad1a38bed67
+  [PASS] 템플릿 테스트 완료
+
+============================================================
+  Basic 서비스 + File Repository 테스트
+============================================================
+(파일 기반, Repository 패턴 적용)
+
+--- Basic+File User CRUD 테스트 ---
+  [PASS] User 생성: e092ad36-e92e-4abb-b9b3-dffeefbb8302
+  [PASS] User 단건 조회: testUser
+  [PASS] User 전체 조회: 2건
+  [PASS] User 수정: updatedUser
+  [PASS] User 삭제: 2 -> 1
+
+--- Basic+File Channel CRUD 테스트 ---
+  [PASS] PUBLIC Channel 생성: 공개채널
+  [PASS] PRIVATE Channel 생성: 비공개채널
+  [PASS] Channel 단건 조회: 공개채널
+  [PASS] Channel 전체 조회: 3건
+  [PASS] Channel 수정: 수정된채널
+  [PASS] Channel 삭제: 3 -> 1
+
+--- Basic+File 템플릿 테스트 ---
+메시지 생성: 32b94117-aebe-4b34-b731-2c3e230d98c5
+  - 내용: 안녕하세요.
+  - 채널ID: c82f4917-d847-4453-bfc5-4a4f916f0139
+  - 작성자ID: 191f41cf-031b-453a-82a4-30aec383330a
+  [PASS] 템플릿 테스트 완료
+
+============================================================
+  JCF 서비스 테스트 (비교용)
+============================================================
+(메모리 기반, Repository 미사용)
+
+--- JCF User CRUD 테스트 ---
+  [PASS] User 생성: 09668fa1-4b41-4b22-8400-4346850926ac
+  [PASS] User 단건 조회: testUser
+  [PASS] User 전체 조회: 1건
+  [PASS] User 수정: updatedUser
+  [PASS] User 삭제: 1 -> 0
+
+--- JCF Channel CRUD 테스트 ---
+  [PASS] PUBLIC Channel 생성: 공개채널
+  [PASS] PRIVATE Channel 생성: 비공개채널
+  [PASS] Channel 단건 조회: 공개채널
+  [PASS] Channel 전체 조회: 2건
+  [PASS] Channel 수정: 수정된채널
+  [PASS] Channel 삭제: 2 -> 0
+
+--- JCF Message CRUD 테스트 ---
+  [PASS] Message 생성: 안녕하세요!
+  [PASS] Message 단건 조회: 안녕하세요!
+  [PASS] Message 전체 조회: 1건
+  [PASS] Message 수정: 수정된 메시지입니다.
+  [PASS] Message 삭제: 1 -> 0
+
+============================================================
+  File 서비스 테스트 (비교용)
+============================================================
+(파일 기반, Repository 미사용)
+
+--- File User CRUD 테스트 ---
+  [PASS] User 생성: e8b725a0-baff-4eb1-8ebb-096e3d98c4d7
+  [PASS] User 단건 조회: testUser
+  [PASS] User 전체 조회: 3건
+  [PASS] User 수정: updatedUser
+  [PASS] User 삭제: 3 -> 2
+
+--- File Channel CRUD 테스트 ---
+  [PASS] PUBLIC Channel 생성: 공개채널
+  [PASS] PRIVATE Channel 생성: 비공개채널
+  [PASS] Channel 단건 조회: 공개채널
+  [PASS] Channel 전체 조회: 4건
+  [PASS] Channel 수정: 수정된채널
+  [PASS] Channel 삭제: 4 -> 2
+
+--- File Message CRUD 테스트 ---
+  [PASS] Message 생성: 안녕하세요!
+  [PASS] Message 단건 조회: 안녕하세요!
+  [PASS] Message 전체 조회: 3건
+  [PASS] Message 수정: 수정된 메시지입니다.
+  [PASS] Message 삭제: 3 -> 2
+
+============================================================
+  서비스 구현체 비교 분석
+============================================================
+
+[1] JCF 서비스 vs Basic 서비스 + JCF Repository
+   공통점: 메모리 기반, 애플리케이션 종료 시 데이터 소멸
+   차이점:
+   - JCF 서비스: 서비스 내부에서 HashMap으로 직접 데이터 관리
+   - Basic+JCF: Repository 인터페이스를 통해 데이터 접근 (계층 분리)
+
+[2] File 서비스 vs Basic 서비스 + File Repository
+   공통점: 파일 기반, 데이터 영속성 보장
+   차이점:
+   - File 서비스: 서비스 내부에서 파일 I/O 직접 처리
+   - Basic+File: Repository 인터페이스를 통해 파일 I/O 위임 (계층 분리)
+
+[3] Basic 서비스의 장점
+   - 단일 책임 원칙(SRP) 준수: 비즈니스 로직과 저장 로직 분리
+   - 의존성 역전 원칙(DIP): Repository 인터페이스에 의존
+   - 테스트 용이성: Repository Mock 객체 주입 가능
+   - 유연한 저장소 교체: JCF -> File -> DB 전환 용이
+
+╔════════════════════════════════════════════════════════════════╗
+║                      테스트 결과 요약                              ║
+╠════════════════════════════════════════════════════════════════╣
+║  총 테스트: 56 건                                                ║
+║  성공: 56 건                                                     ║
+║  실패: 0  건                                                     ║
+║  성공률: 100.0 %                                                  ║
+╚════════════════════════════════════════════════════════════════╝
+   결과 파일: discodeit/src/main/java/com/sprint/mission/discodeit/test-results/test-result-20260120_162200.txt
