@@ -13,8 +13,8 @@ public class JCFUserService implements UserService {
     }
 
     @Override
-    public User create(String userName, String email, String password) {
-        User user = new User(userName, email, password);
+    public User create(String username, String email, String password) {
+        User user = new User(username, email, password);
         // user.getId()는 BaseEntity 생성자에서 만들어진 UUID
         userMap.put(user.getId(), user);
         return user;

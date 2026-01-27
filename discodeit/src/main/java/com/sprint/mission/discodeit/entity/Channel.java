@@ -6,7 +6,7 @@ public class Channel extends BaseEntity {
     private String description;
 
     public Channel(ChannelType type, String name, String description) {
-        super(); // ID 생성
+        super();
         this.type = type;
         this.name = name;
         this.description = description;
@@ -14,7 +14,6 @@ public class Channel extends BaseEntity {
 
     public String getName() { return name; }
 
-    // update 로직
     public void update(String name, String description) {
         if (name != null) this.name = name;
         if (description != null) this.description = description;

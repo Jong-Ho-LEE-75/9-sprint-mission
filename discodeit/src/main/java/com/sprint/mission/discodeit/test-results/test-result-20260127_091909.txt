@@ -2,7 +2,7 @@
 ║        Discodeit 심화 요구사항 테스트 리포트                          ║
 ║        관심사 분리를 통한 레이어 간 의존성 주입                          ║
 ╠════════════════════════════════════════════════════════════════╣
-║  실행 시간: 2026-01-20 16:23:40                                 ║
+║  실행 시간: 2026-01-27 09:19:09                                 ║
 ╚════════════════════════════════════════════════════════════════╝
 
 ============================================================
@@ -11,7 +11,7 @@
 (메모리 기반, Repository 패턴 적용)
 
 --- Basic+JCF User CRUD 테스트 ---
-  [PASS] User 생성: 97eb39e8-0b45-429e-999f-d3c45ed4b7b4
+  [PASS] User 생성: 66bb6b1e-cb2d-41e5-b8d4-017a737dfd73
   [PASS] User 단건 조회: testUser
   [PASS] User 전체 조회: 1건
   [PASS] User 수정: updatedUser
@@ -26,10 +26,10 @@
   [PASS] Channel 삭제: 2 -> 0
 
 --- Basic+JCF 템플릿 테스트 ---
-메시지 생성: beaa3055-2643-405e-ae11-afd20db7b4cf
+메시지 생성: 00d8025a-0c91-4a01-8518-c285daa5be93
   - 내용: 안녕하세요.
-  - 채널ID: db171a24-150a-488c-a3a4-159ab6b88e29
-  - 작성자ID: c8d3bf9b-065e-469c-aed9-1cba5d4895cf
+  - 채널ID: 91574b0c-03cc-43e4-b2d1-a58f0ace27f6
+  - 작성자ID: 25cbbafb-ab2c-4d4b-8d58-412bfbbd1ea2
   [PASS] 템플릿 테스트 완료
 
 ============================================================
@@ -38,25 +38,25 @@
 (파일 기반, Repository 패턴 적용)
 
 --- Basic+File User CRUD 테스트 ---
-  [PASS] User 생성: 2cb8a024-513a-4e3d-b89f-7520cbef8c57
+  [PASS] User 생성: 34041312-9fba-4268-a62d-3ea7ca3d7333
   [PASS] User 단건 조회: testUser
-  [PASS] User 전체 조회: 3건
+  [PASS] User 전체 조회: 1건
   [PASS] User 수정: updatedUser
-  [PASS] User 삭제: 3 -> 2
+  [PASS] User 삭제: 1 -> 0
 
 --- Basic+File Channel CRUD 테스트 ---
   [PASS] PUBLIC Channel 생성: 공개채널
   [PASS] PRIVATE Channel 생성: 비공개채널
   [PASS] Channel 단건 조회: 공개채널
-  [PASS] Channel 전체 조회: 4건
+  [PASS] Channel 전체 조회: 2건
   [PASS] Channel 수정: 수정된채널
-  [PASS] Channel 삭제: 4 -> 2
+  [PASS] Channel 삭제: 2 -> 0
 
 --- Basic+File 템플릿 테스트 ---
-메시지 생성: 257bff4e-380d-4b44-a106-eade9840bc2c
+메시지 생성: d6c9f467-4390-448e-b471-b40c9aca09f6
   - 내용: 안녕하세요.
-  - 채널ID: 296486cd-d85d-4ab1-9440-b01acc263a89
-  - 작성자ID: f4b3ce85-dcfe-430c-8ddc-beb711af67c7
+  - 채널ID: 14f7e8d5-272b-456f-b222-8f56a9a200d6
+  - 작성자ID: 443622d3-4609-401a-9e0f-e2b6f0d9b15b
   [PASS] 템플릿 테스트 완료
 
 ============================================================
@@ -65,7 +65,7 @@
 (메모리 기반, Repository 미사용)
 
 --- JCF User CRUD 테스트 ---
-  [PASS] User 생성: 67761c51-e453-4c03-91c9-e30d77c5e468
+  [PASS] User 생성: 9a8b2aa9-c85c-4685-bae8-9e2bf7b424fa
   [PASS] User 단건 조회: testUser
   [PASS] User 전체 조회: 1건
   [PASS] User 수정: updatedUser
@@ -92,26 +92,26 @@
 (파일 기반, Repository 미사용)
 
 --- File User CRUD 테스트 ---
-  [PASS] User 생성: 01088ae4-162a-46c9-9e7e-7e23425e660e
+  [PASS] User 생성: 86377588-e4d8-4e30-b074-ae6d54d31d19
   [PASS] User 단건 조회: testUser
-  [PASS] User 전체 조회: 4건
+  [PASS] User 전체 조회: 2건
   [PASS] User 수정: updatedUser
-  [PASS] User 삭제: 4 -> 3
+  [PASS] User 삭제: 2 -> 1
 
 --- File Channel CRUD 테스트 ---
   [PASS] PUBLIC Channel 생성: 공개채널
   [PASS] PRIVATE Channel 생성: 비공개채널
   [PASS] Channel 단건 조회: 공개채널
-  [PASS] Channel 전체 조회: 5건
+  [PASS] Channel 전체 조회: 3건
   [PASS] Channel 수정: 수정된채널
-  [PASS] Channel 삭제: 5 -> 3
+  [PASS] Channel 삭제: 3 -> 1
 
 --- File Message CRUD 테스트 ---
   [PASS] Message 생성: 안녕하세요!
   [PASS] Message 단건 조회: 안녕하세요!
-  [PASS] Message 전체 조회: 4건
+  [PASS] Message 전체 조회: 2건
   [PASS] Message 수정: 수정된 메시지입니다.
-  [PASS] Message 삭제: 4 -> 3
+  [PASS] Message 삭제: 2 -> 1
 
 ============================================================
   서비스 구현체 비교 분석
@@ -141,6 +141,6 @@
 ║  총 테스트: 56 건                                                  ║
 ║  성공: 56 건                                                     ║
 ║  실패: 0  건                                                     ║
-║  성공률: 100.0 %                                                ║
+║  성공률: 100.0 %                                               ║
 ╚════════════════════════════════════════════════════════════════╝
-   결과 파일: discodeit/src/main/java/com/sprint/mission/discodeit/test-results/test-result-20260120_162340.txt
+   결과 파일: discodeit/src/main/java/com/sprint/mission/discodeit/test-results/test-result-20260127_091909.txt

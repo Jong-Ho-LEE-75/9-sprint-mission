@@ -15,8 +15,8 @@ public class Message extends BaseEntity {
     }
 
     public String getContent() { return content; }
-    public UUID getChannelId() { return channelId; } // Getter 추가
-    public UUID getAuthorId() { return authorId; }   // Getter 추가
+    public UUID getChannelId() { return channelId; }
+    public UUID getAuthorId() { return authorId; }
 
     public void update(String content) {
         if (content != null) {

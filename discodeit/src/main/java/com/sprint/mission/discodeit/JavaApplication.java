@@ -120,8 +120,8 @@ public class JavaApplication {
 
         // 조회 (단건)
         User foundUser = userService.find(user.getId());
-        if (foundUser != null && foundUser.getUserName().equals("testUser")) {
-            logSuccess("User 단건 조회: " + foundUser.getUserName());
+        if (foundUser != null && foundUser.getUsername().equals("testUser")) {
+            logSuccess("User 단건 조회: " + foundUser.getUsername());
         } else {
             logFail("User 단건 조회", "조회 실패");
         }
@@ -136,8 +136,8 @@ public class JavaApplication {
 
         // 수정
         User updatedUser = userService.update(user.getId(), "updatedUser", null, "newPass");
-        if (updatedUser != null && updatedUser.getUserName().equals("updatedUser")) {
-            logSuccess("User 수정: " + updatedUser.getUserName());
+        if (updatedUser != null && updatedUser.getUsername().equals("updatedUser")) {
+            logSuccess("User 수정: " + updatedUser.getUsername());
         } else {
             logFail("User 수정", "수정 실패");
         }
@@ -266,16 +266,13 @@ public class JavaApplication {
     // ==================== 서비스 구현체별 테스트 ====================
 
     /**
-     * 1. Basic 서비스 + JCF Repository 테스트
+     * Basic 서비스 + Repository 테스트 (통합 메서드)
+     * Repository를 주입받아 하나의 코드로 JCF/File 테스트 수행
      */
-    static void testBasicWithJCFRepository() {
-        logSection("Basic 서비스 + JCF Repository 테스트");
-        log("(메모리 기반, Repository 패턴 적용)");
-
-        // Repository 초기화
-        UserRepository userRepo = new JCFUserRepository();
-        ChannelRepository channelRepo = new JCFChannelRepository();
-        MessageRepository messageRepo = new JCFMessageRepository();
+    static void testBasicWithRepository(UserRepository userRepo, ChannelRepository channelRepo,
+                                        MessageRepository messageRepo, String repoType, String description) {
+        logSection("Basic 서비스 + " + repoType + " Repository 테스트");
+        log("(" + description + ", Repository 패턴 적용)");
 
         // Basic 서비스 초기화 (Repository 주입)
         UserService userService = new BasicUserService(userRepo);
@@ -283,40 +280,11 @@ public class JavaApplication {
         MessageService messageService = new BasicMessageService(messageRepo);
 
         // CRUD 테스트
-        userCRUDTest(userService, "Basic+JCF");
-        channelCRUDTest(channelService, "Basic+JCF");
+        userCRUDTest(userService, "Basic+" + repoType);
+        channelCRUDTest(channelService, "Basic+" + repoType);
 
         // 심화 요구사항 템플릿 테스트
-        log("\n--- Basic+JCF 템플릿 테스트 ---");
-        User user = setupUser(userService);
-        Channel channel = setupChannel(channelService);
-        messageCreateTest(messageService, channel, user);
-        logSuccess("템플릿 테스트 완료");
-    }
-
-    /**
-     * 2. Basic 서비스 + File Repository 테스트
-     */
-    static void testBasicWithFileRepository() {
-        logSection("Basic 서비스 + File Repository 테스트");
-        log("(파일 기반, Repository 패턴 적용)");
-
-        // Repository 초기화
-        UserRepository userRepo = new FileUserRepository();
-        ChannelRepository channelRepo = new FileChannelRepository();
-        MessageRepository messageRepo = new FileMessageRepository();
-
-        // Basic 서비스 초기화 (Repository 주입)
-        UserService userService = new BasicUserService(userRepo);
-        ChannelService channelService = new BasicChannelService(channelRepo);
-        MessageService messageService = new BasicMessageService(messageRepo);
-
-        // CRUD 테스트
-        userCRUDTest(userService, "Basic+File");
-        channelCRUDTest(channelService, "Basic+File");
-
-        // 심화 요구사항 템플릿 테스트
-        log("\n--- Basic+File 템플릿 테스트 ---");
+        log("\n--- Basic+" + repoType + " 템플릿 테스트 ---");
         User user = setupUser(userService);
         Channel channel = setupChannel(channelService);
         messageCreateTest(messageService, channel, user);
@@ -403,10 +371,20 @@ public class JavaApplication {
             log("╚════════════════════════════════════════════════════════════════╝");
 
             // 1. Basic 서비스 + JCF Repository 테스트
-            testBasicWithJCFRepository();
+            testBasicWithRepository(
+                    new JCFUserRepository(),
+                    new JCFChannelRepository(),
+                    new JCFMessageRepository(),
+                    "JCF", "메모리 기반"
+            );
 
             // 2. Basic 서비스 + File Repository 테스트
-            testBasicWithFileRepository();
+            testBasicWithRepository(
+                    new FileUserRepository(),
+                    new FileChannelRepository(),
+                    new FileMessageRepository(),
+                    "File", "파일 기반"
+            );
 
             // 3. JCF 서비스 테스트 (비교용)
             testJCFServices();

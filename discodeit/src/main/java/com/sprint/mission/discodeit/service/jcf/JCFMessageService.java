@@ -16,7 +16,7 @@ public class JCFMessageService implements MessageService {
     private final ChannelService channelService;
 
     // List 저장소 사용 (ID 검색 시 순회 필요)
-    private final List<Message> messageRepository = new ArrayList<>();
+    private final List<Message> messages = new ArrayList<>();
 
     // 2. [의존성 주입]
     public JCFMessageService(UserService userService, ChannelService channelService) {
@@ -42,13 +42,13 @@ public class JCFMessageService implements MessageService {
 
         Message message = new Message(content, channelId, userId);
 
-        messageRepository.add(message);
+        messages.add(message);
         return message;
     }
 
     @Override
     public Message find(UUID id) {
-        for (Message m : messageRepository) {
+        for (Message m : messages) {
             if (m.getId().equals(id)) {
                 return m;
             }
@@ -58,7 +58,7 @@ public class JCFMessageService implements MessageService {
 
     @Override
     public List<Message> findAll() {
-        return messageRepository;
+        return messages;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class JCFMessageService implements MessageService {
     public void delete(UUID id) {
         Message message = find(id);
         if (message != null) {
-            messageRepository.remove(message);
+            messages.remove(message);
         }
     }
 }

@@ -2,7 +2,7 @@
 ║        Discodeit 심화 요구사항 테스트 리포트                          ║
 ║        관심사 분리를 통한 레이어 간 의존성 주입                          ║
 ╠════════════════════════════════════════════════════════════════╣
-║  실행 시간: 2026-01-20 16:22:00                                   ║
+║  실행 시간: 2026-01-27 09:18:47                                 ║
 ╚════════════════════════════════════════════════════════════════╝
 
 ============================================================
@@ -11,7 +11,7 @@
 (메모리 기반, Repository 패턴 적용)
 
 --- Basic+JCF User CRUD 테스트 ---
-  [PASS] User 생성: 7e34b818-be40-4ddb-889b-53e3231bee70
+  [PASS] User 생성: e0798a9a-fc13-486a-9feb-00ee7391db05
   [PASS] User 단건 조회: testUser
   [PASS] User 전체 조회: 1건
   [PASS] User 수정: updatedUser
@@ -26,10 +26,10 @@
   [PASS] Channel 삭제: 2 -> 0
 
 --- Basic+JCF 템플릿 테스트 ---
-메시지 생성: 5b820a09-b12a-4609-8c76-2f041b1fbe9b
+메시지 생성: 09a71e0a-2980-490a-88db-11a560469101
   - 내용: 안녕하세요.
-  - 채널ID: e3120eee-89d9-4a27-a000-39962a885827
-  - 작성자ID: a9cd8df0-7a87-422d-94f2-8ad1a38bed67
+  - 채널ID: ead7aea1-ef0e-4b33-85ab-fe5665220c5d
+  - 작성자ID: b5b305e9-58e9-46a9-a5a8-2a67d02a1d39
   [PASS] 템플릿 테스트 완료
 
 ============================================================
@@ -38,25 +38,25 @@
 (파일 기반, Repository 패턴 적용)
 
 --- Basic+File User CRUD 테스트 ---
-  [PASS] User 생성: e092ad36-e92e-4abb-b9b3-dffeefbb8302
+  [PASS] User 생성: ce3cdcc7-2d31-4acb-92f9-7568da3a4173
   [PASS] User 단건 조회: testUser
-  [PASS] User 전체 조회: 2건
+  [PASS] User 전체 조회: 3건
   [PASS] User 수정: updatedUser
-  [PASS] User 삭제: 2 -> 1
+  [PASS] User 삭제: 3 -> 2
 
 --- Basic+File Channel CRUD 테스트 ---
   [PASS] PUBLIC Channel 생성: 공개채널
   [PASS] PRIVATE Channel 생성: 비공개채널
   [PASS] Channel 단건 조회: 공개채널
-  [PASS] Channel 전체 조회: 3건
+  [PASS] Channel 전체 조회: 4건
   [PASS] Channel 수정: 수정된채널
-  [PASS] Channel 삭제: 3 -> 1
+  [PASS] Channel 삭제: 4 -> 2
 
 --- Basic+File 템플릿 테스트 ---
-메시지 생성: 32b94117-aebe-4b34-b731-2c3e230d98c5
+메시지 생성: 145cc568-4572-4f18-b284-1f9773499a4a
   - 내용: 안녕하세요.
-  - 채널ID: c82f4917-d847-4453-bfc5-4a4f916f0139
-  - 작성자ID: 191f41cf-031b-453a-82a4-30aec383330a
+  - 채널ID: 8c59ed33-7426-4ae8-9d8c-dc0a6883b77b
+  - 작성자ID: 0d7b6cf3-4b80-4104-93ac-1230ae771699
   [PASS] 템플릿 테스트 완료
 
 ============================================================
@@ -65,7 +65,7 @@
 (메모리 기반, Repository 미사용)
 
 --- JCF User CRUD 테스트 ---
-  [PASS] User 생성: 09668fa1-4b41-4b22-8400-4346850926ac
+  [PASS] User 생성: ae86a05f-abe5-4db0-a3a4-bc2b2412dabd
   [PASS] User 단건 조회: testUser
   [PASS] User 전체 조회: 1건
   [PASS] User 수정: updatedUser
@@ -92,26 +92,26 @@
 (파일 기반, Repository 미사용)
 
 --- File User CRUD 테스트 ---
-  [PASS] User 생성: e8b725a0-baff-4eb1-8ebb-096e3d98c4d7
+  [PASS] User 생성: 674b45ab-07f7-4aaa-ae18-1da5a172da14
   [PASS] User 단건 조회: testUser
-  [PASS] User 전체 조회: 3건
+  [PASS] User 전체 조회: 4건
   [PASS] User 수정: updatedUser
-  [PASS] User 삭제: 3 -> 2
+  [PASS] User 삭제: 4 -> 3
 
 --- File Channel CRUD 테스트 ---
   [PASS] PUBLIC Channel 생성: 공개채널
   [PASS] PRIVATE Channel 생성: 비공개채널
   [PASS] Channel 단건 조회: 공개채널
-  [PASS] Channel 전체 조회: 4건
+  [PASS] Channel 전체 조회: 5건
   [PASS] Channel 수정: 수정된채널
-  [PASS] Channel 삭제: 4 -> 2
+  [PASS] Channel 삭제: 5 -> 3
 
 --- File Message CRUD 테스트 ---
   [PASS] Message 생성: 안녕하세요!
   [PASS] Message 단건 조회: 안녕하세요!
-  [PASS] Message 전체 조회: 3건
+  [PASS] Message 전체 조회: 4건
   [PASS] Message 수정: 수정된 메시지입니다.
-  [PASS] Message 삭제: 3 -> 2
+  [PASS] Message 삭제: 4 -> 3
 
 ============================================================
   서비스 구현체 비교 분석
@@ -138,9 +138,9 @@
 ╔════════════════════════════════════════════════════════════════╗
 ║                      테스트 결과 요약                              ║
 ╠════════════════════════════════════════════════════════════════╣
-║  총 테스트: 56 건                                                ║
+║  총 테스트: 56 건                                                  ║
 ║  성공: 56 건                                                     ║
 ║  실패: 0  건                                                     ║
-║  성공률: 100.0 %                                                  ║
+║  성공률: 100.0 %                                               ║
 ╚════════════════════════════════════════════════════════════════╝
-   결과 파일: discodeit/src/main/java/com/sprint/mission/discodeit/test-results/test-result-20260120_162200.txt
+   결과 파일: discodeit/src/main/java/com/sprint/mission/discodeit/test-results/test-result-20260127_091847.txt
