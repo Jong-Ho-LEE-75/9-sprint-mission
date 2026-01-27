@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
 import java.util.UUID;
 
+@Getter
 public class Message extends BaseEntity {
     private String content;
     private final UUID channelId;
@@ -13,10 +15,6 @@ public class Message extends BaseEntity {
         this.channelId = channelId;
         this.authorId = authorId;
     }
-
-    public String getContent() { return content; }
-    public UUID getChannelId() { return channelId; }
-    public UUID getAuthorId() { return authorId; }
 
     public void update(String content) {
         if (content != null) {

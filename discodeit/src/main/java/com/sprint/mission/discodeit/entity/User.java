@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.entity;
 
+import lombok.Getter;
+
+@Getter
 public class User extends BaseEntity {
     private String username;
     private String email;
@@ -11,10 +14,6 @@ public class User extends BaseEntity {
         this.email = email;
         this.password = password;
     }
-
-    public String getUsername() { return username; }
-    public String getEmail() { return email; }
-    public String getPassword() { return password; }
 
     public void update(String username, String email, String password) {
         if (username != null) this.username = username;

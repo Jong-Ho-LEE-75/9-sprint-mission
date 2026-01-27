@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.entity;
+import lombok.Getter;
 
+@Getter
 public class Channel extends BaseEntity {
     private final ChannelType type;
     private String name;
@@ -12,17 +14,9 @@ public class Channel extends BaseEntity {
         this.description = description;
     }
 
-    public String getName() { return name; }
-
     public void update(String name, String description) {
         if (name != null) this.name = name;
         if (description != null) this.description = description;
         updateTimeStamp();
     }
-
-    public ChannelType getType() {
-        return type;
-    }
-
-    public String getDescription() { return description; }
 }
