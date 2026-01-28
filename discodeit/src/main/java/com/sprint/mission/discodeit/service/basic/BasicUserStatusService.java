@@ -22,15 +22,15 @@ public class BasicUserStatusService implements UserStatusService {
     @Override
     public UserStatus create(UserStatusCreateRequest request) {
         // User 존재 여부 확인
-        if (!userRepository.existsById(request.getUserId())) {
-            throw new NoSuchElementException("User not found: " + request.getUserId());
+        if (!userRepository.existsById(request.userId())) {
+            throw new NoSuchElementException("User not found: " + request.userId());
         }
         // 같은 User의 UserStatus가 이미 존재하는지 확인
-        if (userStatusRepository.existsByUserId(request.getUserId())) {
-            throw new IllegalArgumentException("UserStatus already exists for user: " + request.getUserId());
+        if (userStatusRepository.existsByUserId(request.userId())) {
+            throw new IllegalArgumentException("UserStatus already exists for user: " + request.userId());
         }
 
-        UserStatus userStatus = new UserStatus(request.getUserId(), request.getLastActiveAt());
+        UserStatus userStatus = new UserStatus(request.userId(), request.lastActiveAt());
         return userStatusRepository.save(userStatus);
     }
 
@@ -55,7 +55,7 @@ public class BasicUserStatusService implements UserStatusService {
     public UserStatus update(UUID id, UserStatusUpdateRequest request) {
         UserStatus userStatus = userStatusRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("UserStatus not found: " + id));
-        userStatus.update(request.getLastActiveAt());
+        userStatus.update(request.lastActiveAt());
         return userStatusRepository.save(userStatus);
     }
 
@@ -63,7 +63,7 @@ public class BasicUserStatusService implements UserStatusService {
     public UserStatus updateByUserId(UUID userId, UserStatusUpdateRequest request) {
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
                 .orElseThrow(() -> new NoSuchElementException("UserStatus not found for user: " + userId));
-        userStatus.update(request.getLastActiveAt());
+        userStatus.update(request.lastActiveAt());
         return userStatusRepository.save(userStatus);
     }
 

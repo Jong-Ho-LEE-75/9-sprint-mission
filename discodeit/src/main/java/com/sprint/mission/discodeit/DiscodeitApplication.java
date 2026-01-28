@@ -43,23 +43,23 @@ public class DiscodeitApplication {
 		);
 		UserCreateRequest userRequest = new UserCreateRequest("woody", "woody@codeit.com", "woody1234");
 		UserResponse user = userService.create(userRequest, profileImageRequest);
-		System.out.println("User 생성: " + user.getId());
-		System.out.println("  - username: " + user.getUsername());
-		System.out.println("  - email: " + user.getEmail());
-		System.out.println("  - online: " + user.isOnline());
+		System.out.println("User 생성: " + user.id());
+		System.out.println("  - username: " + user.username());
+		System.out.println("  - email: " + user.email());
+		System.out.println("  - online: " + user.online());
 
 		// 두 번째 사용자 생성 (프로필 이미지 없이)
 		UserCreateRequest user2Request = new UserCreateRequest("alice", "alice@codeit.com", "alice1234");
 		UserResponse user2 = userService.create(user2Request, null);
-		System.out.println("User2 생성: " + user2.getId());
-		System.out.println("  - username: " + user2.getUsername());
+		System.out.println("User2 생성: " + user2.id());
+		System.out.println("  - username: " + user2.username());
 
 		// ===== 2. AuthService 로그인 테스트 =====
 		System.out.println("\n--- 2. AuthService 로그인 테스트 ---");
 		LoginRequest loginRequest = new LoginRequest("woody", "woody1234");
 		UserResponse loggedInUser = authService.login(loginRequest);
-		System.out.println("로그인 성공: " + loggedInUser.getUsername());
-		System.out.println("  - online: " + loggedInUser.isOnline());
+		System.out.println("로그인 성공: " + loggedInUser.username());
+		System.out.println("  - online: " + loggedInUser.online());
 
 		// 잘못된 비밀번호 테스트
 		try {
@@ -71,42 +71,42 @@ public class DiscodeitApplication {
 
 		// ===== 3. UserStatus 테스트 =====
 		System.out.println("\n--- 3. UserStatus 테스트 ---");
-		UserStatus userStatus = userStatusService.findByUserId(user.getId());
+		UserStatus userStatus = userStatusService.findByUserId(user.id());
 		System.out.println("UserStatus 조회: " + userStatus.getId());
 		System.out.println("  - userId: " + userStatus.getUserId());
 		System.out.println("  - isOnline: " + userStatus.isOnline());
 
 		// UserStatus 업데이트
 		UserStatusUpdateRequest statusUpdateRequest = new UserStatusUpdateRequest(Instant.now());
-		userStatusService.updateByUserId(user.getId(), statusUpdateRequest);
+		userStatusService.updateByUserId(user.id(), statusUpdateRequest);
 		System.out.println("UserStatus 업데이트 완료 - lastActiveAt 갱신됨");
 
 		// ===== 4. PUBLIC Channel 생성 테스트 =====
 		System.out.println("\n--- 4. PUBLIC Channel 생성 테스트 ---");
 		PublicChannelCreateRequest publicChannelRequest = new PublicChannelCreateRequest("공지", "공지 채널입니다.");
 		ChannelResponse publicChannel = channelService.createPublic(publicChannelRequest);
-		System.out.println("PUBLIC Channel 생성: " + publicChannel.getId());
-		System.out.println("  - name: " + publicChannel.getName());
-		System.out.println("  - type: " + publicChannel.getType());
+		System.out.println("PUBLIC Channel 생성: " + publicChannel.id());
+		System.out.println("  - name: " + publicChannel.name());
+		System.out.println("  - type: " + publicChannel.type());
 
 		// PUBLIC Channel 수정 테스트
 		ChannelUpdateRequest channelUpdateRequest = new ChannelUpdateRequest("공지사항", "공지사항 채널입니다.");
-		ChannelResponse updatedChannel = channelService.update(publicChannel.getId(), channelUpdateRequest);
-		System.out.println("PUBLIC Channel 수정: " + updatedChannel.getName());
+		ChannelResponse updatedChannel = channelService.update(publicChannel.id(), channelUpdateRequest);
+		System.out.println("PUBLIC Channel 수정: " + updatedChannel.name());
 
 		// ===== 5. PRIVATE Channel 생성 테스트 =====
 		System.out.println("\n--- 5. PRIVATE Channel 생성 테스트 ---");
 		PrivateChannelCreateRequest privateChannelRequest = new PrivateChannelCreateRequest(
-				List.of(user.getId(), user2.getId())
+				List.of(user.id(), user2.id())
 		);
 		ChannelResponse privateChannel = channelService.createPrivate(privateChannelRequest);
-		System.out.println("PRIVATE Channel 생성: " + privateChannel.getId());
-		System.out.println("  - type: " + privateChannel.getType());
-		System.out.println("  - participantIds: " + privateChannel.getParticipantIds());
+		System.out.println("PRIVATE Channel 생성: " + privateChannel.id());
+		System.out.println("  - type: " + privateChannel.type());
+		System.out.println("  - participantIds: " + privateChannel.participantIds());
 
 		// PRIVATE Channel 수정 시도 (실패해야 함)
 		try {
-			channelService.update(privateChannel.getId(), channelUpdateRequest);
+			channelService.update(privateChannel.id(), channelUpdateRequest);
 			System.out.println("PRIVATE Channel 수정: 실패 - 예외가 발생해야 합니다!");
 		} catch (IllegalArgumentException e) {
 			System.out.println("PRIVATE Channel 수정 차단됨: " + e.getMessage());
@@ -115,7 +115,7 @@ public class DiscodeitApplication {
 		// ===== 6. ReadStatus 테스트 =====
 		System.out.println("\n--- 6. ReadStatus 테스트 ---");
 		// PRIVATE 채널 생성 시 자동으로 ReadStatus가 생성되어야 함
-		List<ReadStatus> readStatuses = readStatusService.findAllByUserId(user.getId());
+		List<ReadStatus> readStatuses = readStatusService.findAllByUserId(user.id());
 		System.out.println("User의 ReadStatus 수: " + readStatuses.size());
 		for (ReadStatus rs : readStatuses) {
 			System.out.println("  - channelId: " + rs.getChannelId() + ", lastReadAt: " + rs.getLastReadAt());
@@ -138,30 +138,30 @@ public class DiscodeitApplication {
 		);
 		MessageCreateRequest messageRequest = new MessageCreateRequest(
 				"안녕하세요! 첨부파일입니다.",
-				publicChannel.getId(),
-				user.getId()
+				publicChannel.id(),
+				user.id()
 		);
 		MessageResponse message = messageService.create(messageRequest, List.of(attachmentRequest));
-		System.out.println("Message 생성: " + message.getId());
-		System.out.println("  - content: " + message.getContent());
-		System.out.println("  - channelId: " + message.getChannelId());
-		System.out.println("  - authorId: " + message.getAuthorId());
-		System.out.println("  - attachmentIds: " + message.getAttachmentIds());
+		System.out.println("Message 생성: " + message.id());
+		System.out.println("  - content: " + message.content());
+		System.out.println("  - channelId: " + message.channelId());
+		System.out.println("  - authorId: " + message.authorId());
+		System.out.println("  - attachmentIds: " + message.attachmentIds());
 
 		// 첨부파일 없는 메시지 생성
 		MessageCreateRequest message2Request = new MessageCreateRequest(
 				"두 번째 메시지입니다.",
-				publicChannel.getId(),
-				user.getId()
+				publicChannel.id(),
+				user.id()
 		);
 		MessageResponse message2 = messageService.create(message2Request, null);
-		System.out.println("Message2 생성 (첨부파일 없음): " + message2.getId());
+		System.out.println("Message2 생성 (첨부파일 없음): " + message2.id());
 
 		// ===== 8. Message 수정 테스트 =====
 		System.out.println("\n--- 8. Message 수정 테스트 ---");
 		MessageUpdateRequest messageUpdateRequest = new MessageUpdateRequest("수정된 메시지입니다.");
-		MessageResponse updatedMessage = messageService.update(message2.getId(), messageUpdateRequest);
-		System.out.println("Message 수정: " + updatedMessage.getContent());
+		MessageResponse updatedMessage = messageService.update(message2.id(), messageUpdateRequest);
+		System.out.println("Message 수정: " + updatedMessage.content());
 
 		// ===== 9. User 수정 테스트 =====
 		System.out.println("\n--- 9. User 수정 테스트 ---");
@@ -171,14 +171,14 @@ public class DiscodeitApplication {
 				new byte[]{100, 101, 102}
 		);
 		UserUpdateRequest userUpdateRequest = new UserUpdateRequest("woody_updated", "woody_new@codeit.com", "newpassword");
-		UserResponse updatedUser = userService.update(user.getId(), userUpdateRequest, newProfileRequest);
-		System.out.println("User 수정: " + updatedUser.getUsername());
-		System.out.println("  - email: " + updatedUser.getEmail());
+		UserResponse updatedUser = userService.update(user.id(), userUpdateRequest, newProfileRequest);
+		System.out.println("User 수정: " + updatedUser.username());
+		System.out.println("  - email: " + updatedUser.email());
 
 		// ===== 10. BinaryContent 조회 테스트 =====
 		System.out.println("\n--- 10. BinaryContent 조회 테스트 ---");
-		if (!message.getAttachmentIds().isEmpty()) {
-			BinaryContent attachment = binaryContentService.find(message.getAttachmentIds().get(0));
+		if (!message.attachmentIds().isEmpty()) {
+			BinaryContent attachment = binaryContentService.find(message.attachmentIds().get(0));
 			System.out.println("첨부파일 조회: " + attachment.getId());
 			System.out.println("  - fileName: " + attachment.getFileName());
 			System.out.println("  - contentType: " + attachment.getContentType());
@@ -190,28 +190,28 @@ public class DiscodeitApplication {
 		List<UserResponse> users = userService.findAll();
 		System.out.println("전체 User 수: " + users.size());
 
-		List<ChannelResponse> channels = channelService.findAllByUserId(user.getId());
+		List<ChannelResponse> channels = channelService.findAllByUserId(user.id());
 		System.out.println("User가 볼 수 있는 Channel 수: " + channels.size());
 
-		List<MessageResponse> messages = messageService.findAllByChannelId(publicChannel.getId());
+		List<MessageResponse> messages = messageService.findAllByChannelId(publicChannel.id());
 		System.out.println("Channel의 Message 수: " + messages.size());
 
 		// ===== 12. 삭제 테스트 (Cascading) =====
 		System.out.println("\n--- 12. 삭제 테스트 (Cascading) ---");
 
 		// Message 삭제 (첨부파일도 함께 삭제)
-		System.out.println("Message 삭제 전 - Message 수: " + messageService.findAllByChannelId(publicChannel.getId()).size());
-		messageService.delete(message.getId());
-		System.out.println("Message 삭제 후 - Message 수: " + messageService.findAllByChannelId(publicChannel.getId()).size());
+		System.out.println("Message 삭제 전 - Message 수: " + messageService.findAllByChannelId(publicChannel.id()).size());
+		messageService.delete(message.id());
+		System.out.println("Message 삭제 후 - Message 수: " + messageService.findAllByChannelId(publicChannel.id()).size());
 
 		// Channel 삭제 (관련 Message, ReadStatus 함께 삭제)
 		System.out.println("\nPRIVATE Channel 삭제 테스트");
-		channelService.delete(privateChannel.getId());
+		channelService.delete(privateChannel.id());
 		System.out.println("PRIVATE Channel 삭제 완료");
 
 		// User 삭제 테스트 (관련 UserStatus, BinaryContent 함께 삭제)
 		System.out.println("\nUser2 삭제 테스트");
-		userService.delete(user2.getId());
+		userService.delete(user2.id());
 		System.out.println("User2 삭제 완료");
 		List<UserResponse> remainingUsers = userService.findAll();
 		System.out.println("남은 User 수: " + remainingUsers.size());

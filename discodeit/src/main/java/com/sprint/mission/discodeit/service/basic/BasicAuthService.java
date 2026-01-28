@@ -21,11 +21,11 @@ public class BasicAuthService implements AuthService {
     @Override
     public UserResponse login(LoginRequest request) {
         // username으로 User 조회
-        User user = userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new NoSuchElementException("Invalid username or password"));
 
         // password 확인
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!user.getPassword().equals(request.password())) {
             throw new NoSuchElementException("Invalid username or password");
         }
 

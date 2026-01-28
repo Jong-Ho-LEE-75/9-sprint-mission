@@ -31,7 +31,7 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public ChannelResponse createPublic(PublicChannelCreateRequest request) {
-        Channel channel = new Channel(ChannelType.PUBLIC, request.getName(), request.getDescription());
+        Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.description());
         Channel savedChannel = channelRepository.save(channel);
         return toChannelResponse(savedChannel);
     }
@@ -43,7 +43,7 @@ public class BasicChannelService implements ChannelService {
         Channel savedChannel = channelRepository.save(channel);
 
         // 참여자별 ReadStatus 생성
-        for (UUID userId : request.getParticipantIds()) {
+        for (UUID userId : request.participantIds()) {
             ReadStatus readStatus = new ReadStatus(userId, savedChannel.getId(), Instant.now());
             readStatusRepository.save(readStatus);
         }
@@ -86,7 +86,7 @@ public class BasicChannelService implements ChannelService {
             throw new IllegalArgumentException("Private channel cannot be updated");
         }
 
-        channel.update(request.getName(), request.getDescription());
+        channel.update(request.name(), request.description());
         Channel savedChannel = channelRepository.save(channel);
         return toChannelResponse(savedChannel);
     }

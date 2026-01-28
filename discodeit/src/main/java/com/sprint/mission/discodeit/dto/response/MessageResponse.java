@@ -1,20 +1,15 @@
 package com.sprint.mission.discodeit.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@AllArgsConstructor
-public class MessageResponse {
-    private final UUID id;
-    private final String content;
-    private final UUID channelId;
-    private final UUID authorId;
-    private final List<UUID> attachmentIds;
-    private final Instant createdAt;
-    private final Instant updatedAt;
-}
+public record MessageResponse(
+        UUID id,
+        String content,
+        UUID channelId,
+        UUID authorId,
+        List<UUID> attachmentIds,
+        Instant createdAt,
+        Instant updatedAt
+) {}

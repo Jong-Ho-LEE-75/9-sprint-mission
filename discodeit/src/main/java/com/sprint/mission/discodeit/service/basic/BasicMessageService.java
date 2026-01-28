@@ -30,9 +30,9 @@ public class BasicMessageService implements MessageService {
         if (attachmentRequests != null && !attachmentRequests.isEmpty()) {
             for (BinaryContentCreateRequest attachmentRequest : attachmentRequests) {
                 BinaryContent attachment = new BinaryContent(
-                        attachmentRequest.getFileName(),
-                        attachmentRequest.getContentType(),
-                        attachmentRequest.getData()
+                        attachmentRequest.fileName(),
+                        attachmentRequest.contentType(),
+                        attachmentRequest.data()
                 );
                 BinaryContent savedAttachment = binaryContentRepository.save(attachment);
                 attachmentIds.add(savedAttachment.getId());
@@ -41,9 +41,9 @@ public class BasicMessageService implements MessageService {
 
         // Message 생성
         Message message = new Message(
-                request.getContent(),
-                request.getChannelId(),
-                request.getAuthorId(),
+                request.content(),
+                request.channelId(),
+                request.authorId(),
                 attachmentIds
         );
         Message savedMessage = messageRepository.save(message);
@@ -68,7 +68,7 @@ public class BasicMessageService implements MessageService {
     public MessageResponse update(UUID id, MessageUpdateRequest request) {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Message not found: " + id));
-        message.update(request.getContent());
+        message.update(request.content());
         Message savedMessage = messageRepository.save(message);
         return toMessageResponse(savedMessage);
     }

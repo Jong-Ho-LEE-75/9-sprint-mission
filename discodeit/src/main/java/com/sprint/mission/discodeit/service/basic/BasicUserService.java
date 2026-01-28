@@ -29,30 +29,30 @@ public class BasicUserService implements UserService {
     @Override
     public UserResponse create(UserCreateRequest request, BinaryContentCreateRequest profileRequest) {
         // username 중복 체크
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("Username already exists: " + request.getUsername());
+        if (userRepository.existsByUsername(request.username())) {
+            throw new IllegalArgumentException("Username already exists: " + request.username());
         }
         // email 중복 체크
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already exists: " + request.getEmail());
+        if (userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("Email already exists: " + request.email());
         }
 
         // 프로필 이미지 저장 (선택적)
         UUID profileId = null;
         if (profileRequest != null) {
             BinaryContent profile = new BinaryContent(
-                    profileRequest.getFileName(),
-                    profileRequest.getContentType(),
-                    profileRequest.getData()
+                    profileRequest.fileName(),
+                    profileRequest.contentType(),
+                    profileRequest.data()
             );
             profileId = binaryContentRepository.save(profile).getId();
         }
 
         // User 생성
         User user = new User(
-                request.getUsername(),
-                request.getEmail(),
-                request.getPassword(),
+                request.username(),
+                request.email(),
+                request.password(),
                 profileId
         );
         User savedUser = userRepository.save(user);
@@ -93,14 +93,14 @@ public class BasicUserService implements UserService {
             }
             // 새 프로필 이미지 저장
             BinaryContent profile = new BinaryContent(
-                    profileRequest.getFileName(),
-                    profileRequest.getContentType(),
-                    profileRequest.getData()
+                    profileRequest.fileName(),
+                    profileRequest.contentType(),
+                    profileRequest.data()
             );
             newProfileId = binaryContentRepository.save(profile).getId();
         }
 
-        user.update(request.getUsername(), request.getEmail(), request.getPassword(), newProfileId);
+        user.update(request.username(), request.email(), request.password(), newProfileId);
         User savedUser = userRepository.save(user);
 
         boolean isOnline = getOnlineStatus(savedUser.getId());
