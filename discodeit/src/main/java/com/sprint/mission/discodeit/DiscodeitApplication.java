@@ -5,8 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.sprint.mission.discodeit.dto.request.*;
 import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.dto.response.MessageResponse;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.service.*;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -138,7 +141,7 @@ public class DiscodeitApplication {
 				publicChannel.getId(),
 				user.getId()
 		);
-		Message message = messageService.create(messageRequest, List.of(attachmentRequest));
+		MessageResponse message = messageService.create(messageRequest, List.of(attachmentRequest));
 		System.out.println("Message 생성: " + message.getId());
 		System.out.println("  - content: " + message.getContent());
 		System.out.println("  - channelId: " + message.getChannelId());
@@ -151,13 +154,13 @@ public class DiscodeitApplication {
 				publicChannel.getId(),
 				user.getId()
 		);
-		Message message2 = messageService.create(message2Request, null);
+		MessageResponse message2 = messageService.create(message2Request, null);
 		System.out.println("Message2 생성 (첨부파일 없음): " + message2.getId());
 
 		// ===== 8. Message 수정 테스트 =====
 		System.out.println("\n--- 8. Message 수정 테스트 ---");
 		MessageUpdateRequest messageUpdateRequest = new MessageUpdateRequest("수정된 메시지입니다.");
-		Message updatedMessage = messageService.update(message2.getId(), messageUpdateRequest);
+		MessageResponse updatedMessage = messageService.update(message2.getId(), messageUpdateRequest);
 		System.out.println("Message 수정: " + updatedMessage.getContent());
 
 		// ===== 9. User 수정 테스트 =====
@@ -190,7 +193,7 @@ public class DiscodeitApplication {
 		List<ChannelResponse> channels = channelService.findAllByUserId(user.getId());
 		System.out.println("User가 볼 수 있는 Channel 수: " + channels.size());
 
-		List<Message> messages = messageService.findAllByChannelId(publicChannel.getId());
+		List<MessageResponse> messages = messageService.findAllByChannelId(publicChannel.getId());
 		System.out.println("Channel의 Message 수: " + messages.size());
 
 		// ===== 12. 삭제 테스트 (Cascading) =====

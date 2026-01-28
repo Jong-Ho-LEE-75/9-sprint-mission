@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -26,6 +27,7 @@ public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
     @Override
     public ChannelResponse createPublic(PublicChannelCreateRequest request) {
@@ -94,8 +96,17 @@ public class BasicChannelService implements ChannelService {
         Channel channel = channelRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
 
-        // 관련 Message 삭제
+        // 관련 Message의 첨부파일 삭제 후 Message 삭제
+        List<Message> messages = messageRepository.findAllByChannelId(id);
+        for (Message message : messages) {
+            if (message.getAttachmentIds() != null) {
+                for (UUID attachmentId : message.getAttachmentIds()) {
+                    binaryContentRepository.deleteById(attachmentId);
+                }
+            }
+        }
         messageRepository.deleteAllByChannelId(id);
+
         // 관련 ReadStatus 삭제
         readStatusRepository.deleteAllByChannelId(id);
         // Channel 삭제
