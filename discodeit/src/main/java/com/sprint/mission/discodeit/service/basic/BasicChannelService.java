@@ -21,12 +21,31 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+/**
+ * ChannelService 인터페이스의 기본 구현체.
+ * 채널(PUBLIC, PRIVATE)의 생성, 조회, 수정, 삭제 기능을 제공합니다.
+ */
 @Service
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
+    /**
+     * 채널 정보를 저장하고 조회하는 리포지토리
+     */
     private final ChannelRepository channelRepository;
+
+    /**
+     * 채널별 사용자 읽기 상태를 저장하고 조회하는 리포지토리
+     */
     private final ReadStatusRepository readStatusRepository;
+
+    /**
+     * 메시지 정보를 저장하고 조회하는 리포지토리
+     */
     private final MessageRepository messageRepository;
+
+    /**
+     * 바이너리 콘텐츠(첨부파일)를 저장하고 조회하는 리포지토리
+     */
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
@@ -36,6 +55,13 @@ public class BasicChannelService implements ChannelService {
         return toChannelResponse(savedChannel);
     }
 
+    /**
+     * PRIVATE 채널을 생성합니다.
+     * 참여자 목록에 있는 각 사용자에 대한 ReadStatus도 함께 생성합니다.
+     *
+     * @param request PRIVATE 채널 생성 요청 정보 (참여자 ID 목록 포함)
+     * @return 생성된 채널 정보
+     */
     @Override
     public ChannelResponse createPrivate(PrivateChannelCreateRequest request) {
         // PRIVATE 채널은 name, description 없음
@@ -58,6 +84,13 @@ public class BasicChannelService implements ChannelService {
         return toChannelResponse(channel);
     }
 
+    /**
+     * 특정 사용자가 접근 가능한 모든 채널을 조회합니다.
+     * PUBLIC 채널은 모두 조회 가능하며, PRIVATE 채널은 참여자만 조회 가능합니다.
+     *
+     * @param userId 사용자 ID
+     * @return 접근 가능한 채널 목록
+     */
     @Override
     public List<ChannelResponse> findAllByUserId(UUID userId) {
         List<Channel> allChannels = channelRepository.findAll();
@@ -91,6 +124,13 @@ public class BasicChannelService implements ChannelService {
         return toChannelResponse(savedChannel);
     }
 
+    /**
+     * 채널을 삭제합니다.
+     * 연관된 메시지, 첨부파일, ReadStatus도 함께 삭제합니다.
+     *
+     * @param id 삭제할 채널 ID
+     * @throws NoSuchElementException 채널을 찾을 수 없을 경우
+     */
     @Override
     public void delete(UUID id) {
         Channel channel = channelRepository.findById(id)
@@ -113,6 +153,13 @@ public class BasicChannelService implements ChannelService {
         channelRepository.deleteById(id);
     }
 
+    /**
+     * Channel 엔티티를 ChannelResponse DTO로 변환합니다.
+     * 최근 메시지 시간과 참여자 목록(PRIVATE 채널의 경우)을 포함합니다.
+     *
+     * @param channel 변환할 Channel 엔티티
+     * @return ChannelResponse DTO
+     */
     private ChannelResponse toChannelResponse(Channel channel) {
         // 최근 메시지 시간 조회
         Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId()).stream()
