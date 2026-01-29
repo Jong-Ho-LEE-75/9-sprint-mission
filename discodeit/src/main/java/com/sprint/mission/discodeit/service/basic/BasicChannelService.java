@@ -69,7 +69,7 @@ public class BasicChannelService implements ChannelService {
         Channel savedChannel = channelRepository.save(channel);
 
         // 참여자별 ReadStatus 생성
-        for (UUID userId : request.participantIds()) {
+        for (UUID userId : request.memberIds()) {
             ReadStatus readStatus = new ReadStatus(userId, savedChannel.getId(), Instant.now());
             readStatusRepository.save(readStatus);
         }

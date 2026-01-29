@@ -202,3 +202,4 @@ public class BasicUserService implements UserService {
                 user.getUpdatedAt()
         );
     }
+}
