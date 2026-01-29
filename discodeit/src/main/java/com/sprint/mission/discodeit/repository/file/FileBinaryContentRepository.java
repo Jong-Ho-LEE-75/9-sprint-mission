@@ -15,15 +15,24 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
+ * ========================================
  * 파일 기반 바이너리 콘텐츠 저장소 구현체
- * 직렬화를 사용하여 파일 시스템에 데이터를 저장합니다.
+ * ========================================
+ *
+ * Java 직렬화를 사용하여 바이너리 콘텐츠(파일)를 파일 시스템에 저장합니다.
+ *
+ * [저장 위치]
+ * {discodeit.repository.file-directory}/BinaryContent/{UUID}.ser
+ *
+ * [주의]
+ * 파일 데이터(byte[])도 함께 직렬화되므로 큰 파일은 저장 공간을 많이 차지합니다.
  */
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileBinaryContentRepository implements BinaryContentRepository {
     /** 바이너리 콘텐츠 파일을 저장하는 디렉토리 경로 */
     private final Path DIRECTORY;
-    /** 저장 파일의 확장자 (.ser) */
+    /** 저장 파일의 확장자 */
     private final String EXTENSION = ".ser";
 
     public FileBinaryContentRepository(@Value("${discodeit.repository.file-directory}") String fileDirectory) {

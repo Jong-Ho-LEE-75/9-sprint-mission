@@ -8,13 +8,23 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 /**
+ * ========================================
  * Java Collection Framework 기반 바이너리 콘텐츠 저장소 구현체
- * HashMap을 사용하여 메모리에 데이터를 저장합니다.
+ * ========================================
+ *
+ * HashMap을 사용하여 파일 데이터를 메모리에 저장합니다.
+ *
+ * [주의사항]
+ * 파일 데이터(byte[])는 크기가 클 수 있으므로 메모리 사용량에 주의해야 합니다.
+ * 대용량 파일이 많으면 OutOfMemoryError가 발생할 수 있습니다.
  */
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
 public class JCFBinaryContentRepository implements BinaryContentRepository {
-    /** 바이너리 콘텐츠를 저장하는 HashMap */
+    /**
+     * 바이너리 콘텐츠 데이터를 저장하는 HashMap
+     * Key: UUID, Value: BinaryContent
+     */
     private final Map<UUID, BinaryContent> data = new HashMap<>();
 
     @Override
@@ -33,6 +43,16 @@ public class JCFBinaryContentRepository implements BinaryContentRepository {
         return new ArrayList<>(data.values());
     }
 
+    /**
+     * 여러 ID로 바이너리 콘텐츠 목록을 조회합니다.
+     *
+     * 메시지의 첨부파일 목록을 한 번에 조회할 때 사용합니다.
+     *
+     * [동작 방식]
+     * 1. 모든 데이터를 순회
+     * 2. ID가 주어진 목록에 포함된 것만 필터링
+     * 3. 결과를 리스트로 반환
+     */
     @Override
     public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         return data.values().stream()

@@ -15,15 +15,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * 파일 기반 읽음 상태 저장소 구현체
- * 직렬화를 사용하여 파일 시스템에 데이터를 저장합니다.
+ * ========================================
+ * 파일 기반 읽기 상태 저장소 구현체
+ * ========================================
+ *
+ * Java 직렬화를 사용하여 읽기 상태 데이터를 파일 시스템에 저장합니다.
+ *
+ * [저장 위치]
+ * {discodeit.repository.file-directory}/ReadStatus/{UUID}.ser
  */
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileReadStatusRepository implements ReadStatusRepository {
-    /** 읽음 상태 파일을 저장하는 디렉토리 경로 */
+    /** 읽기 상태 파일을 저장하는 디렉토리 경로 */
     private final Path DIRECTORY;
-    /** 저장 파일의 확장자 (.ser) */
+    /** 저장 파일의 확장자 */
     private final String EXTENSION = ".ser";
 
     public FileReadStatusRepository(@Value("${discodeit.repository.file-directory}") String fileDirectory) {

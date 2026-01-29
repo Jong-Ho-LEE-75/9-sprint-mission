@@ -15,15 +15,28 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
+ * ========================================
  * 파일 기반 채널 저장소 구현체
- * 직렬화를 사용하여 파일 시스템에 데이터를 저장합니다.
+ * ========================================
+ *
+ * Java 직렬화를 사용하여 채널 데이터를 파일 시스템에 저장합니다.
+ * FileUserRepository와 동일한 패턴을 사용합니다.
+ *
+ * [저장 위치]
+ * {discodeit.repository.file-directory}/Channel/{UUID}.ser
+ * 예: ./data/Channel/550e8400-....ser
+ *
+ * [설정 방법]
+ * application.properties:
+ * discodeit.repository.type=file
+ * discodeit.repository.file-directory=./data
  */
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileChannelRepository implements ChannelRepository {
     /** 채널 파일을 저장하는 디렉토리 경로 */
     private final Path DIRECTORY;
-    /** 저장 파일의 확장자 (.ser) */
+    /** 저장 파일의 확장자 (.ser = Serialized) */
     private final String EXTENSION = ".ser";
 
     public FileChannelRepository(@Value("${discodeit.repository.file-directory}") String fileDirectory) {
