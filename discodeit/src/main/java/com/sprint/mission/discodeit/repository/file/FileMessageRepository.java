@@ -43,10 +43,20 @@ public class FileMessageRepository implements MessageRepository {
         }
     }
 
+    /**
+     * ID를 파일 경로로 변환합니다.
+     *
+     * 예: UUID "550e8400-..." → "./data/Message/550e8400-....ser"
+     */
     private Path resolvePath(UUID id) {
         return DIRECTORY.resolve(id + EXTENSION);
     }
 
+    /**
+     * 메시지를 파일로 저장합니다. (직렬화)
+     *
+     * 새 메시지면 파일 생성, 기존 메시지면 파일 덮어쓰기 (Update).
+     */
     @Override
     public Message save(Message message) {
         Path path = resolvePath(message.getId());
@@ -61,6 +71,11 @@ public class FileMessageRepository implements MessageRepository {
         return message;
     }
 
+    /**
+     * ID로 메시지를 조회합니다. (역직렬화)
+     *
+     * 파일이 없으면 빈 Optional 반환.
+     */
     @Override
     public Optional<Message> findById(UUID id) {
         Path path = resolvePath(id);
@@ -77,6 +92,11 @@ public class FileMessageRepository implements MessageRepository {
         }
     }
 
+    /**
+     * 모든 메시지를 조회합니다.
+     *
+     * 디렉토리 내 모든 .ser 파일을 읽어 Message 객체로 변환합니다.
+     */
     @Override
     public List<Message> findAll() {
         try {
@@ -98,6 +118,12 @@ public class FileMessageRepository implements MessageRepository {
         }
     }
 
+    /**
+     * 특정 채널의 모든 메시지를 조회합니다.
+     *
+     * 전체 메시지를 조회한 후 channelId로 필터링합니다.
+     * 채널 화면에서 메시지 목록을 표시할 때 사용합니다.
+     */
     @Override
     public List<Message> findAllByChannelId(UUID channelId) {
         return findAll().stream()
@@ -105,6 +131,9 @@ public class FileMessageRepository implements MessageRepository {
                 .toList();
     }
 
+    /**
+     * ID로 메시지 파일을 삭제합니다.
+     */
     @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
@@ -115,11 +144,22 @@ public class FileMessageRepository implements MessageRepository {
         }
     }
 
+    /**
+     * 특정 채널의 모든 메시지를 일괄 삭제합니다.
+     *
+     * 채널 삭제 시 해당 채널의 모든 메시지를 함께 삭제할 때 사용합니다.
+     * 각 메시지의 파일을 개별적으로 삭제합니다.
+     */
     @Override
     public void deleteAllByChannelId(UUID channelId) {
         findAllByChannelId(channelId).forEach(msg -> deleteById(msg.getId()));
     }
 
+    /**
+     * ID로 메시지 존재 여부를 확인합니다.
+     *
+     * 파일이 존재하면 true 반환.
+     */
     @Override
     public boolean existsById(UUID id) {
         Path path = resolvePath(id);

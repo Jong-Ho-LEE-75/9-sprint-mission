@@ -89,6 +89,15 @@ public class BasicMessageService implements MessageService {
         return toMessageResponse(savedMessage);
     }
 
+    /**
+     * ID로 메시지를 조회합니다.
+     *
+     * ※ Optional/orElseThrow 상세 설명은 BasicBinaryContentService.find() 참조
+     *
+     * @param id 조회할 메시지 ID
+     * @return 조회된 MessageResponse DTO
+     * @throws NoSuchElementException 해당 ID의 메시지가 없을 경우
+     */
     @Override
     public MessageResponse find(UUID id) {
         Message message = messageRepository.findById(id)
@@ -100,6 +109,14 @@ public class BasicMessageService implements MessageService {
      * 특정 채널의 모든 메시지를 조회합니다.
      *
      * 채널 화면에서 메시지 목록을 표시할 때 사용합니다.
+     *
+     * [Stream 데이터 흐름]
+     * List<Message> → stream() → map(DTO변환) → toList() → List<MessageResponse>
+     *
+     * ※ Stream API 상세 설명은 BasicChannelService.findAllByUserId() 참조
+     *
+     * @param channelId 조회할 채널 ID
+     * @return 해당 채널의 MessageResponse 목록
      */
     @Override
     public List<MessageResponse> findAllByChannelId(UUID channelId) {
@@ -111,14 +128,22 @@ public class BasicMessageService implements MessageService {
     /**
      * 메시지 내용을 수정합니다.
      *
-     * 수정 가능한 것은 content뿐입니다.
+     * 수정 가능한 것은 content(본문)뿐입니다.
+     * 작성자, 채널, 첨부파일은 수정할 수 없습니다.
+     *
+     * [조회 → 수정 → 저장 패턴]
+     * 표준적인 update 패턴입니다.
+     *
+     * @param id 수정할 메시지 ID
+     * @param request 수정 요청 (content)
+     * @return 수정된 MessageResponse DTO
+     * @throws NoSuchElementException 해당 ID의 메시지가 없을 경우
      */
     @Override
     public MessageResponse update(UUID id, MessageUpdateRequest request) {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Message not found: " + id));
 
-        // 내용 수정 (null이 아닌 경우에만)
         message.update(request.content());
         Message savedMessage = messageRepository.save(message);
         return toMessageResponse(savedMessage);

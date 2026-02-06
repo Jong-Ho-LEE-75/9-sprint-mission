@@ -130,6 +130,19 @@ public class BasicUserService implements UserService {
         return toUserResponse(savedUser, true);
     }
 
+    /**
+     * ========================================
+     * ID로 사용자를 조회합니다.
+     * ========================================
+     *
+     * [코드 분석]
+     * userRepository.findById(id)   ← Optional<User> 반환
+     *     .orElseThrow(...)         ← 값이 없으면 예외 발생
+     *
+     * @param id 사용자 ID
+     * @return 조회된 사용자 정보
+     * @throws NoSuchElementException 사용자가 없을 경우
+     */
     @Override
     public UserResponse find(UUID id) {
         // ID로 사용자 조회, 없으면 예외 발생
@@ -141,12 +154,23 @@ public class BasicUserService implements UserService {
         return toUserResponse(user, isOnline);
     }
 
+    /**
+     * 모든 사용자를 조회합니다.
+     *
+     * [Stream 데이터 흐름]
+     * List<User> → stream() → map(DTO변환) → toList() → List<UserResponse>
+     *
+     * 각 사용자마다 온라인 상태를 조회하여 함께 반환합니다.
+     *
+     * ※ Stream API 상세 설명은 BasicChannelService.findAllByUserId() 참조
+     *
+     * @return 모든 사용자 목록 (각 사용자의 온라인 상태 포함)
+     */
     @Override
     public List<UserResponse> findAll() {
-        // 모든 사용자를 조회하고, 각각 온라인 상태와 함께 DTO로 변환
         return userRepository.findAll().stream()
                 .map(user -> toUserResponse(user, getOnlineStatus(user.getId())))
-                .toList();  // Java 16+의 toList() - 불변 리스트 반환
+                .toList();
     }
 
     /**
@@ -230,23 +254,22 @@ public class BasicUserService implements UserService {
     }
 
     /**
-     * ========================================
      * 사용자의 온라인 상태를 조회하는 헬퍼 메서드
-     * ========================================
      *
-     * [동작 방식]
-     * 1. userId로 UserStatus 조회
-     * 2. UserStatus가 있으면 isOnline() 호출
-     * 3. UserStatus가 없으면 false 반환
+     * [map + orElse 패턴]
+     * - findByUserId(): Optional 반환
+     * - map(): 값이 있으면 함수 적용, 없으면 건너뜀
+     * - orElse(): 최종 값 추출 (없으면 기본값)
      *
-     * [Optional 체이닝]
-     * .map(): Optional 안의 값을 변환
-     * .orElse(): Optional이 비어있을 때 기본값 반환
+     * ※ map+orElse 패턴 상세 설명은 BasicAuthService.login() 참조
+     *
+     * @param userId 사용자 ID
+     * @return 온라인이면 true, 오프라인이거나 UserStatus가 없으면 false
      */
     private boolean getOnlineStatus(UUID userId) {
         return userStatusRepository.findByUserId(userId)
-                .map(UserStatus::isOnline)  // UserStatus가 있으면 isOnline() 호출
-                .orElse(false);             // 없으면 false
+                .map(UserStatus::isOnline)
+                .orElse(false);
     }
 
     /**

@@ -76,6 +76,20 @@ public class BasicUserStatusService implements UserStatusService {
         return userStatusRepository.save(userStatus);
     }
 
+    /**
+     * ID로 사용자 상태를 조회합니다.
+     *
+     * [findById + orElseThrow 패턴]
+     * - findById(): Optional 반환 (값이 있으면 of, 없으면 empty)
+     * - orElseThrow(): 값이 있으면 반환, 없으면 예외 발생
+     *
+     * ※ Optional과 람다에 대한 상세 설명은
+     *   BasicBinaryContentService.find() 참조
+     *
+     * @param id 조회할 UserStatus ID
+     * @return 조회된 UserStatus 엔티티
+     * @throws NoSuchElementException 해당 ID의 UserStatus가 없을 경우
+     */
     @Override
     public UserStatus find(UUID id) {
         return userStatusRepository.findById(id)
@@ -93,17 +107,34 @@ public class BasicUserStatusService implements UserStatusService {
                 .orElseThrow(() -> new NoSuchElementException("UserStatus not found for user: " + userId));
     }
 
+    /**
+     * 모든 사용자 상태를 조회합니다.
+     *
+     * @return 모든 UserStatus 목록 (없으면 빈 리스트, null 아님)
+     */
     @Override
     public List<UserStatus> findAll() {
         return userStatusRepository.findAll();
     }
 
+    /**
+     * 사용자 상태를 업데이트합니다.
+     *
+     * [조회 → 수정 → 저장 패턴]
+     * 1. 기존 데이터 조회 (없으면 예외)
+     * 2. 엔티티 값 변경 (update 내부에서 updatedAt도 갱신)
+     * 3. 변경된 엔티티 저장 (같은 ID이므로 UPDATE 동작)
+     *
+     * @param id 수정할 UserStatus ID
+     * @param request 수정 요청 (lastAccessAt)
+     * @return 수정된 UserStatus 엔티티
+     * @throws NoSuchElementException 해당 ID의 UserStatus가 없을 경우
+     */
     @Override
     public UserStatus update(UUID id, UserStatusUpdateRequest request) {
         UserStatus userStatus = userStatusRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("UserStatus not found: " + id));
 
-        // 마지막 접속 시간 갱신
         userStatus.update(request.lastAccessAt());
         return userStatusRepository.save(userStatus);
     }
@@ -123,6 +154,13 @@ public class BasicUserStatusService implements UserStatusService {
         return userStatusRepository.save(userStatus);
     }
 
+    /**
+     * 사용자 상태를 삭제합니다.
+     *
+     * [참고] deleteById는 ID가 없어도 예외를 발생시키지 않습니다.
+     *
+     * @param id 삭제할 UserStatus ID
+     */
     @Override
     public void delete(UUID id) {
         userStatusRepository.deleteById(id);

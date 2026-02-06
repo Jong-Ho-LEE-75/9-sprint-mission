@@ -131,13 +131,100 @@ public class BasicChannelService implements ChannelService {
      *    - PUBLIC: 모든 사용자 접근 가능 → 포함
      *    - PRIVATE: ReadStatus가 있는 사용자만 → 해당 userId의 ReadStatus 확인
      * 3. 접근 가능한 채널만 필터링하여 반환
+     *
+     * [Stream API 상세 설명]
+     *
+     * ----------------------------------------
+     * 1단계: .stream() - 스트림 생성
+     * ----------------------------------------
+     * allChannels.stream()
+     *
+     * List를 Stream으로 변환합니다.
+     * Stream은 "데이터의 흐름"을 나타내는 객체입니다.
+     * 마치 컨베이어 벨트처럼 데이터가 흘러가며 처리됩니다.
+     *
+     * [Stream vs for문]
+     * // for문 방식
+     * List<ChannelResponse> result = new ArrayList<>();
+     * for (Channel channel : allChannels) {
+     *     if (조건) {
+     *         result.add(toChannelResponse(channel));
+     *     }
+     * }
+     *
+     * // Stream 방식 (더 선언적)
+     * allChannels.stream()
+     *     .filter(조건)
+     *     .map(변환)
+     *     .toList();
+     *
+     * ----------------------------------------
+     * 2단계: .filter(...) - 조건에 맞는 것만 통과
+     * ----------------------------------------
+     * .filter(channel -> { ... return true/false; })
+     *
+     * filter()는 조건을 만족하는 요소만 통과시킵니다.
+     * - true 반환: 통과 (다음 단계로 진행)
+     * - false 반환: 탈락 (결과에서 제외)
+     *
+     * [filter 안의 람다 표현식]
+     * channel -> {
+     *     if (channel.getType() == ChannelType.PUBLIC) {
+     *         return true;  // PUBLIC은 모두 통과
+     *     } else {
+     *         return readStatusRepository.findByUserIdAndChannelId(...)
+     *                 .isPresent();  // ReadStatus가 있으면 통과
+     *     }
+     * }
+     *
+     * [isPresent() 설명]
+     * Optional의 메서드로, 값이 있으면 true, 없으면 false를 반환합니다.
+     * 여기서는 "ReadStatus가 존재하는지"를 확인하는 용도로 사용됩니다.
+     *
+     * ----------------------------------------
+     * 3단계: .map(...) - 데이터 변환
+     * ----------------------------------------
+     * .map(this::toChannelResponse)
+     *
+     * map()은 각 요소를 다른 형태로 변환합니다.
+     * 여기서는 Channel → ChannelResponse로 변환합니다.
+     *
+     * [메서드 참조(Method Reference)]
+     * this::toChannelResponse 는 메서드 참조 문법입니다.
+     *
+     * // 메서드 참조
+     * .map(this::toChannelResponse)
+     *
+     * // 동일한 람다 표현식
+     * .map(channel -> this.toChannelResponse(channel))
+     *
+     * // 동일한 전체 표현
+     * .map(channel -> toChannelResponse(channel))
+     *
+     * ----------------------------------------
+     * 4단계: .toList() - 결과 수집
+     * ----------------------------------------
+     * 스트림의 모든 요소를 List로 모아서 반환합니다.
+     * Java 16부터 사용 가능한 간편 메서드입니다.
+     * (이전 버전: .collect(Collectors.toList()))
+     *
+     * [전체 데이터 흐름]
+     * allChannels: [채널1, 채널2, 채널3, 채널4]
+     *     ↓ stream()
+     * 채널1 → 채널2 → 채널3 → 채널4
+     *     ↓ filter(접근 가능?)
+     * 채널1 → 채널3 (채널2, 채널4는 탈락)
+     *     ↓ map(DTO 변환)
+     * 응답1 → 응답3
+     *     ↓ toList()
+     * [응답1, 응답3]
      */
     @Override
     public List<ChannelResponse> findAllByUserId(UUID userId) {
         // 모든 채널 조회
         List<Channel> allChannels = channelRepository.findAll();
 
-        // 접근 가능한 채널만 필터링
+        // 접근 가능한 채널만 필터링 후 DTO로 변환
         return allChannels.stream()
                 .filter(channel -> {
                     if (channel.getType() == ChannelType.PUBLIC) {
@@ -228,21 +315,84 @@ public class BasicChannelService implements ChannelService {
      * [추가 정보 조회]
      * 1. lastMessageAt: 채널의 마지막 메시지 시간
      * 2. participantIds: PRIVATE 채널의 경우 참여자 목록
+     *
+     * [Stream + Optional 조합 상세 설명]
+     *
+     * ----------------------------------------
+     * lastMessageAt 계산 코드 분석
+     * ----------------------------------------
+     * messageRepository.findAllByChannelId(channel.getId()).stream()
+     *         .map(Message::getCreatedAt)
+     *         .max(Instant::compareTo)
+     *         .orElse(null);
+     *
+     * 1단계: findAllByChannelId(...).stream()
+     *    - 채널의 모든 메시지를 조회하고 스트림으로 변환
+     *
+     * 2단계: .map(Message::getCreatedAt)
+     *    - 각 메시지에서 생성 시간만 추출
+     *    - Message::getCreatedAt 은 메서드 참조
+     *    - 동일한 람다: .map(message -> message.getCreatedAt())
+     *
+     * 3단계: .max(Instant::compareTo)
+     *    - 가장 큰(최신) 시간을 찾습니다
+     *    - 결과는 Optional<Instant>입니다 (값이 없을 수 있으므로)
+     *
+     *    [max()가 Optional을 반환하는 이유]
+     *    메시지가 하나도 없으면 "최대값"이라는 개념 자체가 없습니다.
+     *    이 경우 Optional.empty()를 반환합니다.
+     *
+     *    [Instant::compareTo 설명]
+     *    Instant끼리 비교하는 메서드입니다.
+     *    max()는 이 비교 메서드를 사용해서 가장 큰 값을 찾습니다.
+     *
+     * 4단계: .orElse(null)
+     *    - Optional에 값이 있으면 그 값 반환
+     *    - Optional이 비어있으면 null 반환
+     *    - 메시지가 없는 채널은 lastMessageAt이 null이 됩니다
+     *
+     * [데이터 흐름 예시]
+     * 메시지들: [10:00 메시지, 10:30 메시지, 10:15 메시지]
+     *     ↓ stream()
+     * 10:00 → 10:30 → 10:15
+     *     ↓ map(getCreatedAt)
+     * Instant(10:00) → Instant(10:30) → Instant(10:15)
+     *     ↓ max(compareTo)
+     * Optional.of(Instant(10:30))
+     *     ↓ orElse(null)
+     * Instant(10:30) ← 최종 결과
+     *
+     * ----------------------------------------
+     * participantIds 조회 코드 분석
+     * ----------------------------------------
+     * readStatusRepository.findAllByChannelId(channel.getId()).stream()
+     *         .map(ReadStatus::getUserId)
+     *         .toList();
+     *
+     * 이 코드는 더 단순합니다:
+     * 1. 채널의 모든 ReadStatus 조회
+     * 2. 각 ReadStatus에서 userId만 추출
+     * 3. List로 수집
+     *
+     * [결과 예시]
+     * ReadStatus들: [RS(userA, 채널1), RS(userB, 채널1)]
+     *     ↓ map(getUserId)
+     * [userA의 UUID, userB의 UUID]
      */
     private ChannelResponse toChannelResponse(Channel channel) {
         // 최근 메시지 시간 조회
         // 채널의 모든 메시지 중 가장 최근 createdAt을 찾음
         Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId()).stream()
-                .map(Message::getCreatedAt)
-                .max(Instant::compareTo)  // 가장 큰(최신) 시간 찾기
-                .orElse(null);            // 메시지가 없으면 null
+                .map(Message::getCreatedAt)      // 각 메시지의 생성 시간 추출
+                .max(Instant::compareTo)         // 가장 큰(최신) 시간 찾기
+                .orElse(null);                   // 메시지가 없으면 null
 
         // PRIVATE 채널인 경우 참여자 ID 목록 조회
         List<UUID> participantIds = null;
         if (channel.getType() == ChannelType.PRIVATE) {
             participantIds = readStatusRepository.findAllByChannelId(channel.getId()).stream()
-                    .map(ReadStatus::getUserId)
-                    .toList();
+                    .map(ReadStatus::getUserId)  // 각 ReadStatus의 userId 추출
+                    .toList();                   // List로 수집
         }
 
         return new ChannelResponse(

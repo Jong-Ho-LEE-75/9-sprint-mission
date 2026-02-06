@@ -50,10 +50,20 @@ public class FileChannelRepository implements ChannelRepository {
         }
     }
 
+    /**
+     * ID를 파일 경로로 변환합니다.
+     *
+     * 예: UUID "550e8400-..." → "./data/Channel/550e8400-....ser"
+     */
     private Path resolvePath(UUID id) {
         return DIRECTORY.resolve(id + EXTENSION);
     }
 
+    /**
+     * 채널을 파일로 저장합니다. (직렬화)
+     *
+     * 새 채널이면 파일 생성, 기존 채널이면 파일 덮어쓰기 (Update).
+     */
     @Override
     public Channel save(Channel channel) {
         Path path = resolvePath(channel.getId());
@@ -68,6 +78,11 @@ public class FileChannelRepository implements ChannelRepository {
         return channel;
     }
 
+    /**
+     * ID로 채널을 조회합니다. (역직렬화)
+     *
+     * 파일이 없으면 빈 Optional 반환.
+     */
     @Override
     public Optional<Channel> findById(UUID id) {
         Path path = resolvePath(id);
@@ -84,6 +99,11 @@ public class FileChannelRepository implements ChannelRepository {
         }
     }
 
+    /**
+     * 모든 채널을 조회합니다.
+     *
+     * 디렉토리 내 모든 .ser 파일을 읽어 Channel 객체로 변환합니다.
+     */
     @Override
     public List<Channel> findAll() {
         try {
@@ -105,6 +125,9 @@ public class FileChannelRepository implements ChannelRepository {
         }
     }
 
+    /**
+     * ID로 채널 파일을 삭제합니다.
+     */
     @Override
     public void deleteById(UUID id) {
         Path path = resolvePath(id);
@@ -115,6 +138,11 @@ public class FileChannelRepository implements ChannelRepository {
         }
     }
 
+    /**
+     * ID로 채널 존재 여부를 확인합니다.
+     *
+     * 파일이 존재하면 true 반환.
+     */
     @Override
     public boolean existsById(UUID id) {
         Path path = resolvePath(id);

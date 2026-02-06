@@ -28,27 +28,49 @@ public class JCFChannelRepository implements ChannelRepository {
      */
     private final Map<UUID, Channel> data = new HashMap<>();
 
+    /**
+     * 채널을 저장합니다.
+     *
+     * - 새 ID: 새로운 데이터 추가 (Create)
+     * - 기존 ID: 기존 데이터 덮어쓰기 (Update)
+     */
     @Override
     public Channel save(Channel channel) {
         data.put(channel.getId(), channel);
         return channel;
     }
 
+    /**
+     * ID로 채널을 조회합니다.
+     *
+     * 데이터가 없으면 Optional.empty() 반환.
+     */
     @Override
     public Optional<Channel> findById(UUID id) {
         return Optional.ofNullable(data.get(id));
     }
 
+    /**
+     * 모든 채널을 조회합니다.
+     *
+     * 방어적 복사를 통해 새 리스트를 반환합니다.
+     */
     @Override
     public List<Channel> findAll() {
         return new ArrayList<>(data.values());
     }
 
+    /**
+     * ID로 채널을 삭제합니다.
+     */
     @Override
     public void deleteById(UUID id) {
         data.remove(id);
     }
 
+    /**
+     * ID로 채널 존재 여부를 확인합니다.
+     */
     @Override
     public boolean existsById(UUID id) {
         return data.containsKey(id);
