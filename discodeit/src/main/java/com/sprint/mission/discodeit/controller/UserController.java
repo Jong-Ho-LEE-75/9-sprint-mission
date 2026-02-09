@@ -39,10 +39,10 @@ public class UserController {
 	 */
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<UserResponse> createUser(
-			@RequestBody UserCreateRequest userRequest,
-			@RequestBody(required = false) BinaryContentCreateRequest profileRequest
+			@RequestBody UserCreateRequest userRequest
 	) {
-		UserResponse user = userService.create(userRequest, profileRequest);
+		// 프로필 이미지는 null로 전달 (별도 엔드포인트로 업로드 가능)
+		UserResponse user = userService.create(userRequest, null);
 		return ResponseEntity.status(HttpStatus.CREATED).body(user);
 	}
 
@@ -73,10 +73,10 @@ public class UserController {
 	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
 	public ResponseEntity<UserResponse> updateUser(
 			@PathVariable UUID id,
-			@RequestBody UserUpdateRequest userRequest,
-			@RequestBody(required = false) BinaryContentCreateRequest profileRequest
+			@RequestBody UserUpdateRequest userRequest
 	) {
-		UserResponse user = userService.update(id, userRequest, profileRequest);
+		// 프로필 이미지는 null로 전달 (별도 엔드포인트로 업로드 가능)
+		UserResponse user = userService.update(id, userRequest, null);
 		return ResponseEntity.ok(user);
 	}
 

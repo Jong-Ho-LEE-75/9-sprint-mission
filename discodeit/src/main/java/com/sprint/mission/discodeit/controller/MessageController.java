@@ -36,10 +36,10 @@ public class MessageController {
 	 */
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<MessageResponse> createMessage(
-			@RequestBody MessageCreateRequest messageRequest,
-			@RequestBody(required = false) List<BinaryContentCreateRequest> attachmentRequests
+			@RequestBody MessageCreateRequest messageRequest
 	) {
-		MessageResponse message = messageService.create(messageRequest, attachmentRequests);
+		// 첨부파일은 null로 전달 (별도 엔드포인트로 업로드 가능)
+		MessageResponse message = messageService.create(messageRequest, null);
 		return ResponseEntity.status(HttpStatus.CREATED).body(message);
 	}
 
