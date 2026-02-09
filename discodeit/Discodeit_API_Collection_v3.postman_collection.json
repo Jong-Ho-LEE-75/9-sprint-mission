@@ -1,0 +1,1373 @@
+{
+	"info": {
+		"_postman_id": "discodeit-api-v3",
+		"name": "Discodeit API Collection v3",
+		"description": "디스코드잇 API 완전한 테스트 컬렉션 - 모든 API에 Tests 스크립트 포함",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "0. 초기 설정",
+			"item": [
+				{
+					"name": "사용자1 등록",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 사용자1 등록 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.username).to.eql(\"user1\");",
+									"    pm.environment.set(\"userId1\", jsonData.id);",
+									"    console.log(\"✅ 사용자1 ID 저장:\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user1\",\n  \"email\": \"user1@discodeit.com\",\n  \"password\": \"password1\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "사용자2 등록 (로그인 테스트용)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 사용자2 등록 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.username).to.eql(\"user2\");",
+									"    pm.environment.set(\"userId2\", jsonData.id);",
+									"    console.log(\"✅ 사용자2 ID 저장 (로그인 테스트용, 수정/삭제 금지):\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user2\",\n  \"email\": \"user2@discodeit.com\",\n  \"password\": \"password2\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "사용자3 등록 (삭제 테스트용)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 사용자3 등록 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.username).to.eql(\"user3\");",
+									"    pm.environment.set(\"userId3\", jsonData.id);",
+									"    console.log(\"✅ 사용자3 ID 저장 (삭제 테스트용):\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user3\",\n  \"email\": \"user3@discodeit.com\",\n  \"password\": \"password3\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "채널1 생성 (공개)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 채널1 생성 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.name).to.eql(\"일반 채팅\");",
+									"    pm.expect(jsonData.type).to.eql(\"PUBLIC\");",
+									"    pm.environment.set(\"channelId1\", jsonData.id);",
+									"    console.log(\"✅ 채널1 ID 저장:\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"일반 채팅\",\n  \"description\": \"모두가 볼 수 있는 일반 채팅방입니다.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/channels/public",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"channels",
+								"public"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "채널2 생성 (공개)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 채널2 생성 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.name).to.eql(\"자유 게시판\");",
+									"    pm.expect(jsonData.type).to.eql(\"PUBLIC\");",
+									"    pm.environment.set(\"channelId2\", jsonData.id);",
+									"    console.log(\"✅ 채널2 ID 저장:\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"자유 게시판\",\n  \"description\": \"자유롭게 대화하는 공간입니다.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/channels/public",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"channels",
+								"public"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "채널3 생성 (공개, 삭제 테스트용)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 채널3 생성 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.name).to.eql(\"임시 채널\");",
+									"    pm.expect(jsonData.type).to.eql(\"PUBLIC\");",
+									"    pm.environment.set(\"channelId3\", jsonData.id);",
+									"    console.log(\"✅ 채널3 ID 저장 (삭제 테스트용):\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"임시 채널\",\n  \"description\": \"삭제 테스트를 위한 임시 채널입니다.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/channels/public",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"channels",
+								"public"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1. 사용자 관리",
+			"item": [
+				{
+					"name": "전체 사용자 조회",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 전체 사용자 조회 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    pm.expect(jsonData.length).to.be.at.least(3);",
+									"    console.log(\"✅ 조회된 사용자 수:\", jsonData.length);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "사용자1 조회",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 사용자1 조회 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"userId1\"));",
+									"    pm.expect(jsonData.username).to.eql(\"user1\");",
+									"    pm.expect(jsonData.email).to.eql(\"user1@discodeit.com\");",
+									"    console.log(\"✅ 사용자1 정보 확인:\", jsonData.username);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "사용자4 등록 (수정 테스트용)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 사용자4 등록 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.username).to.eql(\"user4\");",
+									"    pm.environment.set(\"userId4\", jsonData.id);",
+									"    console.log(\"✅ 사용자4 ID 저장 (수정 테스트용):\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user4\",\n  \"email\": \"user4@discodeit.com\",\n  \"password\": \"password4\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "사용자4 수정",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 사용자4 수정 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"userId4\"));",
+									"    pm.expect(jsonData.username).to.eql(\"user4_updated\");",
+									"    pm.expect(jsonData.email).to.eql(\"user4_updated@discodeit.com\");",
+									"    console.log(\"✅ 사용자4 수정 확인:\", jsonData.username);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user4_updated\",\n  \"email\": \"user4_updated@discodeit.com\",\n  \"password\": \"password4_new\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId4}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId4}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "사용자3 삭제",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 사용자3 삭제 성공\", function() {",
+									"    pm.response.to.have.status(204);",
+									"    console.log(\"✅ 사용자3 삭제 완료\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId3}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId3}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "사용자1 온라인 상태 업데이트",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 사용자1 온라인 상태 업데이트 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.userId).to.eql(pm.environment.get(\"userId1\"));",
+									"    pm.expect(jsonData.lastActiveAt).to.exist;",
+									"    console.log(\"✅ 사용자1 온라인 상태 업데이트 완료:\", jsonData.lastActiveAt);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lastAccessAt\": \"{{$isoTimestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId1}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId1}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. 권한 관리",
+			"item": [
+				{
+					"name": "user1 로그인",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ user1 로그인 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.username).to.eql(\"user1\");",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"userId1\"));",
+									"    console.log(\"✅ user1 로그인 확인:\", jsonData.username);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user1\",\n  \"password\": \"password1\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user2 로그인",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ user2 로그인 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.username).to.eql(\"user2\");",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"userId2\"));",
+									"    console.log(\"✅ user2 로그인 확인:\", jsonData.username);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user2\",\n  \"password\": \"password2\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. 채널 관리",
+			"item": [
+				{
+					"name": "user1의 채널 목록 조회",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ user1의 채널 목록 조회 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    pm.expect(jsonData.length).to.be.at.least(3);",
+									"    console.log(\"✅ 조회된 채널 수:\", jsonData.length);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/channels?userId={{userId1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"channels"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId1}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "채널1 조회",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 채널1 조회 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"channelId1\"));",
+									"    pm.expect(jsonData.name).to.eql(\"일반 채팅\");",
+									"    pm.expect(jsonData.type).to.eql(\"PUBLIC\");",
+									"    console.log(\"✅ 채널1 정보 확인:\", jsonData.name);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/channels/{{channelId1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"channels",
+								"{{channelId1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "채널2 수정",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 채널2 수정 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"channelId2\"));",
+									"    pm.expect(jsonData.name).to.eql(\"자유 게시판 (수정됨)\");",
+									"    pm.expect(jsonData.description).to.eql(\"수정된 설명입니다.\");",
+									"    console.log(\"✅ 채널2 수정 확인:\", jsonData.name);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"자유 게시판 (수정됨)\",\n  \"description\": \"수정된 설명입니다.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/channels/{{channelId2}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"channels",
+								"{{channelId2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "채널3 삭제",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 채널3 삭제 성공\", function() {",
+									"    pm.response.to.have.status(204);",
+									"    console.log(\"✅ 채널3 삭제 완료\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/channels/{{channelId3}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"channels",
+								"{{channelId3}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "비공개 채널 생성",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 비공개 채널 생성 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.type).to.eql(\"PRIVATE\");",
+									"    pm.environment.set(\"privateChannelId\", jsonData.id);",
+									"    console.log(\"✅ 비공개 채널 ID 저장:\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"memberIds\": [\n    \"{{userId1}}\",\n    \"{{userId2}}\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/channels/private",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"channels",
+								"private"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. 메시지 관리",
+			"item": [
+				{
+					"name": "채널1에 메시지1 전송 by user1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 메시지1 전송 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.content).to.eql(\"안녕하세요! user1입니다.\");",
+									"    pm.expect(jsonData.channelId).to.eql(pm.environment.get(\"channelId1\"));",
+									"    pm.expect(jsonData.authorId).to.eql(pm.environment.get(\"userId1\"));",
+									"    pm.environment.set(\"messageId1\", jsonData.id);",
+									"    console.log(\"✅ 메시지1 ID 저장:\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"안녕하세요! user1입니다.\",\n  \"channelId\": \"{{channelId1}}\",\n  \"authorId\": \"{{userId1}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "채널1에 메시지2 전송 by user2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 메시지2 전송 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.content).to.eql(\"안녕하세요! user2입니다.\");",
+									"    pm.expect(jsonData.channelId).to.eql(pm.environment.get(\"channelId1\"));",
+									"    pm.expect(jsonData.authorId).to.eql(pm.environment.get(\"userId2\"));",
+									"    pm.environment.set(\"messageId2\", jsonData.id);",
+									"    console.log(\"✅ 메시지2 ID 저장:\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"안녕하세요! user2입니다.\",\n  \"channelId\": \"{{channelId1}}\",\n  \"authorId\": \"{{userId2}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "채널1 메시지 목록 조회",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 채널1 메시지 목록 조회 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    pm.expect(jsonData.length).to.be.at.least(2);",
+									"    console.log(\"✅ 조회된 메시지 수:\", jsonData.length);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/messages?channelId={{channelId1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"messages"
+							],
+							"query": [
+								{
+									"key": "channelId",
+									"value": "{{channelId1}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "메시지1 조회",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 메시지1 조회 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"messageId1\"));",
+									"    pm.expect(jsonData.content).to.eql(\"안녕하세요! user1입니다.\");",
+									"    console.log(\"✅ 메시지1 내용 확인:\", jsonData.content);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/messages/{{messageId1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"messages",
+								"{{messageId1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "메시지1 수정",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 메시지1 수정 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"messageId1\"));",
+									"    pm.expect(jsonData.content).to.eql(\"수정된 메시지입니다.\");",
+									"    console.log(\"✅ 메시지1 수정 확인:\", jsonData.content);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"수정된 메시지입니다.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/messages/{{messageId1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"messages",
+								"{{messageId1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "메시지2 삭제",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 메시지2 삭제 성공\", function() {",
+									"    pm.response.to.have.status(204);",
+									"    console.log(\"✅ 메시지2 삭제 완료\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/messages/{{messageId2}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"messages",
+								"{{messageId2}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. 메시지 수신 정보",
+			"item": [
+				{
+					"name": "수신정보 생성",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 수신정보 생성 성공\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.userId).to.eql(pm.environment.get(\"userId1\"));",
+									"    pm.expect(jsonData.channelId).to.eql(pm.environment.get(\"channelId1\"));",
+									"    pm.environment.set(\"readStatusId1\", jsonData.id);",
+									"    console.log(\"✅ 수신정보 ID 저장:\", jsonData.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId1}}\",\n  \"channelId\": \"{{channelId1}}\",\n  \"lastReadAt\": \"{{$isoTimestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/read-statuses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"read-statuses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "수신정보 수정",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 수신정보 수정 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"readStatusId1\"));",
+									"    pm.expect(jsonData.lastReadAt).to.exist;",
+									"    console.log(\"✅ 수신정보 수정 확인:\", jsonData.lastReadAt);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lastReadAt\": \"{{$isoTimestamp}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/read-statuses/{{readStatusId1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"read-statuses",
+								"{{readStatusId1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "수신정보 조회",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 수신정보 조회 성공\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    pm.expect(jsonData.length).to.be.at.least(1);",
+									"    console.log(\"✅ 조회된 수신정보 수:\", jsonData.length);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/read-statuses?userId={{userId1}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"read-statuses"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "{{userId1}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. 바이너리 파일",
+			"item": [
+				{
+					"name": "파일 1개 조회 (예시)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 파일 조회 테스트\", function() {",
+									"    // 실제 파일이 없으면 404가 반환될 수 있음",
+									"    var statusCode = pm.response.code;",
+									"    pm.expect([200, 404]).to.include(statusCode);",
+									"    if (statusCode === 200) {",
+									"        console.log(\"✅ 파일 조회 성공\");",
+									"    } else {",
+									"        console.log(\"⚠️ 파일이 존재하지 않음 (정상)\");",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/binary-contents/{{binaryContentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"binary-contents",
+								"{{binaryContentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "파일 여러개 조회 (예시)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"✅ 파일 목록 조회 테스트\", function() {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    console.log(\"✅ 조회된 파일 수:\", jsonData.length);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/binary-contents?ids={{binaryContentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"binary-contents"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "{{binaryContentId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "default"
+		},
+		{
+			"key": "userId1",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "userId2",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "userId3",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "userId4",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "channelId1",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "channelId2",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "channelId3",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "privateChannelId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "messageId1",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "messageId2",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "readStatusId1",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "binaryContentId",
+			"value": "00000000-0000-0000-0000-000000000000",
+			"type": "default"
+		}
+	]
+}

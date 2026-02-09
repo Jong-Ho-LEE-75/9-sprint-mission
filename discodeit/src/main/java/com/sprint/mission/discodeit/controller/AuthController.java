@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +27,11 @@ public class AuthController {
 	 * 로그인
 	 * POST /auth/login
 	 */
-	@RequestMapping(method = RequestMethod.POST, value = "/login")
+	@RequestMapping(
+			method = RequestMethod.POST,
+			path = "login",
+			consumes = {MediaType.APPLICATION_JSON_VALUE}
+	)
 	public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
 		UserResponse user = authService.login(request);
 		return ResponseEntity.ok(user);

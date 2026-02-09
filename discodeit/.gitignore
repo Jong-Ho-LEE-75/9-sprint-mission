@@ -7,6 +7,8 @@ build/
 *.iml
 *.ipr
 *.iws
+/.claude
+/docs
 
 # IDE - Eclipse
 .classpath
