@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.dto.response;
+package com.sprint.mission.discodeit.exception;
 
 import java.time.Instant;
 
