@@ -1,26 +1,34 @@
 [
   {
+    "id": "10000000-0000-0000-0000-000000000001",
     "username": "한성재",
     "email": "hansj@codeit.com",
     "password": "password123",
-    "profileImage": "hansj.jpg"
+    "profileImage": "hansj.jpg",
+    "profileId": "10000000-0000-0000-0000-000000000002"
   },
   {
+    "id": "20000000-0000-0000-0000-000000000001",
     "username": "장현민",
     "email": "janghm@codeit.com",
     "password": "password123",
-    "profileImage": "janghm.jpg"
+    "profileImage": "janghm.jpg",
+    "profileId": "20000000-0000-0000-0000-000000000002"
   },
   {
+    "id": "30000000-0000-0000-0000-000000000001",
     "username": "전명훈",
     "email": "jeonmh@codeit.com",
     "password": "password123",
-    "profileImage": "jeonmh.jpg"
+    "profileImage": "jeonmh.jpg",
+    "profileId": "30000000-0000-0000-0000-000000000002"
   },
   {
+    "id": "40000000-0000-0000-0000-000000000001",
     "username": "서현하",
     "email": "seohh@codeit.com",
     "password": "password123",
-    "profileImage": "seohh.jpg"
+    "profileImage": "seohh.jpg",
+    "profileId": "40000000-0000-0000-0000-000000000002"
   }
 ]

@@ -38,6 +38,23 @@ public class User extends BaseEntity {
     }
 
     /**
+     * 고정 UUID를 사용하는 사용자 생성자 (테스트 및 초기 데이터용)
+     *
+     * @param id 고정 UUID
+     * @param username 사용자명
+     * @param email 이메일 주소
+     * @param password 비밀번호
+     * @param profileId 프로필 이미지 ID (null 가능)
+     */
+    public User(UUID id, String username, String email, String password, UUID profileId) {
+        super(id);
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.profileId = profileId;
+    }
+
+    /**
      * 사용자 정보를 업데이트합니다.
      * null이 아닌 값만 업데이트되며, 수정일시가 갱신됩니다.
      *
