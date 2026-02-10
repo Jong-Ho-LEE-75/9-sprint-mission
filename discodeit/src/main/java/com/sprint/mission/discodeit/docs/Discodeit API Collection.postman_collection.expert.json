@@ -1,11 +1,11 @@
 {
   "info": {
-    "_postman_id": "88f75598-3da7-4843-bf53-e7511b1cf472",
-    "name": "Discodeit API Collection v3",
+    "_postman_id": "ab224151-a5e7-41bc-a81d-2dcc4d3587b4",
+    "name": "Discodeit API Collection",
     "description": "디스코드잇 API 완전한 테스트 컬렉션 - 모든 API에 Tests 스크립트 포함",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "52123612",
-    "_collection_link": "https://go.postman.co/collection/52123612-88f75598-3da7-4843-bf53-e7511b1cf472?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/52123612-ab224151-a5e7-41bc-a81d-2dcc4d3587b4?source=collection_link"
   },
   "item": [
     {

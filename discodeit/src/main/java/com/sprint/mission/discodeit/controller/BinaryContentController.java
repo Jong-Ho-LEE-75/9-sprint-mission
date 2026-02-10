@@ -44,4 +44,5 @@ public class BinaryContentController {
 		List<BinaryContent> binaryContents = binaryContentService.findAllByIdIn(ids);
 		return ResponseEntity.ok(binaryContents);
 	}
+
 }

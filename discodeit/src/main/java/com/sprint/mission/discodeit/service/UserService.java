@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,14 @@ public interface UserService {
      * @return 모든 사용자 목록
      */
     List<UserResponse> findAll();
+
+    /**
+     * 모든 사용자를 UserDto 형식으로 조회합니다.
+     * API 스펙에 맞는 형식으로 반환합니다.
+     *
+     * @return 모든 사용자 목록 (UserDto 형식)
+     */
+    List<UserDto> findAllAsDto();
 
     /**
      * 사용자 정보를 업데이트합니다 (프로필 이미지 변경 가능).

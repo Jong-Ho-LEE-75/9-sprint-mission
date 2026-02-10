@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discodeit - 홈</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 60px;
+            opacity: 0.9;
+        }
+
+        .links {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .link-card {
+            background: white;
+            color: #1a202c;
+            padding: 32px 48px;
+            border-radius: 16px;
+            text-decoration: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .link-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+        }
+
+        .link-card .icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .link-card .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .link-card .description {
+            color: #718096;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Discodeit</h1>
+        <p class="subtitle">스프린트 미션 프로젝트</p>
+
+        <div class="links">
+            <a href="/user-create.html" class="link-card">
+                <div class="icon">➕</div>
+                <div class="title">사용자 등록</div>
+                <div class="description">새 사용자를 등록하세요</div>
+            </a>
+            <a href="/user-list.html" class="link-card">
+                <div class="icon">👥</div>
+                <div class="title">사용자 관리</div>
+                <div class="description">목록 조회, 수정, 삭제</div>
+            </a>
+            <a href="/users.html" class="link-card">
+                <div class="icon">🎨</div>
+                <div class="title">사용자 목록 (상세)</div>
+                <div class="description">카드 형태로 확인하기</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

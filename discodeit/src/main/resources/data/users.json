@@ -1,0 +1,26 @@
+[
+  {
+    "username": "한성재",
+    "email": "hansj@codeit.com",
+    "password": "password123",
+    "profileImage": "hansj.jpg"
+  },
+  {
+    "username": "장현민",
+    "email": "janghm@codeit.com",
+    "password": "password123",
+    "profileImage": "janghm.jpg"
+  },
+  {
+    "username": "전명훈",
+    "email": "jeonmh@codeit.com",
+    "password": "password123",
+    "profileImage": "jeonmh.jpg"
+  },
+  {
+    "username": "서현하",
+    "email": "seohh@codeit.com",
+    "password": "password123",
+    "profileImage": "seohh.jpg"
+  }
+]
