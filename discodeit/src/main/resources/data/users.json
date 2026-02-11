@@ -4,31 +4,31 @@
     "username": "김철수",
     "email": "kimcs@codeit.com",
     "password": "password123",
-    "profileImage": "kimcs.jpg",
-    "profileId": "10000000-0000-0000-0000-000000000002"
+    "profileImage": null,
+    "profileId": null
   },
   {
     "id": "20000000-0000-0000-0000-000000000001",
     "username": "이영희",
     "email": "leeyh@codeit.com",
     "password": "password123",
-    "profileImage": "leeyh.jpg",
-    "profileId": "20000000-0000-0000-0000-000000000002"
+    "profileImage": null,
+    "profileId": null
   },
   {
     "id": "30000000-0000-0000-0000-000000000001",
     "username": "박민수",
     "email": "parkms@codeit.com",
     "password": "password123",
-    "profileImage": "parkms.jpg",
-    "profileId": "30000000-0000-0000-0000-000000000002"
+    "profileImage": null,
+    "profileId": null
   },
   {
     "id": "40000000-0000-0000-0000-000000000001",
     "username": "최지연",
     "email": "choijy@codeit.com",
     "password": "password123",
-    "profileImage": "choijy.jpg",
-    "profileId": "40000000-0000-0000-0000-000000000002"
+    "profileImage": null,
+    "profileId": null
   }
 ]
