@@ -44,3 +44,7 @@ application-local.properties
 
 # File-based repository data
 file-data-map/
+
+# Newman test reports
+newman/
+newman-report*.html
