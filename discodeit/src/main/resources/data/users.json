@@ -1,34 +1,34 @@
 [
   {
     "id": "10000000-0000-0000-0000-000000000001",
-    "username": "한성재",
-    "email": "hansj@codeit.com",
+    "username": "김철수",
+    "email": "kimcs@codeit.com",
     "password": "password123",
-    "profileImage": "hansj.jpg",
+    "profileImage": "kimcs.jpg",
     "profileId": "10000000-0000-0000-0000-000000000002"
   },
   {
     "id": "20000000-0000-0000-0000-000000000001",
-    "username": "장현민",
-    "email": "janghm@codeit.com",
+    "username": "이영희",
+    "email": "leeyh@codeit.com",
     "password": "password123",
-    "profileImage": "janghm.jpg",
+    "profileImage": "leeyh.jpg",
     "profileId": "20000000-0000-0000-0000-000000000002"
   },
   {
     "id": "30000000-0000-0000-0000-000000000001",
-    "username": "전명훈",
-    "email": "jeonmh@codeit.com",
+    "username": "박민수",
+    "email": "parkms@codeit.com",
     "password": "password123",
-    "profileImage": "jeonmh.jpg",
+    "profileImage": "parkms.jpg",
     "profileId": "30000000-0000-0000-0000-000000000002"
   },
   {
     "id": "40000000-0000-0000-0000-000000000001",
-    "username": "서현하",
-    "email": "seohh@codeit.com",
+    "username": "최지연",
+    "email": "choijy@codeit.com",
     "password": "password123",
-    "profileImage": "seohh.jpg",
+    "profileImage": "choijy.jpg",
     "profileId": "40000000-0000-0000-0000-000000000002"
   }
 ]
