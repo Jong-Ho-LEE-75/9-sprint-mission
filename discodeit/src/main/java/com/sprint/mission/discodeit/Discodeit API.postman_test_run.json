@@ -1,0 +1,735 @@
+{
+	"id": "72aa7dc4-e6f3-482f-9d9c-1131467aaa6d",
+	"name": "Discodeit API",
+	"timestamp": "2026-02-11T13:40:36.311Z",
+	"collection_id": "52123612-cc7620c4-e129-4558-909c-60cb60c4a7d8",
+	"folder_id": 0,
+	"environment_id": "52123612-b20157c7-1753-4dd5-a79e-ca28791a47c2",
+	"totalPass": 23,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-02-11T13:40:35.589Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "62f080e5-1d87-4729-b59c-d9c262cc57f6",
+			"name": "사용자 등록",
+			"url": "http://localhost:8080/users",
+			"time": 81,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"사용자 등록 성공": true
+			},
+			"testPassFailCounts": {
+				"사용자 등록 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				81
+			],
+			"allTests": [
+				{
+					"사용자 등록 성공": true
+				}
+			]
+		},
+		{
+			"id": "38f02c1b-1da3-4305-8a73-966ecd4f514a",
+			"name": "사용자 정보 수정",
+			"url": "http://localhost:8080/users/20000000-0000-0000-0000-000000000001",
+			"time": 5,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"사용자 정보 수정 성공": true
+			},
+			"testPassFailCounts": {
+				"사용자 정보 수정 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"사용자 정보 수정 성공": true
+				}
+			]
+		},
+		{
+			"id": "e223f7ff-58d7-474b-916f-bb9e870340a0",
+			"name": "사용자 삭제",
+			"url": "http://localhost:8080/users/199f91c7-2ba9-41d0-9cd9-6bb94a002f3b",
+			"time": 3,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"사용자 삭제 성공": true
+			},
+			"testPassFailCounts": {
+				"사용자 삭제 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"사용자 삭제 성공": true
+				}
+			]
+		},
+		{
+			"id": "05657515-669f-416b-abb6-bcd7a6ffc9b1",
+			"name": "모든 사용자 조회",
+			"url": "http://localhost:8080/users",
+			"time": 6,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"모든 사용자 조회 성공": true
+			},
+			"testPassFailCounts": {
+				"모든 사용자 조회 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				6
+			],
+			"allTests": [
+				{
+					"모든 사용자 조회 성공": true
+				}
+			]
+		},
+		{
+			"id": "3c0426e3-cad0-45a9-b870-d3542de16393",
+			"name": "사용자 온라인 상태 업데이트 (이영희)",
+			"url": "http://localhost:8080/users/20000000-0000-0000-0000-000000000001/status",
+			"time": 6,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"온라인 상태 업데이트 성공": true
+			},
+			"testPassFailCounts": {
+				"온라인 상태 업데이트 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				6
+			],
+			"allTests": [
+				{
+					"온라인 상태 업데이트 성공": true
+				}
+			]
+		},
+		{
+			"id": "1fccb8ae-a199-42c2-84b1-2e6e050ac4d5",
+			"name": "사용자 온라인 상태 업데이트 (박민수)",
+			"url": "http://localhost:8080/users/30000000-0000-0000-0000-000000000001/status",
+			"time": 3,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"온라인 상태 업데이트 성공": true
+			},
+			"testPassFailCounts": {
+				"온라인 상태 업데이트 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"온라인 상태 업데이트 성공": true
+				}
+			]
+		},
+		{
+			"id": "e4500e3f-52b4-40ab-873a-7f0c488a79ba",
+			"name": "사용자 온라인 상태 업데이트 (최지연)",
+			"url": "http://localhost:8080/users/40000000-0000-0000-0000-000000000001/status",
+			"time": 3,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"온라인 상태 업데이트 성공": true
+			},
+			"testPassFailCounts": {
+				"온라인 상태 업데이트 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"온라인 상태 업데이트 성공": true
+				}
+			]
+		},
+		{
+			"id": "13e2e344-786e-4ec1-bc5f-a73047a93695",
+			"name": "사용자 로그인 (박민수)",
+			"url": "http://localhost:8080/auth/login",
+			"time": 4,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"사용자 로그인 성공": true
+			},
+			"testPassFailCounts": {
+				"사용자 로그인 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"사용자 로그인 성공": true
+				}
+			]
+		},
+		{
+			"id": "67a951f5-93ee-4ea9-967c-e8e29fb4b6ad",
+			"name": "공개 채널 생성",
+			"url": "http://localhost:8080/channels/public",
+			"time": 7,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"공개 채널 생성 성공": true
+			},
+			"testPassFailCounts": {
+				"공개 채널 생성 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"공개 채널 생성 성공": true
+				}
+			]
+		},
+		{
+			"id": "f8543bc4-6878-4e40-84b0-48293ece9e98",
+			"name": "비공개 채널 생성",
+			"url": "http://localhost:8080/channels/private",
+			"time": 6,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"비공개 채널 생성 성공": true
+			},
+			"testPassFailCounts": {
+				"비공개 채널 생성 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				6
+			],
+			"allTests": [
+				{
+					"비공개 채널 생성 성공": true
+				}
+			]
+		},
+		{
+			"id": "c448ff0b-1c2c-44d6-ac60-a1755ac7b888",
+			"name": "공개 채널 정보 수정",
+			"url": "http://localhost:8080/channels/f16f2249-9b95-4ade-8c9a-dcab427daf29",
+			"time": 3,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"공개 채널 정보 수정 성공": true
+			},
+			"testPassFailCounts": {
+				"공개 채널 정보 수정 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"공개 채널 정보 수정 성공": true
+				}
+			]
+		},
+		{
+			"id": "e7cdf82b-b3be-457d-93c9-8b4610e1e4db",
+			"name": "채널 삭제",
+			"url": "http://localhost:8080/channels/3f35e0e6-5a0b-4095-aeaf-ac541b04c38b",
+			"time": 2,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"채널 삭제 성공": true
+			},
+			"testPassFailCounts": {
+				"채널 삭제 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				2
+			],
+			"allTests": [
+				{
+					"채널 삭제 성공": true
+				}
+			]
+		},
+		{
+			"id": "bd3213a7-5150-4bbe-8b10-177e2b9b15c1",
+			"name": "특정 사용자의 모든 채널 목록 조회",
+			"url": "http://localhost:8080/channels?userId=20000000-0000-0000-0000-000000000001",
+			"time": 4,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"채널 목록 조회 성공": true
+			},
+			"testPassFailCounts": {
+				"채널 목록 조회 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"채널 목록 조회 성공": true
+				}
+			]
+		},
+		{
+			"id": "468a25e1-0e84-435d-96da-779eb8e77281",
+			"name": "메시지 보내기",
+			"url": "http://localhost:8080/messages",
+			"time": 5,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"메시지 보내기 성공": true
+			},
+			"testPassFailCounts": {
+				"메시지 보내기 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"메시지 보내기 성공": true
+				}
+			]
+		},
+		{
+			"id": "1122053e-946c-44d9-a1bc-5c814f355f0b",
+			"name": "메시지 수정",
+			"url": "http://localhost:8080/messages/bcf42db0-a178-4c67-85b8-b00e6216ea2a",
+			"time": 3,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"메시지 수정 성공": true
+			},
+			"testPassFailCounts": {
+				"메시지 수정 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"메시지 수정 성공": true
+				}
+			]
+		},
+		{
+			"id": "1cb94982-c954-4c27-bb93-441313ce2519",
+			"name": "메시지 삭제",
+			"url": "http://localhost:8080/messages/bcf42db0-a178-4c67-85b8-b00e6216ea2a",
+			"time": 3,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"메시지 삭제 성공": true
+			},
+			"testPassFailCounts": {
+				"메시지 삭제 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"메시지 삭제 성공": true
+				}
+			]
+		},
+		{
+			"id": "52706e31-cbee-4fdc-9638-44097655653d",
+			"name": "특정 채널의 메시지 목록 조회",
+			"url": "http://localhost:8080/messages?channelId=f16f2249-9b95-4ade-8c9a-dcab427daf29",
+			"time": 3,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"메시지 목록 조회 성공": true
+			},
+			"testPassFailCounts": {
+				"메시지 목록 조회 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"메시지 목록 조회 성공": true
+				}
+			]
+		},
+		{
+			"id": "5b4ca621-295c-4261-a9df-9978c4f22062",
+			"name": "특정 채널의 메시지 수신 정보 생성",
+			"url": "http://localhost:8080/read-statuses",
+			"time": 4,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"메시지 수신 정보 생성 성공": true
+			},
+			"testPassFailCounts": {
+				"메시지 수신 정보 생성 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"메시지 수신 정보 생성 성공": true
+				}
+			]
+		},
+		{
+			"id": "7ab4d359-041b-4b6e-b686-bebb06a082bd",
+			"name": "특정 채널의 메시지 수신 정보 수정",
+			"url": "http://localhost:8080/read-statuses/4936dd2f-9cca-460c-8bfd-1e0a6b3c84ab",
+			"time": 3,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"메시지 수신 정보 수정 성공": true
+			},
+			"testPassFailCounts": {
+				"메시지 수신 정보 수정 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"메시지 수신 정보 수정 성공": true
+				}
+			]
+		},
+		{
+			"id": "182a1d87-c2cc-4d03-9ff1-2cc073749b91",
+			"name": "특정 사용자의 메시지 수신 정보 조회",
+			"url": "http://localhost:8080/read-statuses?userId=20000000-0000-0000-0000-000000000001",
+			"time": 2,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"메시지 수신 정보 조회 성공": true
+			},
+			"testPassFailCounts": {
+				"메시지 수신 정보 조회 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				2
+			],
+			"allTests": [
+				{
+					"메시지 수신 정보 조회 성공": true
+				}
+			]
+		},
+		{
+			"id": "2ea5804a-177f-4c81-861c-2074010d9e74",
+			"name": "바이너리 파일 1개 조회",
+			"url": "http://localhost:8080/binary-contents/20000000-0000-0000-0000-000000000002",
+			"time": 7,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"파일 1개 조회 성공": true
+			},
+			"testPassFailCounts": {
+				"파일 1개 조회 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"파일 1개 조회 성공": true
+				}
+			]
+		},
+		{
+			"id": "71b66c5b-c4c6-4fc0-9df8-15780abe0860",
+			"name": "바이너리 파일 여러 개 조회 (2명)",
+			"url": "http://localhost:8080/binary-contents?ids=20000000-0000-0000-0000-000000000002,30000000-0000-0000-0000-000000000002",
+			"time": 3,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"파일 여러 개 조회 성공": true
+			},
+			"testPassFailCounts": {
+				"파일 여러 개 조회 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"파일 여러 개 조회 성공": true
+				}
+			]
+		},
+		{
+			"id": "365c8a34-d62f-413d-81e0-46e02a774df0",
+			"name": "바이너리 파일 여러 개 조회 (전체)",
+			"url": "http://localhost:8080/binary-contents?ids=20000000-0000-0000-0000-000000000002,30000000-0000-0000-0000-000000000002,40000000-0000-0000-0000-000000000002",
+			"time": 2,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"파일 여러 개 조회 성공": true
+			},
+			"testPassFailCounts": {
+				"파일 여러 개 조회 성공": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				2
+			],
+			"allTests": [
+				{
+					"파일 여러 개 조회 성공": true
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 168,
+	"collection": {
+		"requests": [
+			{
+				"id": "62f080e5-1d87-4729-b59c-d9c262cc57f6",
+				"method": "POST"
+			},
+			{
+				"id": "38f02c1b-1da3-4305-8a73-966ecd4f514a",
+				"method": "PUT"
+			},
+			{
+				"id": "e223f7ff-58d7-474b-916f-bb9e870340a0",
+				"method": "DELETE"
+			},
+			{
+				"id": "05657515-669f-416b-abb6-bcd7a6ffc9b1",
+				"method": "GET"
+			},
+			{
+				"id": "3c0426e3-cad0-45a9-b870-d3542de16393",
+				"method": "PUT"
+			},
+			{
+				"id": "1fccb8ae-a199-42c2-84b1-2e6e050ac4d5",
+				"method": "PUT"
+			},
+			{
+				"id": "e4500e3f-52b4-40ab-873a-7f0c488a79ba",
+				"method": "PUT"
+			},
+			{
+				"id": "13e2e344-786e-4ec1-bc5f-a73047a93695",
+				"method": "POST"
+			},
+			{
+				"id": "67a951f5-93ee-4ea9-967c-e8e29fb4b6ad",
+				"method": "POST"
+			},
+			{
+				"id": "f8543bc4-6878-4e40-84b0-48293ece9e98",
+				"method": "POST"
+			},
+			{
+				"id": "c448ff0b-1c2c-44d6-ac60-a1755ac7b888",
+				"method": "PUT"
+			},
+			{
+				"id": "e7cdf82b-b3be-457d-93c9-8b4610e1e4db",
+				"method": "DELETE"
+			},
+			{
+				"id": "bd3213a7-5150-4bbe-8b10-177e2b9b15c1",
+				"method": "GET"
+			},
+			{
+				"id": "468a25e1-0e84-435d-96da-779eb8e77281",
+				"method": "POST"
+			},
+			{
+				"id": "1122053e-946c-44d9-a1bc-5c814f355f0b",
+				"method": "PUT"
+			},
+			{
+				"id": "1cb94982-c954-4c27-bb93-441313ce2519",
+				"method": "DELETE"
+			},
+			{
+				"id": "52706e31-cbee-4fdc-9638-44097655653d",
+				"method": "GET"
+			},
+			{
+				"id": "5b4ca621-295c-4261-a9df-9978c4f22062",
+				"method": "POST"
+			},
+			{
+				"id": "7ab4d359-041b-4b6e-b686-bebb06a082bd",
+				"method": "PUT"
+			},
+			{
+				"id": "182a1d87-c2cc-4d03-9ff1-2cc073749b91",
+				"method": "GET"
+			},
+			{
+				"id": "2ea5804a-177f-4c81-861c-2074010d9e74",
+				"method": "GET"
+			},
+			{
+				"id": "71b66c5b-c4c6-4fc0-9df8-15780abe0860",
+				"method": "GET"
+			},
+			{
+				"id": "365c8a34-d62f-413d-81e0-46e02a774df0",
+				"method": "GET"
+			}
+		]
+	}
+}

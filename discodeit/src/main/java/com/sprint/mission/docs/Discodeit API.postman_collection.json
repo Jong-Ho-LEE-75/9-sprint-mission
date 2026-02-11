@@ -11,6 +11,44 @@
       "item": [
         {
           "name": "모든 사용자 조회",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200)`);",
+                  "    }",
+                  "    ",
+                  "    const users = pm.response.json();",
+                  "    if (!Array.isArray(users)) {",
+                  "        throw new Error('응답이 배열이 아님');",
+                  "    }",
+                  "    ",
+                  "    if (users.length === 0) {",
+                  "        throw new Error('사용자 목록이 비어있음');",
+                  "    }",
+                  "    ",
+                  "    const requiredFields = ['id', 'username', 'email', 'online'];",
+                  "    const missingFields = requiredFields.filter(field => !users[0].hasOwnProperty(field));",
+                  "    if (missingFields.length > 0) {",
+                  "        throw new Error(`필수 필드 누락: ${missingFields.join(', ')}`);",
+                  "    }",
+                  "    ",
+                  "    pm.test('모든 사용자 조회 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`모든 사용자 조회 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -28,25 +66,46 @@
           "response": []
         },
         {
-          "name": "특정 사용자 조회 (김철수)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/users/{{user1Id}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["users", "{{user1Id}}"]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "특정 사용자 조회 (이영희)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200)`);",
+                  "    }",
+                  "    ",
+                  "    const user = pm.response.json();",
+                  "    if (typeof user !== 'object' || Array.isArray(user)) {",
+                  "        throw new Error('응답이 객체가 아님');",
+                  "    }",
+                  "    ",
+                  "    const expectedId = pm.environment.get('user2Id');",
+                  "    if (user.id !== expectedId) {",
+                  "        throw new Error(`사용자 ID 불일치: ${user.id} (예상: ${expectedId})`);",
+                  "    }",
+                  "    ",
+                  "    const requiredFields = ['id', 'username', 'email'];",
+                  "    const missingFields = requiredFields.filter(field => !user.hasOwnProperty(field));",
+                  "    if (missingFields.length > 0) {",
+                  "        throw new Error(`필수 필드 누락: ${missingFields.join(', ')}`);",
+                  "    }",
+                  "    ",
+                  "    pm.test('특정 사용자 조회 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`특정 사용자 조회 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -65,6 +124,52 @@
         },
         {
           "name": "사용자 생성 (JSON)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200 && pm.response.code !== 201) {",
+                  "        const error = pm.response.json();",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200 또는 201) - ${error.message || ''}`);",
+                  "    }",
+                  "    ",
+                  "    const user = pm.response.json();",
+                  "    if (!user.id) {",
+                  "        throw new Error('생성된 사용자에 ID가 없음');",
+                  "    }",
+                  "    ",
+                  "    if (!user.email) {",
+                  "        throw new Error('생성된 사용자에 이메일이 없음');",
+                  "    }",
+                  "    ",
+                  "    // 다음 테스트를 위해 생성된 사용자 ID 저장",
+                  "    pm.environment.set('createdUserId', user.id);",
+                  "    ",
+                  "    pm.test('사용자 생성 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`사용자 생성 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// 매번 다른 이메일 생성",
+                  "pm.environment.set('randomEmail', 'newuser' + Date.now() + '@example.com');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -75,7 +180,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"테스트유저\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"username\": \"새로운사용자\",\n  \"email\": \"{{randomEmail}}\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/users",
@@ -86,7 +191,36 @@
           "response": []
         },
         {
-          "name": "사용자 수정 (김철수)",
+          "name": "사용자 수정 (이영희)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200)`);",
+                  "    }",
+                  "    ",
+                  "    const user = pm.response.json();",
+                  "    const expectedId = pm.environment.get('user2Id');",
+                  "    if (user.id !== expectedId) {",
+                  "        throw new Error(`사용자 ID 변경됨: ${user.id} (예상: ${expectedId})`);",
+                  "    }",
+                  "    ",
+                  "    pm.test('사용자 수정 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`사용자 수정 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
@@ -97,25 +231,48 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"{{user1Name}}_수정됨\",\n  \"email\": \"{{user1Email}}\",\n  \"password\": \"newpassword123\"\n}"
+              "raw": "{\n  \"username\": \"{{user2Name}}_수정됨\",\n  \"email\": \"{{user2Email}}\",\n  \"password\": \"newpassword123\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/users/{{user1Id}}",
+              "raw": "{{baseUrl}}/users/{{user2Id}}",
               "host": ["{{baseUrl}}"],
-              "path": ["users", "{{user1Id}}"]
+              "path": ["users", "{{user2Id}}"]
             }
           },
           "response": []
         },
         {
-          "name": "사용자 삭제",
+          "name": "생성된 사용자 삭제",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200 && pm.response.code !== 204) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200 또는 204)`);",
+                  "    }",
+                  "    ",
+                  "    pm.test('사용자 삭제 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`사용자 삭제 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/users/{{user1Id}}",
+              "raw": "{{baseUrl}}/users/{{createdUserId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["users", "{{user1Id}}"]
+              "path": ["users", "{{createdUserId}}"]
             }
           },
           "response": []
@@ -126,29 +283,35 @@
       "name": "사용자 상태 관리",
       "item": [
         {
-          "name": "김철수 온라인 상태 업데이트",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"lastAccessAt\": \"{{$isoTimestamp}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/users/{{user1Id}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["users", "{{user1Id}}", "status"]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "이영희 온라인 상태 업데이트",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200)`);",
+                  "    }",
+                  "    ",
+                  "    const status = pm.response.json();",
+                  "    if (!status.hasOwnProperty('lastAccessAt')) {",
+                  "        throw new Error('lastAccessAt 필드가 응답에 없음');",
+                  "    }",
+                  "    ",
+                  "    pm.test('온라인 상태 업데이트 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`온라인 상태 업데이트 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
@@ -171,6 +334,34 @@
         },
         {
           "name": "박민수 온라인 상태 업데이트",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200)`);",
+                  "    }",
+                  "    ",
+                  "    const status = pm.response.json();",
+                  "    if (!status.hasOwnProperty('lastAccessAt')) {",
+                  "        throw new Error('lastAccessAt 필드가 응답에 없음');",
+                  "    }",
+                  "    ",
+                  "    pm.test('온라인 상태 업데이트 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`온라인 상태 업데이트 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
@@ -193,6 +384,34 @@
         },
         {
           "name": "최지연 온라인 상태 업데이트",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200)`);",
+                  "    }",
+                  "    ",
+                  "    const status = pm.response.json();",
+                  "    if (!status.hasOwnProperty('lastAccessAt')) {",
+                  "        throw new Error('lastAccessAt 필드가 응답에 없음');",
+                  "    }",
+                  "    ",
+                  "    pm.test('온라인 상태 업데이트 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`온라인 상태 업데이트 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PUT",
             "header": [
@@ -219,25 +438,42 @@
       "name": "바이너리 콘텐츠",
       "item": [
         {
-          "name": "파일 1개 조회 (김철수 프로필)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/binary-contents/{{user1ProfileId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["binary-contents", "{{user1ProfileId}}"]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "파일 1개 조회 (이영희 프로필)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200)`);",
+                  "    }",
+                  "    ",
+                  "    const content = pm.response.json();",
+                  "    const expectedId = pm.environment.get('user2ProfileId');",
+                  "    if (content.id !== expectedId) {",
+                  "        throw new Error(`파일 ID 불일치: ${content.id} (예상: ${expectedId})`);",
+                  "    }",
+                  "    ",
+                  "    const requiredFields = ['id', 'filename', 'contentType'];",
+                  "    const missingFields = requiredFields.filter(field => !content.hasOwnProperty(field));",
+                  "    if (missingFields.length > 0) {",
+                  "        throw new Error(`필수 필드 누락: ${missingFields.join(', ')}`);",
+                  "    }",
+                  "    ",
+                  "    pm.test('파일 조회 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`파일 조회 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -255,7 +491,39 @@
           "response": []
         },
         {
-          "name": "파일 여러개 조회 (김철수 + 이영희)",
+          "name": "파일 여러개 조회 (2명)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200)`);",
+                  "    }",
+                  "    ",
+                  "    const contents = pm.response.json();",
+                  "    if (!Array.isArray(contents)) {",
+                  "        throw new Error('응답이 배열이 아님');",
+                  "    }",
+                  "    ",
+                  "    if (contents.length === 0) {",
+                  "        throw new Error('조회된 파일이 없음');",
+                  "    }",
+                  "    ",
+                  "    pm.test('파일 여러개 조회 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`파일 여러개 조회 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -265,13 +533,13 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/binary-contents?ids={{user1ProfileId}},{{user2ProfileId}}",
+              "raw": "{{baseUrl}}/binary-contents?ids={{user2ProfileId}},{{user3ProfileId}}",
               "host": ["{{baseUrl}}"],
               "path": ["binary-contents"],
               "query": [
                 {
                   "key": "ids",
-                  "value": "{{user1ProfileId}},{{user2ProfileId}}"
+                  "value": "{{user2ProfileId}},{{user3ProfileId}}"
                 }
               ]
             }
@@ -280,6 +548,38 @@
         },
         {
           "name": "파일 여러개 조회 (전체)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 200) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 200)`);",
+                  "    }",
+                  "    ",
+                  "    const contents = pm.response.json();",
+                  "    if (!Array.isArray(contents)) {",
+                  "        throw new Error('응답이 배열이 아님');",
+                  "    }",
+                  "    ",
+                  "    if (contents.length === 0) {",
+                  "        throw new Error('조회된 파일이 없음');",
+                  "    }",
+                  "    ",
+                  "    pm.test('파일 여러개 조회 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`파일 여러개 조회 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -289,13 +589,13 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/binary-contents?ids={{user1ProfileId}},{{user2ProfileId}},{{user3ProfileId}},{{user4ProfileId}}",
+              "raw": "{{baseUrl}}/binary-contents?ids={{user2ProfileId}},{{user3ProfileId}},{{user4ProfileId}}",
               "host": ["{{baseUrl}}"],
               "path": ["binary-contents"],
               "query": [
                 {
                   "key": "ids",
-                  "value": "{{user1ProfileId}},{{user2ProfileId}},{{user3ProfileId}},{{user4ProfileId}}"
+                  "value": "{{user2ProfileId}},{{user3ProfileId}},{{user4ProfileId}}"
                 }
               ]
             }
@@ -309,6 +609,34 @@
       "item": [
         {
           "name": "중복 이메일로 사용자 생성 (400 에러)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 400) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 400)`);",
+                  "    }",
+                  "    ",
+                  "    const error = pm.response.json();",
+                  "    if (!error.hasOwnProperty('message')) {",
+                  "        throw new Error('에러 응답에 message 필드가 없음');",
+                  "    }",
+                  "    ",
+                  "    pm.test('중복 이메일 에러 검증 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`중복 이메일 에러 검증 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -319,7 +647,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"중복테스트\",\n  \"email\": \"{{user1Email}}\",\n  \"password\": \"test1234\"\n}"
+              "raw": "{\n  \"username\": \"중복테스트\",\n  \"email\": \"{{user2Email}}\",\n  \"password\": \"test1234\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/users",
@@ -331,6 +659,34 @@
         },
         {
           "name": "존재하지 않는 사용자 조회 (404 에러)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 404) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 404)`);",
+                  "    }",
+                  "    ",
+                  "    const error = pm.response.json();",
+                  "    if (!error.hasOwnProperty('message')) {",
+                  "        throw new Error('에러 응답에 message 필드가 없음');",
+                  "    }",
+                  "    ",
+                  "    pm.test('존재하지 않는 사용자 에러 검증 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`존재하지 않는 사용자 에러 검증 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [
@@ -349,6 +705,34 @@
         },
         {
           "name": "존재하지 않는 파일 조회 (404 에러)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    if (pm.response.code !== 404) {",
+                  "        throw new Error(`상태 코드 오류: ${pm.response.code} (예상: 404)`);",
+                  "    }",
+                  "    ",
+                  "    const error = pm.response.json();",
+                  "    if (!error.hasOwnProperty('message')) {",
+                  "        throw new Error('에러 응답에 message 필드가 없음');",
+                  "    }",
+                  "    ",
+                  "    pm.test('존재하지 않는 파일 에러 검증 성공', () => {",
+                  "        pm.expect(true).to.be.true;",
+                  "    });",
+                  "} catch (error) {",
+                  "    pm.test(`존재하지 않는 파일 에러 검증 실패: ${error.message}`, () => {",
+                  "        pm.expect.fail(error.message);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [

@@ -19,29 +19,29 @@ public class UserStatus extends BaseEntity {
     private final UUID userId;
 
     /** 마지막 접속 시간 */
-    private Instant lastActiveAt;
+    private Instant lastAccessAt;
 
     /**
      * 사용자 상태 생성자
      *
      * @param userId 사용자 ID
-     * @param lastActiveAt 마지막 접속 시간
+     * @param lastAccessAt 마지막 접속 시간
      */
-    public UserStatus(UUID userId, Instant lastActiveAt) {
+    public UserStatus(UUID userId, Instant lastAccessAt) {
         super();
         this.userId = userId;
-        this.lastActiveAt = lastActiveAt;
+        this.lastAccessAt = lastAccessAt;
     }
 
     /**
      * 마지막 활동 시간을 업데이트합니다.
      * null이 아닌 값만 업데이트되며, 수정일시가 갱신됩니다.
      *
-     * @param lastActiveAt 새로운 마지막 활동 시간 (null이면 업데이트하지 않음)
+     * @param lastAccessAt 새로운 마지막 활동 시간 (null이면 업데이트하지 않음)
      */
-    public void update(Instant lastActiveAt) {
-        if (lastActiveAt != null) {
-            this.lastActiveAt = lastActiveAt;
+    public void update(Instant lastAccessAt) {
+        if (lastAccessAt != null) {
+            this.lastAccessAt = lastAccessAt;
         }
         updateTimeStamp();
     }
@@ -53,10 +53,10 @@ public class UserStatus extends BaseEntity {
      * @return 온라인 상태 여부 (true: 온라인, false: 오프라인)
      */
     public boolean isOnline() {
-        if (lastActiveAt == null) {
+        if (lastAccessAt == null) {
             return false;
         }
         Instant fiveMinutesAgo = Instant.now().minusSeconds(5 * 60);
-        return lastActiveAt.isAfter(fiveMinutesAgo);
+        return lastAccessAt.isAfter(fiveMinutesAgo);
     }
 }

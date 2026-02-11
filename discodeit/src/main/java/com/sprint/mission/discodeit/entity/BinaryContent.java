@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import java.io.Serial;
 import java.io.Serializable;
@@ -23,6 +24,7 @@ public class BinaryContent implements Serializable {
     private final Instant createdAt;
 
     /** 파일명 */
+    @JsonProperty("filename")
     private final String fileName;
 
     /** MIME 타입 (예: image/png, application/pdf) */
