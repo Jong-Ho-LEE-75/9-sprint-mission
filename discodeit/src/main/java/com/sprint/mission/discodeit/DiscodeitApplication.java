@@ -46,7 +46,7 @@ public class DiscodeitApplication {
 		System.out.println("User 생성: " + user.id());
 		System.out.println("  - username: " + user.username());
 		System.out.println("  - email: " + user.email());
-		System.out.println("  - online: " + user.isOnline());
+		System.out.println("  - online: " + user.online());
 
 		// 두 번째 사용자 생성 (프로필 이미지 없이)
 		UserCreateRequest user2Request = new UserCreateRequest("alice", "alice@codeit.com", "alice1234");
@@ -59,7 +59,7 @@ public class DiscodeitApplication {
 		LoginRequest loginRequest = new LoginRequest("woody", "woody1234");
 		UserResponse loggedInUser = authService.login(loginRequest);
 		System.out.println("로그인 성공: " + loggedInUser.username());
-		System.out.println("  - online: " + loggedInUser.isOnline());
+		System.out.println("  - online: " + loggedInUser.online());
 
 		// 잘못된 비밀번호 테스트
 		try {
