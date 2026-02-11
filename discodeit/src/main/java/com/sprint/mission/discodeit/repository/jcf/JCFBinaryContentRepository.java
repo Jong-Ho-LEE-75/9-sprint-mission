@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
@@ -9,40 +9,35 @@ import java.util.*;
 
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "jcf", matchIfMissing = true)
-public class JCFMessageRepository implements MessageRepository {
-    private final Map<UUID, Message> data = new HashMap<>();
+public class JCFBinaryContentRepository implements BinaryContentRepository {
+    private final Map<UUID, BinaryContent> data = new HashMap<>();
 
     @Override
-    public Message save(Message message) {
-        data.put(message.getId(), message);
-        return message;
+    public BinaryContent save(BinaryContent binaryContent) {
+        data.put(binaryContent.getId(), binaryContent);
+        return binaryContent;
     }
 
     @Override
-    public Optional<Message> findById(UUID id) {
+    public Optional<BinaryContent> findById(UUID id) {
         return Optional.ofNullable(data.get(id));
     }
 
     @Override
-    public List<Message> findAll() {
+    public List<BinaryContent> findAll() {
         return new ArrayList<>(data.values());
     }
 
     @Override
-    public List<Message> findAllByChannelId(UUID channelId) {
+    public List<BinaryContent> findAllByIdIn(List<UUID> ids) {
         return data.values().stream()
-                .filter(msg -> msg.getChannelId().equals(channelId))
+                .filter(bc -> ids.contains(bc.getId()))
                 .toList();
     }
 
     @Override
     public void deleteById(UUID id) {
         data.remove(id);
-    }
-
-    @Override
-    public void deleteAllByChannelId(UUID channelId) {
-        data.values().removeIf(msg -> msg.getChannelId().equals(channelId));
     }
 
     @Override
