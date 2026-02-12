@@ -11,6 +11,7 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class BasicMessageService implements MessageService {
     public MessageResponse create(MessageCreateRequest request, List<BinaryContentCreateRequest> attachmentRequests) {
         // 첨부파일 저장 (선택적)
         List<UUID> attachmentIds = new ArrayList<>();
-        if (attachmentRequests != null && !attachmentRequests.isEmpty()) {
+        if (!CollectionUtils.isEmpty(attachmentRequests)) {
             for (BinaryContentCreateRequest attachmentRequest : attachmentRequests) {
                 BinaryContent attachment = new BinaryContent(
                         attachmentRequest.fileName(),
@@ -79,7 +80,7 @@ public class BasicMessageService implements MessageService {
                 .orElseThrow(() -> new NoSuchElementException("Message not found: " + id));
 
         // 첨부파일 삭제
-        if (message.getAttachmentIds() != null) {
+        if (!CollectionUtils.isEmpty(message.getAttachmentIds())) {
             for (UUID attachmentId : message.getAttachmentIds()) {
                 binaryContentRepository.deleteById(attachmentId);
             }
