@@ -48,3 +48,4 @@ file-data-map/
 # Newman test reports
 newman/
 newman-report*.html
+newman-report*.json
