@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사용자 목록</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #E5E7EB;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 2rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .user-list {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .user-item {
+            background: white;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-item:hover {
+            background: #F9FAFB;
+        }
+
+        .user-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .user-email {
+            color: #718096;
+            font-size: 0.875rem;
+        }
+
+        .status-badge {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .status-badge.online {
+            background-color: #48BB78;
+            color: white;
+        }
+
+        .status-badge.offline {
+            background-color: #CBD5E0;
+            color: #4A5568;
+        }
+
+        .loading {
+            text-align: center;
+            color: #4A5568;
+            font-size: 1.5rem;
+            padding: 60px 0;
+        }
+
+        .error {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            color: #742a2a;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>사용자 목록</h1>
+    </div>
+    <div id="loading" class="loading">
+        로딩 중...
+    </div>
+    <div id="error" class="error" style="display: none;"></div>
+    <div class="user-list" id="userList">
+        <!-- Users will be dynamically inserted here -->
+    </div>
+</div>
+<script>
+    // Fetch user profile image
+    async function fetchUserProfile(profileId) {
+        try {
+            console.log('Fetching profile:', profileId);
+            const response = await fetch(`/binary-contents/${profileId}`);
+            if (!response.ok) {
+                console.error('Profile fetch failed:', response.status, response.statusText);
+                throw new Error('Failed to fetch profile');
+            }
+            const profile = await response.json();
+            console.log('Profile data received:', {
+                contentType: profile.contentType,
+                dataLength: profile.data ? profile.data.length : 0
+            });
+
+            if (!profile.data) {
+                console.error('No data in profile');
+                return null;
+            }
+
+            return `data:${profile.contentType};base64,${profile.data}`;
+        } catch (error) {
+            console.error('Error fetching profile:', profileId, error);
+            return null;
+        }
+    }
+
+    // 사용자 이름에 따라 성별 판단
+    function getGenderByName(username) {
+        const maleNames = ['김철수', '박민수', 'rex', 'buzz', 'woody'];
+        const femaleNames = ['이영희', '최지연', 'jessie'];
+
+        if (maleNames.includes(username)) return 'male';
+        if (femaleNames.includes(username)) return 'female';
+        return 'male'; // 기본값
+    }
+
+    // 성별에 따라 아바타 이미지 URL 생성 (DiceBear API 사용)
+    function getAvatarUrl(username, gender) {
+        const seed = encodeURIComponent(username);
+        if (gender === 'male') {
+            return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4&radius=50`;
+        } else {
+            return `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=ffd5dc&radius=50`;
+        }
+    }
+
+    async function loadUsers() {
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const userList = document.getElementById('userList');
+
+        try {
+            const response = await fetch('/users');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const users = await response.json();
+            loading.style.display = 'none';
+
+            if (users.length === 0) {
+                userList.innerHTML = '<div style="text-align: center; color: #4A5568; padding: 60px 0;"><h2>등록된 사용자가 없습니다</h2></div>';
+                return;
+            }
+
+            // Create user cards
+            const userCards = await Promise.all(users.map(async user => {
+                const gender = getGenderByName(user.username);
+
+                let avatarHtml = '';
+                if (user.profileId) {
+                    const profileUrl = await fetchUserProfile(user.profileId);
+                    if (profileUrl) {
+                        avatarHtml = `<img src="${profileUrl}" alt="${user.username}" class="user-avatar">`;
+                    } else {
+                        const avatarUrl = getAvatarUrl(user.username, gender);
+                        avatarHtml = `<img src="${avatarUrl}" alt="${user.username}" class="user-avatar">`;
+                    }
+                } else {
+                    const avatarUrl = getAvatarUrl(user.username, gender);
+                    avatarHtml = `<img src="${avatarUrl}" alt="${user.username}" class="user-avatar">`;
+                }
+
+                return `
+                    <div class="user-item">
+                        <div class="user-content">
+                            ${avatarHtml}
+                            <div class="user-info">
+                                <div class="user-name">${user.username}</div>
+                                <div class="user-email">${user.email}</div>
+                            </div>
+                        </div>
+                        <div class="status-badge ${user.online ? 'online' : 'offline'}">
+                            ${user.online ? '온라인' : '오프라인'}
+                        </div>
+                    </div>
+                `;
+            }));
+
+            userList.innerHTML = userCards.join('');
+        } catch (err) {
+            loading.style.display = 'none';
+            error.style.display = 'block';
+            error.textContent = `사용자 목록을 불러오는데 실패했습니다: ${err.message}`;
+            console.error('Error loading users:', err);
+        }
+    }
+
+    // 페이지 로드 시 사용자 목록 불러오기
+    loadUsers();
+</script>
+</body>
+</html>

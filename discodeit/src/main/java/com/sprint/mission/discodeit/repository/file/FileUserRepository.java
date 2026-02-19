@@ -14,10 +14,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * 파일 기반 사용자 저장소 구현체
+ * 직렬화를 사용하여 파일 시스템에 데이터를 저장합니다.
+ */
 @Repository
 @ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileUserRepository implements UserRepository {
+    /** 사용자 파일을 저장하는 디렉토리 경로 */
     private final Path DIRECTORY;
+    /** 저장 파일의 확장자 (.ser) */
     private final String EXTENSION = ".ser";
 
     public FileUserRepository(@Value("${discodeit.repository.file-directory}") String fileDirectory) {
