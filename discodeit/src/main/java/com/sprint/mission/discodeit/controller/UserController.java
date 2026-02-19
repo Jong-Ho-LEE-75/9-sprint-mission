@@ -11,25 +11,25 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * 사용자 관련 REST API 컨트롤러
- *
- * 사용자 생성, 조회, 수정, 삭제 및 온라인 상태 관리 기능을 제공합니다.
- */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -37,147 +37,72 @@ public class UserController {
 	private final UserStatusService userStatusService;
 
 	/**
-	 * 사용자 등록 (JSON)
-	 * POST /users
-	 * Content-Type: application/json
+	 * POST /api/users
+	 * multipart/form-data: userCreateRequest(JSON part) + profile(binary, optional)
 	 */
-	@RequestMapping(method = RequestMethod.POST, consumes = "application/json")
-	public ResponseEntity<UserResponse> createUser(
-			@RequestBody UserCreateRequest userRequest
-	) {
-		// 프로필 이미지는 null로 전달
-		UserResponse user = userService.create(userRequest, null);
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<UserResponse> create(
+			@RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
+			@RequestPart(value = "profile", required = false) MultipartFile profile
+	) throws IOException {
+		BinaryContentCreateRequest profileRequest = resolveProfile(profile);
+		UserResponse user = userService.create(userCreateRequest, profileRequest);
 		return ResponseEntity.status(HttpStatus.CREATED).body(user);
 	}
 
 	/**
-	 * 사용자 등록 (프로필 이미지 포함)
-	 * POST /users/with-profile
-	 * Content-Type: multipart/form-data
+	 * GET /api/users
 	 */
-	@RequestMapping(method = RequestMethod.POST, value = "/with-profile", consumes = "multipart/form-data")
-	public ResponseEntity<UserResponse> createUserWithProfile(
-			@RequestParam("username") String username,
-			@RequestParam("email") String email,
-			@RequestParam("password") String password,
-			@RequestParam(value = "profileImage", required = false) MultipartFile profileImage
-	) {
-		try {
-			// 사용자 생성 요청 객체 생성
-			UserCreateRequest userRequest = new UserCreateRequest(username, email, password);
-
-			// 프로필 이미지가 있으면 BinaryContentCreateRequest로 변환
-			BinaryContentCreateRequest profileRequest = null;
-			if (profileImage != null && !profileImage.isEmpty()) {
-				profileRequest = new BinaryContentCreateRequest(
-						profileImage.getOriginalFilename(),
-						profileImage.getContentType(),
-						profileImage.getBytes()
-				);
-			}
-
-			// 사용자 생성
-			UserResponse user = userService.create(userRequest, profileRequest);
-			return ResponseEntity.status(HttpStatus.CREATED).body(user);
-
-		} catch (Exception e) {
-			throw new RuntimeException("프로필 이미지 업로드 실패: " + e.getMessage(), e);
-		}
-	}
-
-	/**
-	 * 모든 사용자 조회
-	 * GET /users
-	 * 사용자 목록을 UserDto 형식으로 반환합니다.
-	 */
-	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<List<UserDto>> getAllUsers() {
+	@GetMapping
+	public ResponseEntity<List<UserDto>> findAll() {
 		List<UserDto> users = userService.findAllAsDto();
 		return ResponseEntity.ok(users);
 	}
 
 	/**
-	 * 특정 사용자 조회
-	 * GET /users/{id}
+	 * PATCH /api/users/{userId}
+	 * multipart/form-data: userUpdateRequest(JSON part) + profile(binary, optional)
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
-	public ResponseEntity<UserResponse> getUser(@PathVariable UUID id) {
-		UserResponse user = userService.find(id);
+	@PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ResponseEntity<UserResponse> update(
+			@PathVariable UUID userId,
+			@RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
+			@RequestPart(value = "profile", required = false) MultipartFile profile
+	) throws IOException {
+		BinaryContentCreateRequest profileRequest = resolveProfile(profile);
+		UserResponse user = userService.update(userId, userUpdateRequest, profileRequest);
 		return ResponseEntity.ok(user);
 	}
 
 	/**
-	 * 사용자 정보 수정 (JSON)
-	 * PUT /users/{id}
-	 * Content-Type: application/json
+	 * DELETE /api/users/{userId}
 	 */
-	@RequestMapping(method = RequestMethod.PUT, value = "/{id}", consumes = "application/json")
-	public ResponseEntity<UserResponse> updateUser(
-			@PathVariable UUID id,
-			@RequestBody UserUpdateRequest userRequest
-	) {
-		// 프로필 이미지는 null로 전달
-		UserResponse user = userService.update(id, userRequest, null);
-		return ResponseEntity.ok(user);
-	}
-
-	/**
-	 * 사용자 정보 수정 (프로필 이미지 포함)
-	 * PUT /users/{id}/with-profile
-	 * Content-Type: multipart/form-data
-	 */
-	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/with-profile", consumes = "multipart/form-data")
-	public ResponseEntity<UserResponse> updateUserWithProfile(
-			@PathVariable UUID id,
-			@RequestParam("username") String username,
-			@RequestParam("email") String email,
-			@RequestParam("password") String password,
-			@RequestParam(value = "profileImage", required = false) MultipartFile profileImage
-	) {
-		try {
-			// 사용자 수정 요청 객체 생성
-			UserUpdateRequest userRequest = new UserUpdateRequest(username, email, password);
-
-			// 프로필 이미지가 있으면 BinaryContentCreateRequest로 변환
-			BinaryContentCreateRequest profileRequest = null;
-			if (profileImage != null && !profileImage.isEmpty()) {
-				profileRequest = new BinaryContentCreateRequest(
-						profileImage.getOriginalFilename(),
-						profileImage.getContentType(),
-						profileImage.getBytes()
-				);
-			}
-
-			// 사용자 정보 수정
-			UserResponse user = userService.update(id, userRequest, profileRequest);
-			return ResponseEntity.ok(user);
-
-		} catch (Exception e) {
-			throw new RuntimeException("프로필 이미지 업로드 실패: " + e.getMessage(), e);
-		}
-	}
-
-	/**
-	 * 사용자 삭제
-	 * DELETE /users/{id}
-	 */
-	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-	public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-		userService.delete(id);
+	@DeleteMapping("/{userId}")
+	public ResponseEntity<Void> delete(@PathVariable UUID userId) {
+		userService.delete(userId);
 		return ResponseEntity.noContent().build();
 	}
 
 	/**
-	 * 온라인 상태 업데이트
-	 * PUT /users/{id}/status
+	 * PATCH /api/users/{userId}/userStatus
 	 */
-	@RequestMapping(method = RequestMethod.PUT, value = "/{id}/status")
+	@PatchMapping(value = "/{userId}/userStatus", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<UserStatus> updateUserStatus(
-			@PathVariable UUID id,
+			@PathVariable UUID userId,
 			@RequestBody UserStatusUpdateRequest request
 	) {
-		UserStatus userStatus = userStatusService.updateByUserId(id, request);
+		UserStatus userStatus = userStatusService.updateByUserId(userId, request);
 		return ResponseEntity.ok(userStatus);
 	}
 
+	private BinaryContentCreateRequest resolveProfile(MultipartFile profile) throws IOException {
+		if (profile == null || profile.isEmpty()) {
+			return null;
+		}
+		return new BinaryContentCreateRequest(
+				profile.getOriginalFilename(),
+				profile.getContentType(),
+				profile.getBytes()
+		);
+	}
 }

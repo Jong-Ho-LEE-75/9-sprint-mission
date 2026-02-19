@@ -17,19 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
  * 사용자 로그인 기능을 제공합니다.
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
 	private final AuthService authService;
 
-	/**
-	 * 로그인
-	 * POST /auth/login
-	 */
 	@RequestMapping(
 			method = RequestMethod.POST,
-			path = "login",
+			path = "/login",
 			consumes = {MediaType.APPLICATION_JSON_VALUE}
 	)
 	public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {

@@ -19,47 +19,26 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
-    /**
-     * 사용자 정보를 저장하고 조회하는 리포지토리
-     */
     private final UserRepository userRepository;
-
-    /**
-     * 사용자 상태 정보를 저장하고 조회하는 리포지토리
-     */
     private final UserStatusRepository userStatusRepository;
 
-    /**
-     * 사용자 로그인을 처리합니다.
-     *
-     * @param request 로그인 요청 정보 (username, password)
-     * @return 로그인한 사용자의 정보
-     * @throws NoSuchElementException 사용자를 찾을 수 없거나 비밀번호가 일치하지 않을 경우
-     */
     @Override
     public UserResponse login(LoginRequest request) {
-        // username으로 User 조회
         User user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new NoSuchElementException("Invalid username or password"));
+                .orElseThrow(() -> new NoSuchElementException("User with username " + request.username() + " not found"));
 
-        // password 확인
         if (!user.getPassword().equals(request.password())) {
-            throw new NoSuchElementException("Invalid username or password");
+            throw new IllegalArgumentException("Wrong password");
         }
-
-        // 온라인 상태 확인
-        boolean isOnline = userStatusRepository.findByUserId(user.getId())
-                .map(UserStatus::isOnline)
-                .orElse(false);
 
         return new UserResponse(
                 user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getProfileId(),
-                isOnline,
-                user.getCreatedAt(),
-                user.getUpdatedAt()
+                user.getPassword(),
+                user.getProfileId()
         );
     }
 }

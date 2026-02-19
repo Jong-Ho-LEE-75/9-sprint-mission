@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.service;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.entity.Message;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,17 +17,9 @@ public interface MessageService {
      *
      * @param request 메시지 생성 요청
      * @param attachmentRequests 첨부파일 목록
-     * @return 생성된 메시지 정보
+     * @return 생성된 메시지
      */
-    MessageResponse create(MessageCreateRequest request, List<BinaryContentCreateRequest> attachmentRequests);
-
-    /**
-     * ID로 메시지를 조회합니다.
-     *
-     * @param id 메시지 ID
-     * @return 조회된 메시지 정보
-     */
-    MessageResponse find(UUID id);
+    Message create(MessageCreateRequest request, List<BinaryContentCreateRequest> attachmentRequests);
 
     /**
      * 특정 채널의 모든 메시지를 조회합니다.
@@ -35,16 +27,16 @@ public interface MessageService {
      * @param channelId 채널 ID
      * @return 해당 채널의 메시지 목록
      */
-    List<MessageResponse> findAllByChannelId(UUID channelId);
+    List<Message> findAllByChannelId(UUID channelId);
 
     /**
      * 메시지 내용을 업데이트합니다.
      *
      * @param id 메시지 ID
      * @param request 메시지 업데이트 요청
-     * @return 업데이트된 메시지 정보
+     * @return 업데이트된 메시지
      */
-    MessageResponse update(UUID id, MessageUpdateRequest request);
+    Message update(UUID id, MessageUpdateRequest request);
 
     /**
      * 메시지를 삭제합니다.

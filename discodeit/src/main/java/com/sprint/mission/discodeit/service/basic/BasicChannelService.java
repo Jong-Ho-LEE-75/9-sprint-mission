@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.ChannelDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -21,122 +21,68 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-/**
- * ChannelService 인터페이스의 기본 구현체.
- * 채널(PUBLIC, PRIVATE)의 생성, 조회, 수정, 삭제 기능을 제공합니다.
- */
 @Service
 @RequiredArgsConstructor
 public class BasicChannelService implements ChannelService {
-    /**
-     * 채널 정보를 저장하고 조회하는 리포지토리
-     */
+
     private final ChannelRepository channelRepository;
-
-    /**
-     * 채널별 사용자 읽기 상태를 저장하고 조회하는 리포지토리
-     */
     private final ReadStatusRepository readStatusRepository;
-
-    /**
-     * 메시지 정보를 저장하고 조회하는 리포지토리
-     */
     private final MessageRepository messageRepository;
-
-    /**
-     * 바이너리 콘텐츠(첨부파일)를 저장하고 조회하는 리포지토리
-     */
     private final BinaryContentRepository binaryContentRepository;
 
     @Override
-    public ChannelResponse createPublic(PublicChannelCreateRequest request) {
+    public Channel createPublic(PublicChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PUBLIC, request.name(), request.description());
-        Channel savedChannel = channelRepository.save(channel);
-        return toChannelResponse(savedChannel);
+        return channelRepository.save(channel);
     }
 
-    /**
-     * PRIVATE 채널을 생성합니다.
-     * 참여자 목록에 있는 각 사용자에 대한 ReadStatus도 함께 생성합니다.
-     *
-     * @param request PRIVATE 채널 생성 요청 정보 (참여자 ID 목록 포함)
-     * @return 생성된 채널 정보
-     */
     @Override
-    public ChannelResponse createPrivate(PrivateChannelCreateRequest request) {
-        // PRIVATE 채널은 name, description 없음
+    public Channel createPrivate(PrivateChannelCreateRequest request) {
         Channel channel = new Channel(ChannelType.PRIVATE, null, null);
         Channel savedChannel = channelRepository.save(channel);
 
-        // 참여자별 ReadStatus 생성
-        for (UUID userId : request.memberIds()) {
+        for (UUID userId : request.participantIds()) {
             ReadStatus readStatus = new ReadStatus(userId, savedChannel.getId(), Instant.now());
             readStatusRepository.save(readStatus);
         }
 
-        return toChannelResponse(savedChannel);
+        return savedChannel;
     }
 
     @Override
-    public ChannelResponse find(UUID id) {
-        Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
-        return toChannelResponse(channel);
-    }
-
-    /**
-     * 특정 사용자가 접근 가능한 모든 채널을 조회합니다.
-     * PUBLIC 채널은 모두 조회 가능하며, PRIVATE 채널은 참여자만 조회 가능합니다.
-     *
-     * @param userId 사용자 ID
-     * @return 접근 가능한 채널 목록
-     */
-    @Override
-    public List<ChannelResponse> findAllByUserId(UUID userId) {
+    public List<ChannelDto> findAllByUserId(UUID userId) {
         List<Channel> allChannels = channelRepository.findAll();
 
         return allChannels.stream()
                 .filter(channel -> {
                     if (channel.getType() == ChannelType.PUBLIC) {
-                        // PUBLIC 채널은 모두 조회 가능
                         return true;
                     } else {
-                        // PRIVATE 채널은 참여한 User만 조회 가능
                         return readStatusRepository.findByUserIdAndChannelId(userId, channel.getId()).isPresent();
                     }
                 })
-                .map(this::toChannelResponse)
+                .map(this::toChannelDto)
                 .toList();
     }
 
     @Override
-    public ChannelResponse update(UUID id, ChannelUpdateRequest request) {
+    public Channel update(UUID id, PublicChannelUpdateRequest request) {
         Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
 
-        // PRIVATE 채널은 수정 불가
         if (channel.getType() == ChannelType.PRIVATE) {
             throw new IllegalArgumentException("Private channel cannot be updated");
         }
 
-        channel.update(request.name(), request.description());
-        Channel savedChannel = channelRepository.save(channel);
-        return toChannelResponse(savedChannel);
+        channel.update(request.newName(), request.newDescription());
+        return channelRepository.save(channel);
     }
 
-    /**
-     * 채널을 삭제합니다.
-     * 연관된 메시지, 첨부파일, ReadStatus도 함께 삭제합니다.
-     *
-     * @param id 삭제할 채널 ID
-     * @throws NoSuchElementException 채널을 찾을 수 없을 경우
-     */
     @Override
     public void delete(UUID id) {
-        Channel channel = channelRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Channel not found: " + id));
+        channelRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Channel with id " + id + " not found"));
 
-        // 관련 Message의 첨부파일 삭제 후 Message 삭제
         List<Message> messages = messageRepository.findAllByChannelId(id);
         for (Message message : messages) {
             if (message.getAttachmentIds() != null) {
@@ -146,28 +92,16 @@ public class BasicChannelService implements ChannelService {
             }
         }
         messageRepository.deleteAllByChannelId(id);
-
-        // 관련 ReadStatus 삭제
         readStatusRepository.deleteAllByChannelId(id);
-        // Channel 삭제
         channelRepository.deleteById(id);
     }
 
-    /**
-     * Channel 엔티티를 ChannelResponse DTO로 변환합니다.
-     * 최근 메시지 시간과 참여자 목록(PRIVATE 채널의 경우)을 포함합니다.
-     *
-     * @param channel 변환할 Channel 엔티티
-     * @return ChannelResponse DTO
-     */
-    private ChannelResponse toChannelResponse(Channel channel) {
-        // 최근 메시지 시간 조회
+    private ChannelDto toChannelDto(Channel channel) {
         Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId()).stream()
                 .map(Message::getCreatedAt)
                 .max(Instant::compareTo)
                 .orElse(null);
 
-        // PRIVATE 채널인 경우 참여자 ID 목록 조회
         List<UUID> participantIds = null;
         if (channel.getType() == ChannelType.PRIVATE) {
             participantIds = readStatusRepository.findAllByChannelId(channel.getId()).stream()
@@ -175,15 +109,13 @@ public class BasicChannelService implements ChannelService {
                     .toList();
         }
 
-        return new ChannelResponse(
+        return new ChannelDto(
                 channel.getId(),
                 channel.getType(),
                 channel.getName(),
                 channel.getDescription(),
                 participantIds,
-                lastMessageAt,
-                channel.getCreatedAt(),
-                channel.getUpdatedAt()
+                lastMessageAt
         );
     }
 }
