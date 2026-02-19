@@ -2,7 +2,15 @@ spring:
   application:
     name: discodeit
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
 discodeit:
   repository:
-    type: jcf   # jcf | file
+    type: file   # jcf | file
     file-directory: .discodeit

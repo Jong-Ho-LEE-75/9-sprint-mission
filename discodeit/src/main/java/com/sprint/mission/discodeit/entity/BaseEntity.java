@@ -36,17 +36,6 @@ public class BaseEntity implements Serializable {
         this.updatedAt = now;
     }
 
-    /**
-     * 고정 UUID를 사용하는 생성자 (테스트 및 초기 데이터용)
-     *
-     * @param id 고정 UUID
-     */
-    protected BaseEntity(UUID id) {
-        this.id = id;
-        Instant now = Instant.now();
-        this.createdAt = now;
-        this.updatedAt = now;
-    }
 
     /**
      * 엔티티 수정 시 수정일시를 현재 시간으로 업데이트합니다.
