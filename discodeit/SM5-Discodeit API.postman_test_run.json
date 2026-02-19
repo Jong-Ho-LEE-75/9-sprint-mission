@@ -1,0 +1,1054 @@
+{
+	"id": "f8c59982-07a2-4362-8f6f-1f6b8355d863",
+	"name": "Discodeit API",
+	"timestamp": "2026-02-19T08:20:08.793Z",
+	"collection_id": "52123612-bebdc1c7-e4ec-439c-9c3c-3bfb7f82abee",
+	"folder_id": 0,
+	"environment_id": "52123612-4e032ede-9376-4723-91bb-8e6728a62d96",
+	"totalPass": 46,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-02-19T08:20:07.606Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "7d898378-7e7f-4d89-9f87-9a0440e643ba",
+			"name": "1-1. User 생성 (user1)",
+			"url": "http://localhost:8080/api/users",
+			"time": 133,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201 Created": true,
+				"응답에 id 포함": true
+			},
+			"testPassFailCounts": {
+				"Status 201 Created": {
+					"pass": 1,
+					"fail": 0
+				},
+				"응답에 id 포함": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				133
+			],
+			"allTests": [
+				{
+					"Status 201 Created": true,
+					"응답에 id 포함": true
+				}
+			]
+		},
+		{
+			"id": "5805278e-9973-41e0-a247-be79f8d5b25e",
+			"name": "1-2. User 생성 (user2)",
+			"url": "http://localhost:8080/api/users",
+			"time": 5,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201 Created": true,
+				"응답에 id 포함": true
+			},
+			"testPassFailCounts": {
+				"Status 201 Created": {
+					"pass": 1,
+					"fail": 0
+				},
+				"응답에 id 포함": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"Status 201 Created": true,
+					"응답에 id 포함": true
+				}
+			]
+		},
+		{
+			"id": "a9116283-9c09-4f29-8a58-4c436f47cb52",
+			"name": "1-3. 전체 User 목록 조회",
+			"url": "http://localhost:8080/api/users",
+			"time": 6,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"배열 반환": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"배열 반환": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				6
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"배열 반환": true
+				}
+			]
+		},
+		{
+			"id": "2fe39ab7-678e-4d9a-b379-487e0e647b06",
+			"name": "1-4. User 정보 수정",
+			"url": "http://localhost:8080/api/users/c5bf61dc-a475-4ed3-b856-3653ed7aa07a",
+			"time": 6,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"username 변경 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"username 변경 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				6
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"username 변경 확인": true
+				}
+			]
+		},
+		{
+			"id": "2a81d6dd-7b55-4d97-af86-42ec15eac878",
+			"name": "1-5. User 온라인 상태 업데이트",
+			"url": "http://localhost:8080/api/users/c5bf61dc-a475-4ed3-b856-3653ed7aa07a/userStatus",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"UserStatus 응답 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"UserStatus 응답 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"UserStatus 응답 확인": true
+				}
+			]
+		},
+		{
+			"id": "df43041b-3d9b-4004-a3ac-a03af826ae1a",
+			"name": "2-1. 로그인 (성공)",
+			"url": "http://localhost:8080/api/auth/login",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"User 정보 반환": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"User 정보 반환": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"User 정보 반환": true
+				}
+			]
+		},
+		{
+			"id": "043c3fb7-c835-40fc-8569-49bb9988cfaa",
+			"name": "2-2. 로그인 실패 - 잘못된 비밀번호",
+			"url": "http://localhost:8080/api/auth/login",
+			"time": 8,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 400 Bad Request": true
+			},
+			"testPassFailCounts": {
+				"Status 400 Bad Request": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 400 Bad Request": true
+				}
+			]
+		},
+		{
+			"id": "49cd0019-b193-4ff6-95c8-eb74fde34be5",
+			"name": "2-3. 로그인 실패 - 존재하지 않는 사용자",
+			"url": "http://localhost:8080/api/auth/login",
+			"time": 14,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404 Not Found": true
+			},
+			"testPassFailCounts": {
+				"Status 404 Not Found": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 404 Not Found": true
+				}
+			]
+		},
+		{
+			"id": "f8a9895b-bedc-431c-a276-76dc2cfb5302",
+			"name": "3-1. Public Channel 생성",
+			"url": "http://localhost:8080/api/channels/public",
+			"time": 23,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201 Created": true,
+				"Channel 정보 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 201 Created": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Channel 정보 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				23
+			],
+			"allTests": [
+				{
+					"Status 201 Created": true,
+					"Channel 정보 확인": true
+				}
+			]
+		},
+		{
+			"id": "47675c22-ef77-4667-be8e-3bb76572af09",
+			"name": "3-2. Private Channel 생성",
+			"url": "http://localhost:8080/api/channels/private",
+			"time": 6,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201 Created": true,
+				"Channel 정보 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 201 Created": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Channel 정보 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				6
+			],
+			"allTests": [
+				{
+					"Status 201 Created": true,
+					"Channel 정보 확인": true
+				}
+			]
+		},
+		{
+			"id": "d81a3df4-1307-45c1-99dd-83a35f818e5f",
+			"name": "3-3. 참여 중인 Channel 목록 조회",
+			"url": "http://localhost:8080/api/channels?userId=c5bf61dc-a475-4ed3-b856-3653ed7aa07a",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"채널 목록 반환": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"채널 목록 반환": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"채널 목록 반환": true
+				}
+			]
+		},
+		{
+			"id": "98783468-8031-4693-86fe-4097dd8d7684",
+			"name": "3-4. Channel 정보 수정",
+			"url": "http://localhost:8080/api/channels/f96acd93-f17c-4e34-bef5-65a5fd5025ec",
+			"time": 4,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"채널 이름 변경 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"채널 이름 변경 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"채널 이름 변경 확인": true
+				}
+			]
+		},
+		{
+			"id": "81ae1c13-8336-471a-9486-ef1a190ce1c6",
+			"name": "3-5. Private Channel 수정 시도 (400 예상)",
+			"url": "http://localhost:8080/api/channels/9b144d03-c18a-486c-b15e-afb7cb53a8c1",
+			"time": 4,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 400 Bad Request": true
+			},
+			"testPassFailCounts": {
+				"Status 400 Bad Request": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"Status 400 Bad Request": true
+				}
+			]
+		},
+		{
+			"id": "674fd213-c1a8-46c5-aadc-b5260a509c53",
+			"name": "4-1. Message 생성",
+			"url": "http://localhost:8080/api/messages",
+			"time": 7,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201 Created": true,
+				"Message 정보 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 201 Created": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Message 정보 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 201 Created": true,
+					"Message 정보 확인": true
+				}
+			]
+		},
+		{
+			"id": "fc89567b-0907-4a91-ad33-16fbb252233c",
+			"name": "4-2. Channel의 Message 목록 조회",
+			"url": "http://localhost:8080/api/messages?channelId=f96acd93-f17c-4e34-bef5-65a5fd5025ec",
+			"time": 5,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"메시지 목록 반환": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"메시지 목록 반환": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"메시지 목록 반환": true
+				}
+			]
+		},
+		{
+			"id": "2eb8716b-1fb4-46b5-ac53-fab7e13e7ba6",
+			"name": "4-3. Message 내용 수정",
+			"url": "http://localhost:8080/api/messages/ce26b814-5bbb-4f5b-ae2d-ef0fc664d908",
+			"time": 5,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"메시지 내용 변경 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"메시지 내용 변경 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"메시지 내용 변경 확인": true
+				}
+			]
+		},
+		{
+			"id": "103094d2-7788-4a0a-848e-438dcdf52a46",
+			"name": "4-4. 없는 Message 수정 (404 예상)",
+			"url": "http://localhost:8080/api/messages/00000000-0000-0000-0000-000000000000",
+			"time": 3,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404 Not Found": true
+			},
+			"testPassFailCounts": {
+				"Status 404 Not Found": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status 404 Not Found": true
+				}
+			]
+		},
+		{
+			"id": "23d4e262-6ced-4ca5-b384-ff3bbd67807b",
+			"name": "5-1. ReadStatus 생성",
+			"url": "http://localhost:8080/api/readStatuses",
+			"time": 10,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201 Created": true,
+				"ReadStatus 정보 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 201 Created": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ReadStatus 정보 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 201 Created": true,
+					"ReadStatus 정보 확인": true
+				}
+			]
+		},
+		{
+			"id": "8663882c-f5bb-4bb8-9720-5c6058b59dad",
+			"name": "5-2. 중복 ReadStatus 생성 (400 예상)",
+			"url": "http://localhost:8080/api/readStatuses",
+			"time": 4,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 400 Bad Request": true
+			},
+			"testPassFailCounts": {
+				"Status 400 Bad Request": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"Status 400 Bad Request": true
+				}
+			]
+		},
+		{
+			"id": "01225803-0ac6-432f-81e3-cb225a9a2d76",
+			"name": "5-3. User의 ReadStatus 목록 조회",
+			"url": "http://localhost:8080/api/readStatuses?userId=c5bf61dc-a475-4ed3-b856-3653ed7aa07a",
+			"time": 5,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"ReadStatus 목록 반환": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ReadStatus 목록 반환": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"ReadStatus 목록 반환": true
+				}
+			]
+		},
+		{
+			"id": "aa73642f-072e-4ec8-81e4-c676926eec9a",
+			"name": "5-4. ReadStatus 수정",
+			"url": "http://localhost:8080/api/readStatuses/c243e63e-bda2-44bf-8f27-1bfb9f87b9b0",
+			"time": 4,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"ReadStatus lastReadAt 업데이트 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ReadStatus lastReadAt 업데이트 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"ReadStatus lastReadAt 업데이트 확인": true
+				}
+			]
+		},
+		{
+			"id": "6b458319-7328-409f-8da0-a6ee4d615176",
+			"name": "6-1. User 생성 (프로필 이미지 포함)",
+			"url": "http://localhost:8080/api/users",
+			"time": 5,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Status 201 Created": true,
+				"profileId 확인": true
+			},
+			"testPassFailCounts": {
+				"Status 201 Created": {
+					"pass": 1,
+					"fail": 0
+				},
+				"profileId 확인": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"Status 201 Created": true,
+					"profileId 확인": true
+				}
+			]
+		},
+		{
+			"id": "7515e19a-19a2-47fe-b36e-4ac0f02790fd",
+			"name": "6-2. BinaryContent 단건 조회 (profileId 사용)",
+			"url": "http://localhost:8080/api/binaryContents/",
+			"time": 9,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"profileId 없음 - 6-1에서 프로필 이미지 업로드 필요": false
+			},
+			"testPassFailCounts": {
+				"profileId 없음 - 6-1에서 프로필 이미지 업로드 필요": {
+					"pass": 0,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"profileId 없음 - 6-1에서 프로필 이미지 업로드 필요": false
+				}
+			]
+		},
+		{
+			"id": "ee954958-bcdf-4c3c-a2e3-a63c0eac09cf",
+			"name": "6-3. BinaryContent 없는 ID 조회 (404 예상)",
+			"url": "http://localhost:8080/api/binaryContents/00000000-0000-0000-0000-000000000000",
+			"time": 4,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404 Not Found": true
+			},
+			"testPassFailCounts": {
+				"Status 404 Not Found": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"Status 404 Not Found": true
+				}
+			]
+		},
+		{
+			"id": "4360e9ca-ee79-4e14-b67c-c0c85373aab8",
+			"name": "7-1. Message 삭제",
+			"url": "http://localhost:8080/api/messages/ce26b814-5bbb-4f5b-ae2d-ef0fc664d908",
+			"time": 3,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "3fffb04d-3af4-48f4-8dc9-e6326ea6fcef",
+			"name": "7-2. Channel 삭제 (Public)",
+			"url": "http://localhost:8080/api/channels/f96acd93-f17c-4e34-bef5-65a5fd5025ec",
+			"time": 3,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "670b45ff-3a50-4ac1-b411-b9f3333af428",
+			"name": "7-3. Channel 삭제 (Private)",
+			"url": "http://localhost:8080/api/channels/9b144d03-c18a-486c-b15e-afb7cb53a8c1",
+			"time": 2,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				2
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "2726bc4a-be18-4906-abbe-c839b9aef434",
+			"name": "7-4. User 삭제 (user1)",
+			"url": "http://localhost:8080/api/users/c5bf61dc-a475-4ed3-b856-3653ed7aa07a",
+			"time": 3,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "51e5705f-dd15-401b-95ab-297d5108d7bd",
+			"name": "7-5. User 삭제 (user2)",
+			"url": "http://localhost:8080/api/users/bdadc504-4daa-4dde-ae8a-57fc91f528c1",
+			"time": 3,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "4b77bac5-fab2-44bf-9ce5-d1510355b1ac",
+			"name": "7-6. 없는 User 삭제 (404 예상)",
+			"url": "http://localhost:8080/api/users/00000000-0000-0000-0000-000000000000",
+			"time": 4,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404 Not Found": true
+			},
+			"testPassFailCounts": {
+				"Status 404 Not Found": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				4
+			],
+			"allTests": [
+				{
+					"Status 404 Not Found": true
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 316,
+	"collection": {
+		"requests": [
+			{
+				"id": "7d898378-7e7f-4d89-9f87-9a0440e643ba",
+				"method": "POST"
+			},
+			{
+				"id": "5805278e-9973-41e0-a247-be79f8d5b25e",
+				"method": "POST"
+			},
+			{
+				"id": "a9116283-9c09-4f29-8a58-4c436f47cb52",
+				"method": "GET"
+			},
+			{
+				"id": "2fe39ab7-678e-4d9a-b379-487e0e647b06",
+				"method": "PATCH"
+			},
+			{
+				"id": "2a81d6dd-7b55-4d97-af86-42ec15eac878",
+				"method": "PATCH"
+			},
+			{
+				"id": "df43041b-3d9b-4004-a3ac-a03af826ae1a",
+				"method": "POST"
+			},
+			{
+				"id": "043c3fb7-c835-40fc-8569-49bb9988cfaa",
+				"method": "POST"
+			},
+			{
+				"id": "49cd0019-b193-4ff6-95c8-eb74fde34be5",
+				"method": "POST"
+			},
+			{
+				"id": "f8a9895b-bedc-431c-a276-76dc2cfb5302",
+				"method": "POST"
+			},
+			{
+				"id": "47675c22-ef77-4667-be8e-3bb76572af09",
+				"method": "POST"
+			},
+			{
+				"id": "d81a3df4-1307-45c1-99dd-83a35f818e5f",
+				"method": "GET"
+			},
+			{
+				"id": "98783468-8031-4693-86fe-4097dd8d7684",
+				"method": "PATCH"
+			},
+			{
+				"id": "81ae1c13-8336-471a-9486-ef1a190ce1c6",
+				"method": "PATCH"
+			},
+			{
+				"id": "674fd213-c1a8-46c5-aadc-b5260a509c53",
+				"method": "POST"
+			},
+			{
+				"id": "fc89567b-0907-4a91-ad33-16fbb252233c",
+				"method": "GET"
+			},
+			{
+				"id": "2eb8716b-1fb4-46b5-ac53-fab7e13e7ba6",
+				"method": "PATCH"
+			},
+			{
+				"id": "103094d2-7788-4a0a-848e-438dcdf52a46",
+				"method": "PATCH"
+			},
+			{
+				"id": "23d4e262-6ced-4ca5-b384-ff3bbd67807b",
+				"method": "POST"
+			},
+			{
+				"id": "8663882c-f5bb-4bb8-9720-5c6058b59dad",
+				"method": "POST"
+			},
+			{
+				"id": "01225803-0ac6-432f-81e3-cb225a9a2d76",
+				"method": "GET"
+			},
+			{
+				"id": "aa73642f-072e-4ec8-81e4-c676926eec9a",
+				"method": "PATCH"
+			},
+			{
+				"id": "6b458319-7328-409f-8da0-a6ee4d615176",
+				"method": "POST"
+			},
+			{
+				"id": "7515e19a-19a2-47fe-b36e-4ac0f02790fd",
+				"method": "GET"
+			},
+			{
+				"id": "ee954958-bcdf-4c3c-a2e3-a63c0eac09cf",
+				"method": "GET"
+			},
+			{
+				"id": "4360e9ca-ee79-4e14-b67c-c0c85373aab8",
+				"method": "DELETE"
+			},
+			{
+				"id": "3fffb04d-3af4-48f4-8dc9-e6326ea6fcef",
+				"method": "DELETE"
+			},
+			{
+				"id": "670b45ff-3a50-4ac1-b411-b9f3333af428",
+				"method": "DELETE"
+			},
+			{
+				"id": "2726bc4a-be18-4906-abbe-c839b9aef434",
+				"method": "DELETE"
+			},
+			{
+				"id": "51e5705f-dd15-401b-95ab-297d5108d7bd",
+				"method": "DELETE"
+			},
+			{
+				"id": "4b77bac5-fab2-44bf-9ce5-d1510355b1ac",
+				"method": "DELETE"
+			}
+		]
+	}
+}
