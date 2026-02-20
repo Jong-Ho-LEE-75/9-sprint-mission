@@ -96,6 +96,11 @@ public class BasicChannelService implements ChannelService {
         channelRepository.deleteById(id);
     }
 
+    /**
+     * Channel 엔티티를 ChannelDto로 변환합니다.
+     * - lastMessageAt: 해당 채널의 가장 최근 메시지 생성 시간 (메시지 없으면 null)
+     * - participantIds: PRIVATE 채널만 참여자 ID 목록을 포함, PUBLIC 채널은 null
+     */
     private ChannelDto toChannelDto(Channel channel) {
         Instant lastMessageAt = messageRepository.findAllByChannelId(channel.getId()).stream()
                 .map(Message::getCreatedAt)

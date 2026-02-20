@@ -112,6 +112,10 @@ public class BasicUserService implements UserService {
         userRepository.deleteById(id);
     }
 
+    /**
+     * User 엔티티를 UserResponse DTO로 변환합니다.
+     * 사용자 생성/수정 시 응답으로 반환되며, 온라인 상태는 포함하지 않습니다.
+     */
     private UserResponse toUserResponse(User user) {
         return new UserResponse(
                 user.getId(),

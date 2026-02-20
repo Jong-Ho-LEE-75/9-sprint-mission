@@ -8,6 +8,11 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * Swagger(OpenAPI 3.0) 문서 설정 클래스
+ *
+ * 서버 실행 후 http://localhost:8080/swagger-ui.html 에서 API 문서를 확인할 수 있습니다.
+ */
 @Configuration
 public class SwaggerConfig {
 
