@@ -1,5 +1,9 @@
 package com.sprint.mission.discodeit.exception;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +18,10 @@ import java.util.NoSuchElementException;
  * 일관된 에러 응답을 제공합니다.
  */
 @RestControllerAdvice
+@ApiResponses({
+		@ApiResponse(responseCode = "500", description = "서버 내부 오류",
+				content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+})
 public class GlobalExceptionHandler {
 
 	/**

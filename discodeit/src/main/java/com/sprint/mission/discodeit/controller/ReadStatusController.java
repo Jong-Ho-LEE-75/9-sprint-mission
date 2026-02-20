@@ -3,9 +3,9 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,9 +40,9 @@ public class ReadStatusController {
 			@ApiResponse(responseCode = "201", description = "Message 읽음 상태가 성공적으로 생성됨",
 					content = @Content(schema = @Schema(implementation = ReadStatus.class))),
 			@ApiResponse(responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
-					content = @Content(schema = @Schema(example = "Channel | User with id {channelId | userId} not found"))),
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "400", description = "이미 읽음 상태가 존재함",
-					content = @Content(schema = @Schema(example = "ReadStatus with userId {userId} and channelId {channelId} already exists")))
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PostMapping
 	public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest request) {
@@ -57,7 +57,7 @@ public class ReadStatusController {
 	})
 	@GetMapping
 	public ResponseEntity<List<ReadStatus>> findAllByUserId(
-			@Parameter(description = "조회할 User ID", required = true) @RequestParam UUID userId
+			@RequestParam UUID userId
 	) {
 		List<ReadStatus> readStatuses = readStatusService.findAllByUserId(userId);
 		return ResponseEntity.ok(readStatuses);
@@ -68,11 +68,11 @@ public class ReadStatusController {
 			@ApiResponse(responseCode = "200", description = "Message 읽음 상태가 성공적으로 수정됨",
 					content = @Content(schema = @Schema(implementation = ReadStatus.class))),
 			@ApiResponse(responseCode = "404", description = "Message 읽음 상태를 찾을 수 없음",
-					content = @Content(schema = @Schema(example = "ReadStatus with id {readStatusId} not found")))
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PatchMapping("/{readStatusId}")
 	public ResponseEntity<ReadStatus> update(
-			@Parameter(description = "수정할 읽음 상태 ID", required = true) @PathVariable UUID readStatusId,
+			@PathVariable UUID readStatusId,
 			@RequestBody ReadStatusUpdateRequest request
 	) {
 		ReadStatus readStatus = readStatusService.update(readStatusId, request);

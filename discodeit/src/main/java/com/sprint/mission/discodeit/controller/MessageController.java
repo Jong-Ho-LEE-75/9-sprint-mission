@@ -4,9 +4,9 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -47,7 +47,7 @@ public class MessageController {
 			@ApiResponse(responseCode = "201", description = "Message가 성공적으로 생성됨",
 					content = @Content(schema = @Schema(implementation = Message.class))),
 			@ApiResponse(responseCode = "404", description = "Channel 또는 User를 찾을 수 없음",
-					content = @Content(schema = @Schema(example = "Channel | Author with id {channelId | authorId} not found")))
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Message> create(
@@ -66,7 +66,7 @@ public class MessageController {
 	})
 	@GetMapping
 	public ResponseEntity<List<Message>> findAllByChannelId(
-			@Parameter(description = "조회할 Channel ID", required = true) @RequestParam UUID channelId
+			@RequestParam UUID channelId
 	) {
 		List<Message> messages = messageService.findAllByChannelId(channelId);
 		return ResponseEntity.ok(messages);
@@ -77,11 +77,11 @@ public class MessageController {
 			@ApiResponse(responseCode = "200", description = "Message가 성공적으로 수정됨",
 					content = @Content(schema = @Schema(implementation = Message.class))),
 			@ApiResponse(responseCode = "404", description = "Message를 찾을 수 없음",
-					content = @Content(schema = @Schema(example = "Message with id {messageId} not found")))
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PatchMapping("/{messageId}")
 	public ResponseEntity<Message> update(
-			@Parameter(description = "수정할 Message ID", required = true) @PathVariable UUID messageId,
+			@PathVariable UUID messageId,
 			@RequestBody MessageUpdateRequest request
 	) {
 		Message message = messageService.update(messageId, request);
@@ -92,16 +92,20 @@ public class MessageController {
 	@ApiResponses({
 			@ApiResponse(responseCode = "204", description = "Message가 성공적으로 삭제됨", content = @Content),
 			@ApiResponse(responseCode = "404", description = "Message를 찾을 수 없음",
-					content = @Content(schema = @Schema(example = "Message with id {messageId} not found")))
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@DeleteMapping("/{messageId}")
 	public ResponseEntity<Void> delete(
-			@Parameter(description = "삭제할 Message ID", required = true) @PathVariable UUID messageId
+			@PathVariable UUID messageId
 	) {
 		messageService.delete(messageId);
 		return ResponseEntity.noContent().build();
 	}
 
+	/**
+	 * MultipartFile 목록을 BinaryContentCreateRequest 목록으로 변환합니다.
+	 * 비어있는 파일은 제외하며, 첨부파일이 없으면 빈 리스트를 반환합니다.
+	 */
 	private List<BinaryContentCreateRequest> resolveAttachments(List<MultipartFile> attachments) throws IOException {
 		if (attachments == null || attachments.isEmpty()) {
 			return new ArrayList<>();

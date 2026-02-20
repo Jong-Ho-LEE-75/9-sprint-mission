@@ -7,10 +7,10 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -50,7 +50,7 @@ public class UserController {
 			@ApiResponse(responseCode = "201", description = "User가 성공적으로 생성됨",
 					content = @Content(schema = @Schema(implementation = UserResponse.class))),
 			@ApiResponse(responseCode = "400", description = "같은 email 또는 username를 사용하는 User가 이미 존재함",
-					content = @Content(schema = @Schema(example = "User with email {email} already exists")))
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<UserResponse> create(
@@ -78,13 +78,13 @@ public class UserController {
 			@ApiResponse(responseCode = "200", description = "User 정보가 성공적으로 수정됨",
 					content = @Content(schema = @Schema(implementation = UserResponse.class))),
 			@ApiResponse(responseCode = "404", description = "User를 찾을 수 없음",
-					content = @Content(schema = @Schema(example = "User with id {userId} not found"))),
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
 			@ApiResponse(responseCode = "400", description = "같은 email 또는 username를 사용하는 User가 이미 존재함",
-					content = @Content(schema = @Schema(example = "user with email {newEmail} already exists")))
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PatchMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<UserResponse> update(
-			@Parameter(description = "수정할 User ID", required = true) @PathVariable UUID userId,
+			@PathVariable UUID userId,
 			@RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
 			@RequestPart(value = "profile", required = false) MultipartFile profile
 	) throws IOException {
@@ -97,11 +97,11 @@ public class UserController {
 	@ApiResponses({
 			@ApiResponse(responseCode = "204", description = "User가 성공적으로 삭제됨", content = @Content),
 			@ApiResponse(responseCode = "404", description = "User를 찾을 수 없음",
-					content = @Content(schema = @Schema(example = "User with id {id} not found")))
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@DeleteMapping("/{userId}")
 	public ResponseEntity<Void> delete(
-			@Parameter(description = "삭제할 User ID", required = true) @PathVariable UUID userId
+			@PathVariable UUID userId
 	) {
 		userService.delete(userId);
 		return ResponseEntity.noContent().build();
@@ -112,11 +112,11 @@ public class UserController {
 			@ApiResponse(responseCode = "200", description = "User 온라인 상태가 성공적으로 업데이트됨",
 					content = @Content(schema = @Schema(implementation = UserStatus.class))),
 			@ApiResponse(responseCode = "404", description = "해당 User의 UserStatus를 찾을 수 없음",
-					content = @Content(schema = @Schema(example = "UserStatus with userId {userId} not found")))
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	})
 	@PatchMapping(value = "/{userId}/userStatus", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<UserStatus> updateUserStatus(
-			@Parameter(description = "상태를 변경할 User ID", required = true) @PathVariable UUID userId,
+			@PathVariable UUID userId,
 			@RequestBody UserStatusUpdateRequest request
 	) {
 		UserStatus userStatus = userStatusService.updateByUserId(userId, request);
