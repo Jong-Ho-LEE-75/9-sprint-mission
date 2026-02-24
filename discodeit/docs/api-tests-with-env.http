@@ -1,0 +1,321 @@
+### Discodeit API 테스트 (환경 변수 사용)
+### IntelliJ에서 각 요청 옆의 '▶' 버튼을 클릭하거나 Ctrl+Enter (Mac: Cmd+Enter)로 실행
+### 환경 선택: 우측 상단 드롭다운에서 'dev' 선택
+
+### ==========================================
+### 1. 사용자 관리 API
+### ==========================================
+
+### 1-1. 모든 사용자 조회
+GET {{baseUrl}}/users
+Accept: application/json
+
+### 1-2. 특정 사용자 조회 (한성재)
+GET {{baseUrl}}/users/{{user1Id}}
+Accept: application/json
+
+### 1-3. 특정 사용자 조회 (장현민)
+GET {{baseUrl}}/users/{{user3Id}}
+Accept: application/json
+
+### 1-4. 사용자 생성 (JSON - 프로필 없이)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "username": "신규유저{{$randomInt}}",
+  "email": "user{{$randomInt}}@example.com",
+  "password": "password123"
+}
+
+### 1-5. 사용자 생성 (Multipart - 프로필 포함)
+POST {{baseUrl}}/users/with-profile
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="username"
+
+프로필유저{{$randomInt}}
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+profile{{$randomInt}}@example.com
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+password123
+--WebAppBoundary
+Content-Disposition: form-data; name="profileImage"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< ./src/main/resources/data/profiles/hansj.jpg
+--WebAppBoundary--
+
+### 1-6. 사용자 정보 수정 (JSON)
+PUT {{baseUrl}}/users/{{user1Id}}
+Content-Type: application/json
+
+{
+  "username": "{{user1Name}}_수정됨",
+  "email": "hansj_modified@codeit.com",
+  "password": "newpassword123"
+}
+
+### 1-7. 사용자 정보 수정 (Multipart - 프로필 포함)
+PUT {{baseUrl}}/users/{{user1Id}}/with-profile
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="username"
+
+{{user1Name}}
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+hansj@codeit.com
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+password123
+--WebAppBoundary
+Content-Disposition: form-data; name="profileImage"; filename="updated.jpg"
+Content-Type: image/jpeg
+
+< ./src/main/resources/data/profiles/janghm.jpg
+--WebAppBoundary--
+
+### ==========================================
+### 2. 사용자 상태 관리 API
+### ==========================================
+
+### 2-1. 한성재 온라인 상태 업데이트
+PUT {{baseUrl}}/users/{{user1Id}}/status
+Content-Type: application/json
+
+{
+  "lastAccessAt": "{{$isoTimestamp}}"
+}
+
+### 2-2. 모든 사용자 온라인 상태 업데이트
+PUT {{baseUrl}}/users/{{user1Id}}/status
+Content-Type: application/json
+
+{
+  "lastAccessAt": "{{$isoTimestamp}}"
+}
+
+###
+PUT {{baseUrl}}/users/{{user2Id}}/status
+Content-Type: application/json
+
+{
+  "lastAccessAt": "{{$isoTimestamp}}"
+}
+
+###
+PUT {{baseUrl}}/users/{{user3Id}}/status
+Content-Type: application/json
+
+{
+  "lastAccessAt": "{{$isoTimestamp}}"
+}
+
+###
+PUT {{baseUrl}}/users/{{user4Id}}/status
+Content-Type: application/json
+
+{
+  "lastAccessAt": "{{$isoTimestamp}}"
+}
+
+### ==========================================
+### 3. 바이너리 콘텐츠 조회 API
+### ==========================================
+
+### 3-1. 한성재 프로필 이미지 조회
+GET {{baseUrl}}/binary-contents/{{user1ProfileId}}
+Accept: application/json
+
+### 3-2. 장현민 프로필 이미지 조회
+GET {{baseUrl}}/binary-contents/{{user3ProfileId}}
+Accept: application/json
+
+### 3-3. 여러 프로필 이미지 조회 (한성재 + 장현민)
+GET {{baseUrl}}/binary-contents?ids={{user1ProfileId}},{{user3ProfileId}}
+Accept: application/json
+
+### 3-4. 모든 사용자 프로필 이미지 조회
+GET {{baseUrl}}/binary-contents?ids={{user1ProfileId}},{{user2ProfileId}},{{user3ProfileId}},{{user4ProfileId}}
+Accept: application/json
+
+### ==========================================
+### 4. 전체 시나리오 테스트
+### ==========================================
+
+### 시나리오 1: 새 사용자 등록
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "username": "시나리오유저",
+  "email": "scenario_{{$randomInt}}@test.com",
+  "password": "test1234"
+}
+
+> {%
+    client.global.set("newUserId", response.body.id);
+    client.log("✅ 사용자 생성 완료 - ID: " + response.body.id);
+%}
+
+### 시나리오 2: 생성한 사용자 조회
+GET {{baseUrl}}/users/{{newUserId}}
+Accept: application/json
+
+> {%
+    client.test("사용자 조회 성공", function() {
+        client.assert(response.status === 200, "상태 코드가 200이어야 함");
+        client.assert(response.body.id === client.global.get("newUserId"), "ID가 일치해야 함");
+    });
+    client.log("✅ 사용자 조회 완료 - 이름: " + response.body.username);
+%}
+
+### 시나리오 3: 온라인 상태 업데이트
+PUT {{baseUrl}}/users/{{newUserId}}/status
+Content-Type: application/json
+
+{
+  "lastAccessAt": "{{$isoTimestamp}}"
+}
+
+> {%
+    client.test("온라인 상태 업데이트 성공", function() {
+        client.assert(response.status === 200, "상태 코드가 200이어야 함");
+        client.assert(response.body.online === true, "온라인 상태여야 함");
+    });
+    client.log("✅ 온라인 상태 업데이트 완료");
+%}
+
+### 시나리오 4: 사용자 정보 수정
+PUT {{baseUrl}}/users/{{newUserId}}
+Content-Type: application/json
+
+{
+  "username": "시나리오유저_수정됨",
+  "email": "scenario_modified@test.com",
+  "password": "newpassword"
+}
+
+> {%
+    client.test("사용자 수정 성공", function() {
+        client.assert(response.status === 200, "상태 코드가 200이어야 함");
+        client.assert(response.body.username === "시나리오유저_수정됨", "이름이 수정되어야 함");
+    });
+    client.log("✅ 사용자 정보 수정 완료");
+%}
+
+### 시나리오 5: 생성한 사용자 삭제
+DELETE {{baseUrl}}/users/{{newUserId}}
+
+> {%
+    client.test("사용자 삭제 성공", function() {
+        client.assert(response.status === 204, "상태 코드가 204여야 함");
+    });
+    client.log("✅ 사용자 삭제 완료");
+%}
+
+### 시나리오 6: 삭제된 사용자 조회 (404 응답 확인)
+GET {{baseUrl}}/users/{{newUserId}}
+Accept: application/json
+
+> {%
+    client.test("삭제된 사용자는 404", function() {
+        client.assert(response.status === 404, "상태 코드가 404여야 함");
+    });
+    client.log("✅ 삭제 확인 완료 - 404 응답");
+%}
+
+### ==========================================
+### 5. 에러 케이스 테스트
+### ==========================================
+
+### 5-1. 중복 이메일로 사용자 생성 (실패)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "username": "중복테스트",
+  "email": "hansj@codeit.com",
+  "password": "test1234"
+}
+
+> {%
+    client.test("중복 이메일은 실패해야 함", function() {
+        client.assert(response.status === 400 || response.status === 409, "에러 상태 코드여야 함");
+    });
+    client.log("✅ 중복 검증 완료 - 에러 발생");
+%}
+
+### 5-2. 존재하지 않는 사용자 조회 (404)
+GET {{baseUrl}}/users/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+> {%
+    client.test("존재하지 않는 사용자는 404", function() {
+        client.assert(response.status === 404, "상태 코드가 404여야 함");
+    });
+    client.log("✅ 404 응답 확인 완료");
+%}
+
+### 5-3. 존재하지 않는 바이너리 콘텐츠 조회 (404)
+GET {{baseUrl}}/binary-contents/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+> {%
+    client.test("존재하지 않는 파일은 404", function() {
+        client.assert(response.status === 404, "상태 코드가 404여야 함");
+    });
+    client.log("✅ 404 응답 확인 완료");
+%}
+
+### ==========================================
+### 6. 성능 테스트 - 여러 사용자 연속 생성
+### ==========================================
+
+### 성능 테스트 1
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "username": "성능테스트1_{{$timestamp}}",
+  "email": "perf1_{{$timestamp}}@test.com",
+  "password": "test1234"
+}
+
+###
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "username": "성능테스트2_{{$timestamp}}",
+  "email": "perf2_{{$timestamp}}@test.com",
+  "password": "test1234"
+}
+
+###
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "username": "성능테스트3_{{$timestamp}}",
+  "email": "perf3_{{$timestamp}}@test.com",
+  "password": "test1234"
+}
+
+### ==========================================
+### 사용 가능한 동적 변수
+### ==========================================
+# {{$uuid}}          - 랜덤 UUID
+# {{$timestamp}}     - Unix 타임스탬프 (밀리초)
+# {{$isoTimestamp}}  - ISO 8601 형식의 현재 시간
+# {{$randomInt}}     - 0-1000 사이의 랜덤 정수
+# {{$random.uuid}}   - 또 다른 형태의 UUID
