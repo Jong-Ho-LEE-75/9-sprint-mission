@@ -83,7 +83,7 @@ public class BasicReadStatusService implements ReadStatusService {
     public ReadStatus update(UUID id, ReadStatusUpdateRequest request) {
         ReadStatus readStatus = readStatusRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("ReadStatus not found: " + id));
-        readStatus.update(request.lastReadAt());
+        readStatus.update(request.newLastReadAt());
         return readStatusRepository.save(readStatus);
     }
 

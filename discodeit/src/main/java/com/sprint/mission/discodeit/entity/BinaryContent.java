@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import java.io.Serial;
 import java.io.Serializable;
@@ -24,43 +23,31 @@ public class BinaryContent implements Serializable {
     private final Instant createdAt;
 
     /** 파일명 */
-    @JsonProperty("filename")
     private final String fileName;
+
+    /** 파일 크기 (바이트) */
+    private final long size;
 
     /** MIME 타입 (예: image/png, application/pdf) */
     private final String contentType;
 
     /** 실제 바이너리 데이터 */
-    private final byte[] data;
+    private final byte[] bytes;
 
     /**
      * 바이너리 콘텐츠 생성자
      *
      * @param fileName 파일명
      * @param contentType MIME 타입
-     * @param data 실제 바이너리 데이터
+     * @param bytes 실제 바이너리 데이터
      */
-    public BinaryContent(String fileName, String contentType, byte[] data) {
+    public BinaryContent(String fileName, String contentType, byte[] bytes) {
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.fileName = fileName;
+        this.size = bytes != null ? bytes.length : 0;
         this.contentType = contentType;
-        this.data = data;
+        this.bytes = bytes;
     }
 
-    /**
-     * 고정 UUID를 사용하는 바이너리 콘텐츠 생성자 (테스트 및 초기 데이터용)
-     *
-     * @param id 고정 UUID
-     * @param fileName 파일명
-     * @param contentType MIME 타입
-     * @param data 실제 바이너리 데이터
-     */
-    public BinaryContent(UUID id, String fileName, String contentType, byte[] data) {
-        this.id = id;
-        this.createdAt = Instant.now();
-        this.fileName = fileName;
-        this.contentType = contentType;
-        this.data = data;
-    }
 }

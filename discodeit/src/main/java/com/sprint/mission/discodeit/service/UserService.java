@@ -23,23 +23,7 @@ public interface UserService {
     UserResponse create(UserCreateRequest request, BinaryContentCreateRequest profileRequest);
 
     /**
-     * ID로 사용자를 조회합니다.
-     *
-     * @param id 사용자 ID
-     * @return 조회된 사용자 정보
-     */
-    UserResponse find(UUID id);
-
-    /**
-     * 모든 사용자를 조회합니다.
-     *
-     * @return 모든 사용자 목록
-     */
-    List<UserResponse> findAll();
-
-    /**
      * 모든 사용자를 UserDto 형식으로 조회합니다.
-     * API 스펙에 맞는 형식으로 반환합니다.
      *
      * @return 모든 사용자 목록 (UserDto 형식)
      */

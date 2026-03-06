@@ -1,95 +1,106 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.ChannelUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.response.ChannelResponse;
+import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.dto.response.ChannelDto;
+import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.service.ChannelService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
 
-/**
- * 채널 관련 REST API 컨트롤러
- *
- * 공개/비공개 채널 생성, 조회, 수정, 삭제 기능을 제공합니다.
- */
+@Tag(name = "Channel", description = "Channel API")
 @RestController
-@RequestMapping("/channels")
+@RequestMapping("/api/channels")
 @RequiredArgsConstructor
 public class ChannelController {
 
 	private final ChannelService channelService;
 
-	/**
-	 * 공개 채널 생성
-	 * POST /channels/public
-	 */
-	@RequestMapping(method = RequestMethod.POST, value = "/public")
-	public ResponseEntity<ChannelResponse> createPublicChannel(@RequestBody PublicChannelCreateRequest request) {
-		ChannelResponse channel = channelService.createPublic(request);
+	@Operation(summary = "Public Channel 생성")
+	@ApiResponses({
+			@ApiResponse(responseCode = "201", description = "Public Channel이 성공적으로 생성됨",
+					content = @Content(schema = @Schema(implementation = ChannelDto.class)))
+	})
+	@PostMapping("/public")
+	public ResponseEntity<ChannelDto> createPublicChannel(@RequestBody PublicChannelCreateRequest request) {
+		ChannelDto channel = channelService.createPublic(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(channel);
 	}
 
-	/**
-	 * 비공개 채널 생성
-	 * POST /channels/private
-	 */
-	@RequestMapping(method = RequestMethod.POST, value = "/private")
-	public ResponseEntity<ChannelResponse> createPrivateChannel(@RequestBody PrivateChannelCreateRequest request) {
-		ChannelResponse channel = channelService.createPrivate(request);
+	@Operation(summary = "Private Channel 생성")
+	@ApiResponses({
+			@ApiResponse(responseCode = "201", description = "Private Channel이 성공적으로 생성됨",
+					content = @Content(schema = @Schema(implementation = ChannelDto.class)))
+	})
+	@PostMapping("/private")
+	public ResponseEntity<ChannelDto> createPrivateChannel(@RequestBody PrivateChannelCreateRequest request) {
+		ChannelDto channel = channelService.createPrivate(request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(channel);
 	}
 
-	/**
-	 * 특정 사용자가 볼 수 있는 모든 채널 조회
-	 * GET /channels?userId={userId}
-	 */
-	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<List<ChannelResponse>> getChannelsByUser(@RequestParam UUID userId) {
-		List<ChannelResponse> channels = channelService.findAllByUserId(userId);
+	@Operation(summary = "User가 참여 중인 Channel 목록 조회")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Channel 목록 조회 성공",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = ChannelDto.class))))
+	})
+	@GetMapping
+	public ResponseEntity<List<ChannelDto>> findAllByUserId(
+			@RequestParam UUID userId
+	) {
+		List<ChannelDto> channels = channelService.findAllByUserId(userId);
 		return ResponseEntity.ok(channels);
 	}
 
-	/**
-	 * 특정 채널 조회
-	 * GET /channels/{id}
-	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
-	public ResponseEntity<ChannelResponse> getChannel(@PathVariable UUID id) {
-		ChannelResponse channel = channelService.find(id);
-		return ResponseEntity.ok(channel);
-	}
-
-	/**
-	 * 공개 채널 정보 수정
-	 * PUT /channels/{id}
-	 */
-	@RequestMapping(method = RequestMethod.PUT, value = "/{id}")
-	public ResponseEntity<ChannelResponse> updateChannel(
-			@PathVariable UUID id,
-			@RequestBody ChannelUpdateRequest request
+	@Operation(summary = "Channel 정보 수정")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Channel 정보가 성공적으로 수정됨",
+					content = @Content(schema = @Schema(implementation = ChannelDto.class))),
+			@ApiResponse(responseCode = "404", description = "Channel을 찾을 수 없음",
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			@ApiResponse(responseCode = "400", description = "Private Channel은 수정할 수 없음",
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	})
+	@PatchMapping("/{channelId}")
+	public ResponseEntity<ChannelDto> update(
+			@PathVariable UUID channelId,
+			@RequestBody PublicChannelUpdateRequest request
 	) {
-		ChannelResponse channel = channelService.update(id, request);
+		ChannelDto channel = channelService.update(channelId, request);
 		return ResponseEntity.ok(channel);
 	}
 
-	/**
-	 * 채널 삭제
-	 * DELETE /channels/{id}
-	 */
-	@RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-	public ResponseEntity<Void> deleteChannel(@PathVariable UUID id) {
-		channelService.delete(id);
+	@Operation(summary = "Channel 삭제")
+	@ApiResponses({
+			@ApiResponse(responseCode = "204", description = "Channel이 성공적으로 삭제됨", content = @Content),
+			@ApiResponse(responseCode = "404", description = "Channel을 찾을 수 없음",
+					content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	})
+	@DeleteMapping("/{channelId}")
+	public ResponseEntity<Void> delete(
+			@PathVariable UUID channelId
+	) {
+		channelService.delete(channelId);
 		return ResponseEntity.noContent().build();
 	}
 }

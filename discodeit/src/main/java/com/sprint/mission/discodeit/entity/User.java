@@ -37,26 +37,10 @@ public class User extends BaseEntity {
         this.profileId = profileId;
     }
 
-    /**
-     * 고정 UUID를 사용하는 사용자 생성자 (테스트 및 초기 데이터용)
-     *
-     * @param id 고정 UUID
-     * @param username 사용자명
-     * @param email 이메일 주소
-     * @param password 비밀번호
-     * @param profileId 프로필 이미지 ID (null 가능)
-     */
-    public User(UUID id, String username, String email, String password, UUID profileId) {
-        super(id);
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.profileId = profileId;
-    }
 
     /**
      * 사용자 정보를 업데이트합니다.
-     * null이 아닌 값만 업데이트되며, 수정일시가 갱신됩니다.
+     * null이 아니고 기존 값과 다른 경우에만 업데이트되며, 실제 변경이 있을 때만 수정일시가 갱신됩니다.
      *
      * @param username 새로운 사용자명 (null이면 업데이트하지 않음)
      * @param email 새로운 이메일 (null이면 업데이트하지 않음)
@@ -64,10 +48,23 @@ public class User extends BaseEntity {
      * @param profileId 새로운 프로필 이미지 ID (null이면 업데이트하지 않음)
      */
     public void update(String username, String email, String password, UUID profileId) {
-        if (username != null) this.username = username;
-        if (email != null) this.email = email;
-        if (password != null) this.password = password;
-        if (profileId != null) this.profileId = profileId;
-        updateTimeStamp();
+        boolean updated = false;
+        if (username != null && !username.equals(this.username)) {
+            this.username = username;
+            updated = true;
+        }
+        if (email != null && !email.equals(this.email)) {
+            this.email = email;
+            updated = true;
+        }
+        if (password != null && !password.equals(this.password)) {
+            this.password = password;
+            updated = true;
+        }
+        if (profileId != null && !profileId.equals(this.profileId)) {
+            this.profileId = profileId;
+            updated = true;
+        }
+        if (updated) updateTimeStamp();
     }
 }

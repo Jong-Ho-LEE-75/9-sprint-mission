@@ -1,10 +1,13 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.request.*;
-import com.sprint.mission.discodeit.dto.response.ChannelResponse;
-import com.sprint.mission.discodeit.dto.response.MessageResponse;
+import com.sprint.mission.discodeit.dto.response.ChannelDto;
+import com.sprint.mission.discodeit.dto.response.UserDto;
 import com.sprint.mission.discodeit.dto.response.UserResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.repository.jcf.*;
@@ -139,7 +142,6 @@ public class FunctionalTest {
             printDetail("생성된 사용자 ID: " + response.id());
             printDetail("사용자명: " + response.username());
             printDetail("이메일: " + response.email());
-            printDetail("온라인 상태: " + response.isOnline());
             printDetail("생성일시: " + response.createdAt());
         } catch (Exception e) {
             printTestResult(testName, false);
@@ -177,13 +179,13 @@ public class FunctionalTest {
             UUID userId = createdUser.id();
 
             // 삭제 전 사용자 수
-            int beforeCount = userService.findAll().size();
+            int beforeCount = userService.findAllAsDto().size();
 
             // 사용자 삭제
             userService.delete(userId);
 
             // 삭제 후 사용자 수
-            int afterCount = userService.findAll().size();
+            int afterCount = userService.findAllAsDto().size();
 
             printTestResult(testName, true);
             printDetail("삭제된 사용자 ID: " + userId);
@@ -201,12 +203,12 @@ public class FunctionalTest {
             userService.create(new UserCreateRequest("사용자A", "userA@example.com", "pass"), null);
             userService.create(new UserCreateRequest("사용자B", "userB@example.com", "pass"), null);
 
-            List<UserResponse> allUsers = userService.findAll();
+            List<UserDto> allUsers = userService.findAllAsDto();
 
             printTestResult(testName, true);
             printDetail("전체 사용자 수: " + allUsers.size());
-            for (UserResponse user : allUsers) {
-                printDetail("  - " + user.username() + " (" + user.email() + ") - 온라인: " + user.isOnline());
+            for (UserDto user : allUsers) {
+                printDetail("  - " + user.username() + " (" + user.email() + ") - 온라인: " + user.online());
             }
         } catch (Exception e) {
             printTestResult(testName, false);
@@ -293,14 +295,13 @@ public class FunctionalTest {
         String testName = "공개 채널을 생성할 수 있다";
         try {
             PublicChannelCreateRequest request = new PublicChannelCreateRequest("일반", "일반 대화 채널입니다");
-            ChannelResponse response = channelService.createPublic(request);
+            ChannelDto response = channelService.createPublic(request);
 
             printTestResult(testName, true);
             printDetail("채널 ID: " + response.id());
             printDetail("채널 타입: " + response.type());
             printDetail("채널명: " + response.name());
             printDetail("설명: " + response.description());
-            printDetail("생성일시: " + response.createdAt());
         } catch (Exception e) {
             printTestResult(testName, false);
             printDetail("오류: " + e.getMessage());
@@ -315,13 +316,11 @@ public class FunctionalTest {
             UserResponse user2 = userService.create(new UserCreateRequest("비공개2", "private2@example.com", "pass"), null);
 
             PrivateChannelCreateRequest request = new PrivateChannelCreateRequest(List.of(user1.id(), user2.id()));
-            ChannelResponse response = channelService.createPrivate(request);
+            ChannelDto response = channelService.createPrivate(request);
 
             printTestResult(testName, true);
             printDetail("채널 ID: " + response.id());
             printDetail("채널 타입: " + response.type());
-            printDetail("참여자 수: " + response.participantIds().size());
-            printDetail("참여자 ID 목록: " + response.participantIds());
         } catch (Exception e) {
             printTestResult(testName, false);
             printDetail("오류: " + e.getMessage());
@@ -333,16 +332,15 @@ public class FunctionalTest {
         try {
             // 채널 생성
             PublicChannelCreateRequest createRequest = new PublicChannelCreateRequest("수정전채널", "수정 전 설명");
-            ChannelResponse createdChannel = channelService.createPublic(createRequest);
+            ChannelDto createdChannel = channelService.createPublic(createRequest);
 
             // 채널 수정
-            ChannelUpdateRequest updateRequest = new ChannelUpdateRequest("수정후채널", "수정 후 설명입니다");
-            ChannelResponse updatedChannel = channelService.update(createdChannel.id(), updateRequest);
+            PublicChannelUpdateRequest updateRequest = new PublicChannelUpdateRequest("수정후채널", "수정 후 설명입니다");
+            ChannelDto updatedChannel = channelService.update(createdChannel.id(), updateRequest);
 
             printTestResult(testName, true);
             printDetail("수정 전 채널명: 수정전채널 → 수정 후: " + updatedChannel.name());
             printDetail("수정 전 설명: 수정 전 설명 → 수정 후: " + updatedChannel.description());
-            printDetail("수정일시: " + updatedChannel.updatedAt());
         } catch (Exception e) {
             printTestResult(testName, false);
             printDetail("오류: " + e.getMessage());
@@ -355,10 +353,10 @@ public class FunctionalTest {
             // 비공개 채널 생성
             UserResponse user = userService.create(new UserCreateRequest("수정불가", "noupdate@example.com", "pass"), null);
             PrivateChannelCreateRequest createRequest = new PrivateChannelCreateRequest(List.of(user.id()));
-            ChannelResponse privateChannel = channelService.createPrivate(createRequest);
+            ChannelDto privateChannel = channelService.createPrivate(createRequest);
 
             // 수정 시도
-            ChannelUpdateRequest updateRequest = new ChannelUpdateRequest("수정시도", "수정 시도 설명");
+            PublicChannelUpdateRequest updateRequest = new PublicChannelUpdateRequest("수정시도", "수정 시도 설명");
             try {
                 channelService.update(privateChannel.id(), updateRequest);
                 printTestResult(testName, false);
@@ -378,7 +376,7 @@ public class FunctionalTest {
         try {
             // 채널 생성
             PublicChannelCreateRequest request = new PublicChannelCreateRequest("삭제될채널", "곧 삭제됩니다");
-            ChannelResponse createdChannel = channelService.createPublic(request);
+            ChannelDto createdChannel = channelService.createPublic(request);
             UUID channelId = createdChannel.id();
 
             // 채널 삭제
@@ -407,16 +405,16 @@ public class FunctionalTest {
             channelService.createPrivate(new PrivateChannelCreateRequest(List.of(user1.id())));
 
             // 각 사용자별 채널 조회
-            List<ChannelResponse> user1Channels = channelService.findAllByUserId(user1.id());
-            List<ChannelResponse> user2Channels = channelService.findAllByUserId(user2.id());
+            List<ChannelDto> user1Channels = channelService.findAllByUserId(user1.id());
+            List<ChannelDto> user2Channels = channelService.findAllByUserId(user2.id());
 
             printTestResult(testName, true);
             printDetail("사용자1 (비공개 채널 참여) 조회 가능 채널 수: " + user1Channels.size());
-            for (ChannelResponse ch : user1Channels) {
+            for (ChannelDto ch : user1Channels) {
                 printDetail("  - [" + ch.type() + "] " + (ch.name() != null ? ch.name() : "비공개채널"));
             }
             printDetail("사용자2 (비공개 채널 미참여) 조회 가능 채널 수: " + user2Channels.size());
-            for (ChannelResponse ch : user2Channels) {
+            for (ChannelDto ch : user2Channels) {
                 printDetail("  - [" + ch.type() + "] " + (ch.name() != null ? ch.name() : "비공개채널"));
             }
         } catch (Exception e) {
@@ -432,18 +430,18 @@ public class FunctionalTest {
         try {
             // 사용자와 채널 생성
             UserResponse user = userService.create(new UserCreateRequest("메시지작성자", "msg@example.com", "pass"), null);
-            ChannelResponse channel = channelService.createPublic(new PublicChannelCreateRequest("메시지채널", "메시지 테스트"));
+            ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("메시지채널", "메시지 테스트"));
 
             // 메시지 생성
             MessageCreateRequest request = new MessageCreateRequest("안녕하세요! 첫 번째 메시지입니다.", channel.id(), user.id());
-            MessageResponse response = messageService.create(request, null);
+            Message response = messageService.create(request, null);
 
             printTestResult(testName, true);
-            printDetail("메시지 ID: " + response.id());
-            printDetail("내용: " + response.content());
-            printDetail("작성자 ID: " + response.authorId());
-            printDetail("채널 ID: " + response.channelId());
-            printDetail("작성일시: " + response.createdAt());
+            printDetail("메시지 ID: " + response.getId());
+            printDetail("내용: " + response.getContent());
+            printDetail("작성자 ID: " + response.getAuthorId());
+            printDetail("채널 ID: " + response.getChannelId());
+            printDetail("작성일시: " + response.getCreatedAt());
         } catch (Exception e) {
             printTestResult(testName, false);
             printDetail("오류: " + e.getMessage());
@@ -455,20 +453,20 @@ public class FunctionalTest {
         try {
             // 사용자와 채널 생성
             UserResponse user = userService.create(new UserCreateRequest("메시지수정자", "msgupdate@example.com", "pass"), null);
-            ChannelResponse channel = channelService.createPublic(new PublicChannelCreateRequest("수정테스트채널", "수정 테스트"));
+            ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("수정테스트채널", "수정 테스트"));
 
             // 메시지 생성
             MessageCreateRequest createRequest = new MessageCreateRequest("원래 메시지 내용", channel.id(), user.id());
-            MessageResponse createdMessage = messageService.create(createRequest, null);
+            Message createdMessage = messageService.create(createRequest, null);
 
             // 메시지 수정
             MessageUpdateRequest updateRequest = new MessageUpdateRequest("수정된 메시지 내용입니다!");
-            MessageResponse updatedMessage = messageService.update(createdMessage.id(), updateRequest);
+            Message updatedMessage = messageService.update(createdMessage.getId(), updateRequest);
 
             printTestResult(testName, true);
             printDetail("수정 전: 원래 메시지 내용");
-            printDetail("수정 후: " + updatedMessage.content());
-            printDetail("수정일시: " + updatedMessage.updatedAt());
+            printDetail("수정 후: " + updatedMessage.getContent());
+            printDetail("수정일시: " + updatedMessage.getUpdatedAt());
         } catch (Exception e) {
             printTestResult(testName, false);
             printDetail("오류: " + e.getMessage());
@@ -480,12 +478,12 @@ public class FunctionalTest {
         try {
             // 사용자와 채널 생성
             UserResponse user = userService.create(new UserCreateRequest("메시지삭제자", "msgdelete@example.com", "pass"), null);
-            ChannelResponse channel = channelService.createPublic(new PublicChannelCreateRequest("삭제테스트채널", "삭제 테스트"));
+            ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("삭제테스트채널", "삭제 테스트"));
 
             // 메시지 생성
             MessageCreateRequest request = new MessageCreateRequest("삭제될 메시지", channel.id(), user.id());
-            MessageResponse createdMessage = messageService.create(request, null);
-            UUID messageId = createdMessage.id();
+            Message createdMessage = messageService.create(request, null);
+            UUID messageId = createdMessage.getId();
 
             // 삭제 전 메시지 수
             int beforeCount = messageService.findAllByChannelId(channel.id()).size();
@@ -510,7 +508,7 @@ public class FunctionalTest {
         try {
             // 사용자와 채널 생성
             UserResponse user = userService.create(new UserCreateRequest("메시지목록", "msglist@example.com", "pass"), null);
-            ChannelResponse channel = channelService.createPublic(new PublicChannelCreateRequest("목록테스트채널", "목록 테스트"));
+            ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("목록테스트채널", "목록 테스트"));
 
             // 여러 메시지 생성
             messageService.create(new MessageCreateRequest("첫 번째 메시지", channel.id(), user.id()), null);
@@ -518,13 +516,13 @@ public class FunctionalTest {
             messageService.create(new MessageCreateRequest("세 번째 메시지", channel.id(), user.id()), null);
 
             // 메시지 목록 조회
-            List<MessageResponse> messages = messageService.findAllByChannelId(channel.id());
+            List<Message> messages = messageService.findAllByChannelId(channel.id());
 
             printTestResult(testName, true);
             printDetail("채널 ID: " + channel.id());
             printDetail("메시지 수: " + messages.size());
-            for (MessageResponse msg : messages) {
-                printDetail("  - " + msg.content() + " (작성: " + msg.createdAt() + ")");
+            for (Message msg : messages) {
+                printDetail("  - " + msg.getContent() + " (작성: " + msg.getCreatedAt() + ")");
             }
         } catch (Exception e) {
             printTestResult(testName, false);
@@ -539,7 +537,7 @@ public class FunctionalTest {
         try {
             // 사용자와 채널 생성
             UserResponse user = userService.create(new UserCreateRequest("수신정보생성", "readcreate@example.com", "pass"), null);
-            ChannelResponse channel = channelService.createPublic(new PublicChannelCreateRequest("수신정보채널", "수신 정보 테스트"));
+            ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("수신정보채널", "수신 정보 테스트"));
 
             // 수신 정보 생성
             Instant now = Instant.now();
@@ -562,7 +560,7 @@ public class FunctionalTest {
         try {
             // 사용자와 채널 생성
             UserResponse user = userService.create(new UserCreateRequest("수신정보수정", "readupdate@example.com", "pass"), null);
-            ChannelResponse channel = channelService.createPublic(new PublicChannelCreateRequest("수신수정채널", "수신 수정 테스트"));
+            ChannelDto channel = channelService.createPublic(new PublicChannelCreateRequest("수신수정채널", "수신 수정 테스트"));
 
             // 수신 정보 생성
             Instant oldTime = Instant.now().minusSeconds(3600);
@@ -588,8 +586,8 @@ public class FunctionalTest {
         try {
             // 사용자와 채널 생성
             UserResponse user = userService.create(new UserCreateRequest("수신정보조회", "readfind@example.com", "pass"), null);
-            ChannelResponse channel1 = channelService.createPublic(new PublicChannelCreateRequest("수신조회채널1", "채널1"));
-            ChannelResponse channel2 = channelService.createPublic(new PublicChannelCreateRequest("수신조회채널2", "채널2"));
+            ChannelDto channel1 = channelService.createPublic(new PublicChannelCreateRequest("수신조회채널1", "채널1"));
+            ChannelDto channel2 = channelService.createPublic(new PublicChannelCreateRequest("수신조회채널2", "채널2"));
 
             // 수신 정보 생성
             readStatusService.create(new ReadStatusCreateRequest(user.id(), channel1.id(), Instant.now()));
@@ -616,7 +614,7 @@ public class FunctionalTest {
         String testName = "바이너리 파일을 1개 조회할 수 있다";
         try {
             // 바이너리 콘텐츠 생성
-            byte[] data = "테스트 파일 내용입니다.".getBytes();
+            InputStream data = new ByteArrayInputStream("테스트 파일 내용입니다.".getBytes());
             BinaryContentCreateRequest request = new BinaryContentCreateRequest("test.txt", "text/plain", data);
             BinaryContent createdContent = binaryContentService.create(request);
 
@@ -627,8 +625,8 @@ public class FunctionalTest {
             printDetail("파일 ID: " + foundContent.getId());
             printDetail("파일명: " + foundContent.getFileName());
             printDetail("Content-Type: " + foundContent.getContentType());
-            printDetail("데이터 크기: " + foundContent.getData().length + " bytes");
-            printDetail("데이터 내용: " + new String(foundContent.getData()));
+            printDetail("데이터 크기: " + foundContent.getBytes().length + " bytes");
+            printDetail("데이터 내용: " + new String(foundContent.getBytes()));
         } catch (Exception e) {
             printTestResult(testName, false);
             printDetail("오류: " + e.getMessage());
@@ -640,11 +638,11 @@ public class FunctionalTest {
         try {
             // 여러 바이너리 콘텐츠 생성
             BinaryContent content1 = binaryContentService.create(
-                    new BinaryContentCreateRequest("file1.txt", "text/plain", "내용1".getBytes()));
+                    new BinaryContentCreateRequest("file1.txt", "text/plain", new ByteArrayInputStream("내용1".getBytes())));
             BinaryContent content2 = binaryContentService.create(
-                    new BinaryContentCreateRequest("file2.png", "image/png", new byte[]{1, 2, 3, 4, 5}));
+                    new BinaryContentCreateRequest("file2.png", "image/png", new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5})));
             BinaryContent content3 = binaryContentService.create(
-                    new BinaryContentCreateRequest("file3.pdf", "application/pdf", new byte[]{10, 20, 30}));
+                    new BinaryContentCreateRequest("file3.pdf", "application/pdf", new ByteArrayInputStream(new byte[]{10, 20, 30})));
 
             // 여러 개 조회
             List<UUID> ids = List.of(content1.getId(), content2.getId(), content3.getId());
@@ -654,7 +652,7 @@ public class FunctionalTest {
             printDetail("요청한 파일 수: " + ids.size());
             printDetail("조회된 파일 수: " + contents.size());
             for (BinaryContent content : contents) {
-                printDetail("  - " + content.getFileName() + " (" + content.getContentType() + ", " + content.getData().length + " bytes)");
+                printDetail("  - " + content.getFileName() + " (" + content.getContentType() + ", " + content.getBytes().length + " bytes)");
             }
         } catch (Exception e) {
             printTestResult(testName, false);
