@@ -18,6 +18,6 @@ export const getUsers = async (): Promise<UserDto[]> => {
 export const updateUserStatus = async (userId: string): Promise<UserStatusDto> => {
   const response = await client.patch<UserStatusDto>(`/users/${userId}/userStatus`, {
     newLastActiveAt: new Date().toISOString()
-  }, { skipGlobalErrorHandler: true } as any);
+  });
   return response.data;
 };

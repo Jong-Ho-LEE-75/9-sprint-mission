@@ -108,7 +108,6 @@ export interface LoginRequest {
 
 // 페이징 관련 타입
 export interface Pageable {
-  page: number;
   size: number;
   sort?: string[];
 }
@@ -118,5 +117,5 @@ export interface PageResponse<T> {
   nextCursor: string | null;
   size: number;
   hasNext: boolean;
-  totalElements: number | null;
+  totalElements: number;
 } 

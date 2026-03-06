@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import useUserStore from '@/stores/userStore';
 import defaultProfile from '@/assets/default_profile.png';
@@ -92,7 +91,7 @@ function EditUserModal({ isOpen, onClose, user }: EditUserModalProps): JSX.Eleme
 
   if (!isOpen) return null;
 
-  return createPortal(
+  return (
     <StyledModal>
       <ModalContent>
         <h2>프로필 수정</h2>
@@ -150,8 +149,7 @@ function EditUserModal({ isOpen, onClose, user }: EditUserModalProps): JSX.Eleme
         </form>
         <LogoutButton onClick={logout}>로그아웃</LogoutButton>
       </ModalContent>
-    </StyledModal>,
-    document.body
+    </StyledModal>
   );
 }
 

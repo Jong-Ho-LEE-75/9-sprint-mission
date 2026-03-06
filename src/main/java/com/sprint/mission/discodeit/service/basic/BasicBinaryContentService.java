@@ -35,12 +35,4 @@ public class BasicBinaryContentService implements BinaryContentService {
         .toList();
   }
 
-  @Override
-  @Transactional
-  public void delete(UUID binaryContentId) {
-    if (!binaryContentRepository.existsById(binaryContentId)) {
-      throw new NoSuchElementException("BinaryContent with id " + binaryContentId + " not found");
-    }
-    binaryContentRepository.deleteById(binaryContentId);
-  }
 }

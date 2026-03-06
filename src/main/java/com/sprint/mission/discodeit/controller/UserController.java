@@ -74,14 +74,6 @@ public class UserController implements UserApi {
     return ResponseEntity.ok(userService.findAll());
   }
 
-  @GetMapping(path = "{userId}/userStatus")
-  @Override
-  public ResponseEntity<UserStatusDto> getUserStatusByUserId(
-      @PathVariable("userId") UUID userId) {
-    UserStatusDto userStatus = userStatusService.findByUserId(userId);
-    return ResponseEntity.ok(userStatus);
-  }
-
   @PatchMapping(path = "{userId}/userStatus")
   @Override
   public ResponseEntity<UserStatusDto> updateUserStatusByUserId(

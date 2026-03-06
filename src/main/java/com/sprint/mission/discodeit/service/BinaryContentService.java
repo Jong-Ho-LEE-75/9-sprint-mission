@@ -9,6 +9,4 @@ public interface BinaryContentService {
   BinaryContentDto find(UUID binaryContentId);
 
   List<BinaryContentDto> findAllByIdIn(List<UUID> binaryContentIds);
-
-  void delete(UUID binaryContentId);
 }

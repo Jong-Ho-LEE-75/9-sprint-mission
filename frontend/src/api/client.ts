@@ -40,18 +40,12 @@ client.interceptors.response.use(
       error.response!.data = errorResponse;
     }
     
-    const status = error.response?.status;
-
+    // 에러 이벤트 발생
+    eventEmitter.emit('api-error', error);
+    
     // 401 에러 처리 (인증 실패)
-    if (status === 401) {
+    if (error.response && error.response.status === 401) {
       eventEmitter.emit('auth-error');
-    }
-
-    // 405(메서드 미허용)는 백그라운드 작업의 내부 에러로 사용자에게 노출하지 않음
-    // skipGlobalErrorHandler가 설정된 요청은 호출부에서 직접 처리
-    const skipGlobal = (error.config as any)?.skipGlobalErrorHandler;
-    if (status !== 405 && !skipGlobal) {
-      eventEmitter.emit('api-error', error);
     }
     
     return Promise.reject(error);

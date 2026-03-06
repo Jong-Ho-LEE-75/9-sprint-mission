@@ -1,26 +1,19 @@
 import defaultProfile from '@/assets/default_profile.png';
 import useBinaryContentStore, { BinaryContentInfo } from '@/stores/binaryContentStore';
 import useMessageStore from '@/stores/messageStore';
-import useUserStore from '@/stores/userStore';
 import { BinaryContentDto, ChannelDto } from '@/types/api';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Avatar } from '../../styles/common';
 import {
-  ActionButton,
   AttachmentList,
   AuthorAvatarContainer,
-  CancelButton,
-  EditActions,
-  EditButton,
-  EditInput,
   FileIcon,
   FileInfo,
   FileItem,
   FileName,
   FileSize,
   ImagePreview,
-  MessageActions,
   MessageAuthor,
   MessageContent,
   MessageHeader,
@@ -42,23 +35,19 @@ const formatFileSize = (bytes: number): string => {
 };
 
 function MessageList({ channel }: MessageListProps): JSX.Element {
-  const { messages, loadMoreMessages, pagination, startPolling, stopPolling, updateMessage, deleteMessage } = useMessageStore();
-  const { binaryContents, fetchBinaryContent } = useBinaryContentStore();
-  const currentUserId = useUserStore((state) => state.currentUserId);
-
-  const [hoveredMessageId, setHoveredMessageId] = useState<string | null>(null);
-  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
-  const [editContent, setEditContent] = useState('');
+  const { messages, fetchMessages, loadMoreMessages, pagination, startPolling, stopPolling } = useMessageStore();
+  const {binaryContents, fetchBinaryContent} = useBinaryContentStore();
 
   useEffect(() => {
     if (channel?.id) {
+      fetchMessages(channel.id, null);
       startPolling(channel.id);
 
       return () => {
         stopPolling(channel.id);
       };
     }
-  }, [channel?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [channel?.id, fetchMessages, startPolling, stopPolling]);
 
   useEffect(() => {
     messages.forEach(message => {
@@ -70,27 +59,6 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
     });
   }, [messages, binaryContents, fetchBinaryContent]);
 
-  const handleEditStart = (messageId: string, content: string) => {
-    setEditingMessageId(messageId);
-    setEditContent(content);
-  };
-
-  const handleEditSubmit = async (messageId: string) => {
-    if (!editContent.trim()) return;
-    await updateMessage(messageId, { newContent: editContent.trim() });
-    setEditingMessageId(null);
-    setEditContent('');
-  };
-
-  const handleEditCancel = () => {
-    setEditingMessageId(null);
-    setEditContent('');
-  };
-
-  const handleDelete = async (messageId: string) => {
-    await deleteMessage(messageId);
-  };
-
   const handleDownload = async (attachment: BinaryContentInfo) => {
     try {
       const { url, fileName } = attachment;
@@ -100,7 +68,8 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
 
       link.style.display = 'none';
       document.body.appendChild(link);
-
+      
+      // showSaveFilePicker API를 사용하여 저장 경로 선택 다이얼로그 표시
       try {
         const handle = await (window as any).showSaveFilePicker({
           suggestedName: attachment.fileName,
@@ -111,18 +80,21 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
             }
           }]
         });
-
+        
         const writable = await handle.createWritable();
         const response = await fetch(url);
         const blob = await response.blob();
         await writable.write(blob);
         await writable.close();
       } catch (err: any) {
+        // 사용자가 취소하거나 브라우저가 API를 지원하지 않는 경우
+        // 기본 다운로드 방식으로 폴백
         if (err.name !== 'AbortError') {
           link.click();
         }
       }
 
+      // cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -138,18 +110,18 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
       if (!attachment) return null;
 
       const isImage = attachment.contentType.startsWith('image/');
-
+      
       if (isImage) {
         return (
           <AttachmentList key={attachment.url}>
-            <ImagePreview
+            <ImagePreview 
               href="#"
               onClick={(e) => {
                 e.preventDefault();
                 handleDownload(attachment);
               }}
             >
-              <img
+              <img 
                 src={attachment.url}
                 alt={attachment.fileName}
               />
@@ -160,7 +132,7 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
 
       return (
         <AttachmentList key={attachment.url}>
-          <FileItem
+          <FileItem 
             href="#"
             onClick={(e) => {
               e.preventDefault();
@@ -194,6 +166,7 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
     }
   };
 
+
   return (
     <MessageListWrapper>
       <div id="scrollableDiv" style={{ height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column-reverse' }}>
@@ -207,72 +180,32 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
           inverse={true}
           endMessage={
             <p style={{ textAlign: 'center' }}>
-              <b>{!pagination.hasNext && messages.length > 0 ? "모든 메시지를 불러왔습니다" : ""}</b>
+              <b>{pagination.nextCursor !== null ? "모든 메시지를 불러왔습니다" : ""}</b>
             </p>
           }
         >
           <StyledMessageList>
             {[...messages].reverse().map(message => {
               const author = message.author;
-              const isMyMessage = currentUserId && author?.id === currentUserId;
-              const isEditing = editingMessageId === message.id;
-              const isHovered = hoveredMessageId === message.id;
 
               return (
-                <MessageItem
-                  key={message.id}
-                  onMouseEnter={() => setHoveredMessageId(message.id)}
-                  onMouseLeave={() => setHoveredMessageId(null)}
-                >
+                <MessageItem key={message.id}>
                   <AuthorAvatarContainer>
-                    <Avatar
-                      src={author && author.profile ? binaryContents[author.profile.id]?.url : defaultProfile}
-                      alt={author && author.username || '알 수 없음'}
+                    <Avatar 
+                      src={author && author.profile ? binaryContents[author.profile.id]?.url : defaultProfile} 
+                      alt={author && author.username || '알 수 없음'} 
                     />
                   </AuthorAvatarContainer>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div>
                     <MessageHeader>
                       <MessageAuthor>{author && author.username || '알 수 없음'}</MessageAuthor>
                       <MessageTime>
                         {formatTime(message.createdAt)}
                       </MessageTime>
                     </MessageHeader>
-                    {isEditing ? (
-                      <>
-                        <EditInput
-                          value={editContent}
-                          onChange={(e) => setEditContent(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                              e.preventDefault();
-                              handleEditSubmit(message.id);
-                            }
-                            if (e.key === 'Escape') {
-                              handleEditCancel();
-                            }
-                          }}
-                          autoFocus
-                        />
-                        <EditActions>
-                          <EditButton onClick={() => handleEditSubmit(message.id)}>저장</EditButton>
-                          <CancelButton onClick={handleEditCancel}>취소</CancelButton>
-                        </EditActions>
-                      </>
-                    ) : (
-                      <MessageContent>{message.content}</MessageContent>
-                    )}
+                    <MessageContent>{message.content}</MessageContent>
                     {renderAttachments(message.attachments)}
                   </div>
-                  {isMyMessage && isHovered && !isEditing && (
-                    <MessageActions>
-                      <ActionButton onClick={() => handleEditStart(message.id, message.content)}>
-                        수정
-                      </ActionButton>
-                      <ActionButton $danger onClick={() => handleDelete(message.id)}>
-                        삭제
-                      </ActionButton>
-                    </MessageActions>
-                  )}
                 </MessageItem>
               );
             })}
@@ -283,4 +216,4 @@ function MessageList({ channel }: MessageListProps): JSX.Element {
   );
 }
 
-export default MessageList;
+export default MessageList; 

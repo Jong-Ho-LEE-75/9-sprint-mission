@@ -53,19 +53,17 @@ function ChannelList({ currentUser, activeChannel, onChannelSelect }: ChannelLis
   const updateReadStatus = useReadStatusStore((state) => state.updateReadStatus);
   const hasUnreadMessages = useReadStatusStore((state) => state.hasUnreadMessages);
 
-  const currentUserId = currentUser?.id;
-
   useEffect(() => {
-    if (currentUserId) {
-      fetchChannels(currentUserId);
+    if (currentUser) {
+      fetchChannels(currentUser.id);
       fetchReadStatuses();
-      startPolling(currentUserId);
+      startPolling(currentUser.id);
 
       return () => {
         stopPolling();
       };
     }
-  }, [currentUserId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentUser, fetchChannels, fetchReadStatuses, startPolling, stopPolling]);
 
   const toggleSection = (sectionName: 'PUBLIC' | 'PRIVATE') => {
     setFoldedSections(prev => ({

@@ -24,15 +24,6 @@ public class BasicUserStatusService implements UserStatusService {
   private final UserStatusMapper userStatusMapper;
 
   @Override
-  @Transactional(readOnly = true)
-  public UserStatusDto findByUserId(UUID userId) {
-    UserStatus userStatus = userStatusRepository.findByUser_Id(userId)
-        .orElseThrow(
-            () -> new NoSuchElementException("UserStatus with userId " + userId + " not found"));
-    return userStatusMapper.toDto(userStatus);
-  }
-
-  @Override
   @Transactional
   public UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest request) {
     User user = userRepository.findById(userId)

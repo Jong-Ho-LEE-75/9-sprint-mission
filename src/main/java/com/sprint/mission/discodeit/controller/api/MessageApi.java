@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
@@ -59,7 +58,6 @@ public interface MessageApi {
   })
   ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
       @Parameter(description = "조회할 Channel ID") UUID channelId,
-      @Parameter(description = "페이징 커서 (이전 페이지 마지막 메시지의 createdAt)") Instant cursor,
       Pageable pageable
   );
 }

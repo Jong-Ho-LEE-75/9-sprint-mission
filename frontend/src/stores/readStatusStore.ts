@@ -82,8 +82,6 @@ const useReadStatusStore = create<ReadStatusStore>((set, get) => ({
   },
 
   hasUnreadMessages: (channelId, lastMessageAt) => {
-    // 메시지가 없는 채널은 읽지 않은 메시지 없음
-    if (!lastMessageAt) return false;
     const status = get().readStatuses[channelId];
     const lastReadAt = status?.lastReadAt;
     // ReadStatus가 없거나 마지막 메시지가 마지막 읽은 시간보다 이후인 경우

@@ -17,12 +17,12 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,28 +71,14 @@ public class BasicMessageService implements MessageService {
 
   @Override
   @Transactional(readOnly = true)
-  public MessageDto find(UUID messageId) {
-    return messageRepository.findById(messageId)
-        .map(messageMapper::toDto)
-        .orElseThrow(
-            () -> new NoSuchElementException("Message with id " + messageId + " not found"));
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor,
-      org.springframework.data.domain.Pageable pageable) {
-    // 정렬은 쿼리에 고정(createdAt DESC)이므로 size만 사용
-    PageRequest sizeOnly = PageRequest.of(0, pageable.getPageSize());
-    Slice<Message> slice = (cursor == null)
-        ? messageRepository.findAllByChannelId(channelId, sizeOnly)
-        : messageRepository.findAllByChannelIdBeforeCursor(channelId, cursor, sizeOnly);
-
-    Instant nextCursor = slice.getContent().isEmpty() ? null
-        : slice.getContent().get(slice.getContent().size() - 1).getCreatedAt();
-
+  public PageResponse<MessageDto> findAllByChannelId(UUID channelId, Pageable pageable) {
+    PageRequest pageRequest = PageRequest.of(
+        pageable.getPageNumber(),
+        pageable.getPageSize() > 0 ? pageable.getPageSize() : 50
+    );
+    Slice<Message> slice = messageRepository.findAllByChannelId(channelId, pageRequest);
     Slice<MessageDto> dtoSlice = slice.map(messageMapper::toDto);
-    return pageResponseMapper.fromSlice(dtoSlice, nextCursor);
+    return pageResponseMapper.fromSlice(dtoSlice);
   }
 
   @Override

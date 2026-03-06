@@ -6,7 +6,5 @@ import java.util.UUID;
 
 public interface UserStatusService {
 
-  UserStatusDto findByUserId(UUID userId);
-
   UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest request);
 }

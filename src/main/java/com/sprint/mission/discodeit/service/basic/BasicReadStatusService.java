@@ -50,15 +50,6 @@ public class BasicReadStatusService implements ReadStatusService {
 
   @Override
   @Transactional(readOnly = true)
-  public ReadStatusDto find(UUID readStatusId) {
-    return readStatusRepository.findById(readStatusId)
-        .map(readStatusMapper::toDto)
-        .orElseThrow(
-            () -> new NoSuchElementException("ReadStatus with id " + readStatusId + " not found"));
-  }
-
-  @Override
-  @Transactional(readOnly = true)
   public List<ReadStatusDto> findAllByUserId(UUID userId) {
     return readStatusRepository.findAllByUser_Id(userId).stream()
         .map(readStatusMapper::toDto)
@@ -75,12 +66,4 @@ public class BasicReadStatusService implements ReadStatusService {
     return readStatusMapper.toDto(readStatus);
   }
 
-  @Override
-  @Transactional
-  public void delete(UUID readStatusId) {
-    if (!readStatusRepository.existsById(readStatusId)) {
-      throw new NoSuchElementException("ReadStatus with id " + readStatusId + " not found");
-    }
-    readStatusRepository.deleteById(readStatusId);
-  }
 }

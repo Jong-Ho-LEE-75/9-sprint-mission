@@ -1,12 +1,13 @@
 import client from './client';
 import { MessageDto, MessageCreateRequest, MessageUpdateRequest, Pageable, PageResponse } from '../types/api';
 
-export const getMessages = async (channelId: string, pageable: Pageable, cursor?: string | null): Promise<PageResponse<MessageDto>> => {
+export const getMessages = async (channelId: string, cursor: string | null, pageable: Pageable): Promise<PageResponse<MessageDto>> => {
   const response = await client.get<PageResponse<MessageDto>>(`/messages`, {
     params: {
       channelId,
-      ...(cursor ? { cursor } : {}),
-      size: pageable?.size,
+      cursor,
+      size: pageable.size,
+      sort: pageable.sort?.join(',')
     }
   });
   return response.data;

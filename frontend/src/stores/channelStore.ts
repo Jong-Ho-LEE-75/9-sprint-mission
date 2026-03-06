@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { createPrivateChannel, createPublicChannel, getChannels } from '../api/channel';
 import { ChannelDto, PublicChannelCreateRequest } from '../types/api';
+import useReadStatusStore from './readStatusStore';
 
 interface ChannelStore {
   channels: ChannelDto[];
@@ -46,6 +47,9 @@ const useChannelStore = create<ChannelStore>((set, get) => ({
         };
       });
       
+      // 읽음 상태 가져오기
+      const { fetchReadStatuses } = useReadStatusStore.getState();
+      fetchReadStatuses();
       return channels;
     } catch (error) {
       set({ error, loading: false });

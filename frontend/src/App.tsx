@@ -82,17 +82,11 @@ function App(): JSX.Element {
     let intervalId: NodeJS.Timeout;
 
     if (currentUserId) {
-      const safeUpdateStatus = async () => {
-        try {
-          await updateUserStatus(currentUserId);
-        } catch {
-          logout();
-        }
-      };
-
       // 현재 사용자의 상태를 30초마다 업데이트
-      safeUpdateStatus();
-      intervalId = setInterval(safeUpdateStatus, 30000);
+      updateUserStatus(currentUserId);
+      intervalId = setInterval(() => {
+        updateUserStatus(currentUserId);
+      }, 30000);
 
       // 사용자 목록을 1분마다 새로고침
       const fetchInterval = setInterval(() => {
@@ -104,9 +98,9 @@ function App(): JSX.Element {
         clearInterval(fetchInterval);
       };
     }
-
+    
     return undefined;
-  }, [currentUserId, fetchUsers, updateUserStatus, logout]);
+  }, [currentUserId, fetchUsers, updateUserStatus]);
 
   const closeErrorModal = () => {
     setIsErrorModalOpen(false);

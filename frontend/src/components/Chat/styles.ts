@@ -136,84 +136,9 @@ export const StyledMessageList = styled.div`
 `
 
 export const MessageItem = styled.div`
-  position: relative;
   margin-bottom: 16px;
   display: flex;
   align-items: flex-start;
-`
-
-export const MessageActions = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: flex;
-  gap: 4px;
-  background: ${({ theme }) => theme.colors.background.secondary};
-  border: 1px solid ${({ theme }) => theme.colors.border.primary};
-  border-radius: 4px;
-  padding: 2px;
-  z-index: 1;
-`
-
-export const ActionButton = styled.button<{ $danger?: boolean }>`
-  background: none;
-  border: none;
-  color: ${({ $danger, theme }) => $danger ? theme.colors.status.error : theme.colors.text.muted};
-  font-size: 12px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.background.hover};
-    color: ${({ $danger, theme }) => $danger ? theme.colors.status.error : theme.colors.text.primary};
-  }
-`
-
-export const EditInput = styled.textarea`
-  width: 100%;
-  padding: 8px;
-  background: ${({ theme }) => theme.colors.background.tertiary};
-  border: 1px solid ${({ theme }) => theme.colors.brand.primary};
-  border-radius: 4px;
-  color: ${({ theme }) => theme.colors.text.primary};
-  font-size: 14px;
-  resize: none;
-  min-height: 60px;
-  font-family: inherit;
-
-  &:focus {
-    outline: none;
-  }
-`
-
-export const EditActions = styled.div`
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
-`
-
-export const EditButton = styled.button`
-  padding: 4px 12px;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  background: ${({ theme }) => theme.colors.brand.primary};
-  color: ${({ theme }) => theme.colors.text.primary};
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.brand.hover};
-  }
-`
-
-export const CancelButton = styled(EditButton)`
-  background: transparent;
-  color: ${({ theme }) => theme.colors.text.muted};
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.background.hover};
-  }
 `
 
 export const AuthorAvatarContainer = styled(AvatarContainer)`

@@ -67,17 +67,6 @@ public interface UserApi {
   })
   ResponseEntity<List<UserDto>> findAll();
 
-  @Operation(summary = "User 온라인 상태 조회")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "User 온라인 상태 조회 성공",
-          content = @Content(schema = @Schema(implementation = UserStatusDto.class))),
-      @ApiResponse(responseCode = "404", description = "해당 User의 UserStatus를 찾을 수 없음",
-          content = @Content(examples = @ExampleObject(value = "UserStatus with userId {userId} not found")))
-  })
-  ResponseEntity<UserStatusDto> getUserStatusByUserId(
-      @Parameter(description = "조회할 User ID") UUID userId
-  );
-
   @Operation(summary = "User 온라인 상태 업데이트")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "User 온라인 상태가 성공적으로 업데이트됨",
