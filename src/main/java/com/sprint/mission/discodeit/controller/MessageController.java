@@ -8,12 +8,12 @@ import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -81,8 +81,9 @@ public class MessageController implements MessageApi {
   @Override
   public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(
       @RequestParam("channelId") UUID channelId,
-      Pageable pageable) {
-    PageResponse<MessageDto> response = messageService.findAllByChannelId(channelId, pageable);
+      @RequestParam(value = "cursor", required = false) Instant cursor,
+      @RequestParam(value = "size", defaultValue = "50") int size) {
+    PageResponse<MessageDto> response = messageService.findAllByChannelId(channelId, cursor, size);
     return ResponseEntity.ok(response);
   }
 }
