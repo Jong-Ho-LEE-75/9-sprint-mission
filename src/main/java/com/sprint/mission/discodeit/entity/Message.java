@@ -13,11 +13,12 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.BatchSize;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "messages")
 public class Message extends BaseUpdatableEntity {
