@@ -45,6 +45,7 @@ bin/
 ### Claude ###
 CLAUDE.md
 .claude/
+docs/
 
 ### Frontend ###
 frontend/node_modules/
