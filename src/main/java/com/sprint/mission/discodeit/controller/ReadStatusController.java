@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
+/**
+ * 읽음 상태 API 컨트롤러.
+ * 사용자별 채널 읽음 상태 생성, 수정, 조회를 처리한다.
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/readStatuses")

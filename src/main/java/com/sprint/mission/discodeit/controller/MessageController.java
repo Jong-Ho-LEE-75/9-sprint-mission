@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j
+/**
+ * 메시지 API 컨트롤러.
+ * 메시지 CRUD 및 커서 기반 페이지네이션 조회를 처리한다.
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/messages")
@@ -39,14 +41,13 @@ public class MessageController implements MessageApi {
 
   private final MessageService messageService;
 
+  /** 메시지 생성 (첨부파일 선택 첨부) */
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Override
   public ResponseEntity<MessageDto> create(
       @Valid @RequestPart("messageCreateRequest") MessageCreateRequest messageCreateRequest,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
   ) {
-    log.info("메시지 생성 요청: channelId={}, authorId={}", messageCreateRequest.channelId(),
-        messageCreateRequest.authorId());
     List<BinaryContentCreateRequest> attachmentRequests = Optional.ofNullable(attachments)
         .map(files -> files.stream()
             .map(file -> {
@@ -71,7 +72,6 @@ public class MessageController implements MessageApi {
   @Override
   public ResponseEntity<MessageDto> update(@PathVariable("messageId") UUID messageId,
       @Valid @RequestBody MessageUpdateRequest request) {
-    log.info("메시지 수정 요청: messageId={}", messageId);
     MessageDto updatedMessage = messageService.update(messageId, request);
     return ResponseEntity.ok(updatedMessage);
   }
@@ -79,11 +79,11 @@ public class MessageController implements MessageApi {
   @DeleteMapping(path = "{messageId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable("messageId") UUID messageId) {
-    log.info("메시지 삭제 요청: messageId={}", messageId);
     messageService.delete(messageId);
     return ResponseEntity.noContent().build();
   }
 
+  /** 채널 메시지 목록 조회 (커서 기반 페이지네이션, createdAt DESC) */
   @GetMapping
   @Override
   public ResponseEntity<PageResponse<MessageDto>> findAllByChannelId(

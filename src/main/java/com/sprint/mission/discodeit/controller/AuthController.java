@@ -6,14 +6,16 @@ import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
+/**
+ * 인증 API 컨트롤러.
+ * 사용자 로그인을 처리한다.
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
@@ -24,7 +26,6 @@ public class AuthController implements AuthApi {
   @PostMapping("/login")
   @Override
   public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequest loginRequest) {
-    log.info("로그인 요청: username={}", loginRequest.username());
     UserDto userDto = authService.login(loginRequest);
     return ResponseEntity.ok(userDto);
   }

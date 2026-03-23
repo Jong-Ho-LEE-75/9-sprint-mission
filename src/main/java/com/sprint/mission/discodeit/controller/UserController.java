@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +29,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j
+/**
+ * 사용자 API 컨트롤러.
+ * 사용자 CRUD 및 온라인 상태 업데이트를 처리한다.
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
@@ -39,19 +41,20 @@ public class UserController implements UserApi {
   private final UserService userService;
   private final UserStatusService userStatusService;
 
+  /** 사용자 생성 (프로필 이미지 선택 첨부) */
   @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
   public ResponseEntity<UserDto> create(
       @Valid @RequestPart("userCreateRequest") UserCreateRequest userCreateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-    log.info("사용자 생성 요청: username={}", userCreateRequest.username());
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
     UserDto createdUser = userService.create(userCreateRequest, profileRequest);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
   }
 
+  /** 사용자 정보 수정 (프로필 이미지 변경 가능) */
   @PatchMapping(path = "{userId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @Override
   public ResponseEntity<UserDto> update(
@@ -59,7 +62,6 @@ public class UserController implements UserApi {
       @Valid @RequestPart("userUpdateRequest") UserUpdateRequest userUpdateRequest,
       @RequestPart(value = "profile", required = false) MultipartFile profile
   ) {
-    log.info("사용자 수정 요청: userId={}", userId);
     Optional<BinaryContentCreateRequest> profileRequest = Optional.ofNullable(profile)
         .flatMap(this::resolveProfileRequest);
     UserDto updatedUser = userService.update(userId, userUpdateRequest, profileRequest);
@@ -69,7 +71,6 @@ public class UserController implements UserApi {
   @DeleteMapping(path = "{userId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable("userId") UUID userId) {
-    log.info("사용자 삭제 요청: userId={}", userId);
     userService.delete(userId);
     return ResponseEntity.noContent().build();
   }
@@ -80,6 +81,7 @@ public class UserController implements UserApi {
     return ResponseEntity.ok(userService.findAll());
   }
 
+  /** 사용자 온라인 상태 갱신 (프론트엔드 폴링용) */
   @PatchMapping(path = "{userId}/userStatus")
   @Override
   public ResponseEntity<UserStatusDto> updateUserStatusByUserId(
@@ -89,6 +91,7 @@ public class UserController implements UserApi {
     return ResponseEntity.ok(updatedUserStatus);
   }
 
+  /** MultipartFile을 BinaryContentCreateRequest로 변환 */
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {
     if (profileFile.isEmpty()) {
       return Optional.empty();

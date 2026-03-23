@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
+/**
+ * 채널 API 컨트롤러.
+ * PUBLIC/PRIVATE 채널 생성, 수정, 삭제, 목록 조회를 처리한다.
+ */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/channels")
@@ -35,7 +37,6 @@ public class ChannelController implements ChannelApi {
   @Override
   public ResponseEntity<ChannelDto> createPublic(
       @Valid @RequestBody PublicChannelCreateRequest request) {
-    log.info("PUBLIC 채널 생성 요청: name={}", request.name());
     ChannelDto createdChannel = channelService.create(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
   }
@@ -44,7 +45,6 @@ public class ChannelController implements ChannelApi {
   @Override
   public ResponseEntity<ChannelDto> createPrivate(
       @Valid @RequestBody PrivateChannelCreateRequest request) {
-    log.info("PRIVATE 채널 생성 요청: participantIds={}", request.participantIds());
     ChannelDto createdChannel = channelService.create(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
   }
@@ -53,7 +53,6 @@ public class ChannelController implements ChannelApi {
   @Override
   public ResponseEntity<ChannelDto> update(@PathVariable("channelId") UUID channelId,
       @Valid @RequestBody PublicChannelUpdateRequest request) {
-    log.info("채널 수정 요청: channelId={}", channelId);
     ChannelDto updatedChannel = channelService.update(channelId, request);
     return ResponseEntity.ok(updatedChannel);
   }
@@ -61,11 +60,11 @@ public class ChannelController implements ChannelApi {
   @DeleteMapping(path = "{channelId}")
   @Override
   public ResponseEntity<Void> delete(@PathVariable("channelId") UUID channelId) {
-    log.info("채널 삭제 요청: channelId={}", channelId);
     channelService.delete(channelId);
     return ResponseEntity.noContent().build();
   }
 
+  /** 사용자가 접근 가능한 채널 목록 조회 (PUBLIC + 참여 중인 PRIVATE) */
   @GetMapping
   @Override
   public ResponseEntity<List<ChannelDto>> findAll(@RequestParam("userId") UUID userId) {
