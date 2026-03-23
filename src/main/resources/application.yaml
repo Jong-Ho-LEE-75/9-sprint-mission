@@ -1,8 +1,9 @@
+# ===== 공통 설정 (모든 프로파일에 적용) =====
 spring:
   application:
     name: discodeit
   profiles:
-    active: dev
+    active: dev  # 기본 활성 프로파일
   servlet:
     multipart:
       maxFileSize: 10MB
@@ -10,22 +11,25 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: validate  # 스키마 자동 생성 안 함, schema.sql 수동 적용 필요
     defer-datasource-initialization: true
   sql:
     init:
       mode: never
 
+# 파일 저장소 설정
 discodeit:
   storage:
     type: local
     local:
       root-path: .discodeit-storage
 
+# 기본 로깅 레벨
 logging:
   level:
     root: info
 
+# ===== Actuator 모니터링 설정 =====
 management:
   endpoints:
     web:
@@ -35,6 +39,7 @@ management:
     env:
       enabled: true
 
+# 애플리케이션 정보 (Actuator /info 엔드포인트)
 info:
   app:
     name: Discodeit

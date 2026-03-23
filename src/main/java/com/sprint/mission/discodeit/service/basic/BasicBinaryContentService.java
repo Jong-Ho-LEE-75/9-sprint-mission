@@ -16,6 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 파일(바이너리 콘텐츠) 서비스 구현체.
+ * 파일 메타데이터(DB) + 파일 바이트(Storage) 생성/조회/삭제를 담당한다.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service

@@ -22,6 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 읽음 상태 서비스 구현체.
+ * 사용자별 채널 마지막 읽음 시각을 관리한다.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service

@@ -14,6 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 인증 서비스 구현체.
+ * 사용자명과 비밀번호 기반의 로그인을 처리한다.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service

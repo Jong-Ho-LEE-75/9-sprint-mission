@@ -22,6 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 사용자 온라인 상태 서비스 구현체.
+ * lastActiveAt을 갱신하여 온라인 여부를 관리한다.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service

@@ -31,6 +31,11 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 메시지 서비스 구현체.
+ * 메시지 CRUD 및 첨부파일 관리를 담당한다.
+ * 조회는 커서 기반 페이지네이션(createdAt DESC)을 사용한다.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service

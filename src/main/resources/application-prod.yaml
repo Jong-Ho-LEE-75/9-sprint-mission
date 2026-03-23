@@ -1,3 +1,4 @@
+# ===== 운영 환경 설정 (환경변수 기반) =====
 spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:discodeit}
@@ -10,6 +11,7 @@ spring:
 server:
   port: ${SERVER_PORT:8080}
 
+# 프로젝트 코드 로그 레벨: info
 logging:
   level:
     com.sprint.mission.discodeit: info

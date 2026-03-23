@@ -1,3 +1,4 @@
+# ===== 개발 환경 설정 =====
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/discodeit
@@ -14,6 +15,7 @@ spring:
 server:
   port: 8080
 
+# 프로젝트 코드 로그 레벨: debug (SQL 로그는 show-sql로 제어)
 logging:
   level:
     com.sprint.mission.discodeit: debug

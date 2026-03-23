@@ -3,6 +3,10 @@ package com.sprint.mission.discodeit.exception;
 import java.time.Instant;
 import java.util.Map;
 
+/**
+ * API 에러 응답 DTO.
+ * GlobalExceptionHandler에서 일관된 에러 응답 형식을 보장한다.
+ */
 public record ErrorResponse(
     Instant timestamp,
     String code,
@@ -12,6 +16,7 @@ public record ErrorResponse(
     int status
 ) {
 
+    /** DiscodeitException으로부터 ErrorResponse를 생성하는 팩토리 메서드 */
     public static ErrorResponse from(DiscodeitException ex) {
         return new ErrorResponse(
             ex.getTimestamp(),

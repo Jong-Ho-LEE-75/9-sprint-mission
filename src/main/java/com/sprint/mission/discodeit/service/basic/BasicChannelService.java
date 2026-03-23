@@ -32,6 +32,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 채널 서비스 구현체.
+ * PUBLIC/PRIVATE 채널 생성, 수정, 삭제를 담당한다.
+ * PRIVATE 채널 생성 시 참여자별 ReadStatus를 자동 생성하며,
+ * 채널 삭제 시 관련 메시지의 첨부파일도 함께 정리한다.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service

@@ -11,10 +11,15 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * 전역 예외 핸들러.
+ * 모든 컨트롤러에서 발생하는 예외를 ErrorResponse 형식으로 일관되게 처리한다.
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /** 비즈니스 로직 예외 처리 (도메인별 커스텀 예외) */
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(DiscodeitException e) {
         log.warn("[{}] {}: {}", e.getErrorCode(), e.getClass().getSimpleName(), e.getDetails());
@@ -24,6 +29,7 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
+    /** @Valid 유효성 검사 실패 처리 (필드별 에러 메시지 포함) */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
         MethodArgumentNotValidException e) {
@@ -46,6 +52,7 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
+    /** 지원하지 않는 HTTP 메서드 요청 처리 (예: GET 전용 API에 POST 요청) */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(
         HttpRequestMethodNotSupportedException e) {
@@ -62,6 +69,7 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
+    /** 예상치 못한 서버 오류 처리 (500 Internal Server Error) */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         log.error("Unhandled exception", e);

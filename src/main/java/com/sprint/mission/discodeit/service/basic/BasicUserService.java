@@ -26,6 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 사용자 서비스 구현체.
+ * 사용자 CRUD 및 프로필 이미지 관리를 담당한다.
+ * 사용자 생성 시 UserStatus도 함께 생성하며, flush/refresh로 1차 캐시를 갱신한다.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service
