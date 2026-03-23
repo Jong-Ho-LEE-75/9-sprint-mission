@@ -2,6 +2,11 @@
 spring:
   application:
     name: discodeit
+  boot:
+    admin:
+      client:
+        instance:
+          name: discodeit
   profiles:
     active: dev  # 기본 활성 프로파일
   servlet:
@@ -34,7 +39,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, loggers
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
   info:
     env:
       enabled: true
