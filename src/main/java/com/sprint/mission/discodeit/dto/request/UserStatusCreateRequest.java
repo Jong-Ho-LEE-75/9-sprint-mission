@@ -4,10 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.UUID;
 
-public record ReadStatusCreateRequest(
+public record UserStatusCreateRequest(
     @NotNull UUID userId,
-    @NotNull UUID channelId,
-    @NotNull Instant lastReadAt
+    @NotNull Instant lastActiveAt
 ) {
 
 }
