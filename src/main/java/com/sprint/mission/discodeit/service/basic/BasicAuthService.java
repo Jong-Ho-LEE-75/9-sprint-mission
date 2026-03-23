@@ -3,14 +3,18 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.auth.InvalidPasswordException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicAuthService implements AuthService {
@@ -24,14 +28,18 @@ public class BasicAuthService implements AuthService {
     String username = loginRequest.username();
     String password = loginRequest.password();
 
+    log.info("로그인 시도: username={}", username);
+
     User user = userRepository.findByUsername(username)
         .orElseThrow(
-            () -> new NoSuchElementException("User with username " + username + " not found"));
+            () -> new UserNotFoundException(Map.of("username", username)));
 
     if (!user.getPassword().equals(password)) {
-      throw new IllegalArgumentException("Wrong password");
+      log.warn("로그인 실패 - 비밀번호 불일치: username={}", username);
+      throw new InvalidPasswordException(Map.of("username", username));
     }
 
+    log.info("로그인 성공: userId={}", user.getId());
     return userMapper.toDto(user);
   }
 }
