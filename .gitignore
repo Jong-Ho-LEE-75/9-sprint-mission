@@ -41,6 +41,9 @@ bin/
 ### Discodeit ###
 .discodeit
 .discodeit-storage/
+discodeit/
+file-data-map/
+api-docs.json
 
 ### Claude ###
 CLAUDE.md
