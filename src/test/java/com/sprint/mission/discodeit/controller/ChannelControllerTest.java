@@ -3,7 +3,9 @@ package com.sprint.mission.discodeit.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -12,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.dto.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.ChannelType;
@@ -100,5 +103,65 @@ class ChannelControllerTest {
         mockMvc.perform(get("/api/channels").param("userId", userId.toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].name").value("general"));
+    }
+
+    @Test
+    @DisplayName("POST /api/channels/private - 성공: PRIVATE 채널을 생성한다")
+    void createPrivate_success() throws Exception {
+        UUID userId = UUID.randomUUID();
+        ChannelDto channelDto = new ChannelDto(UUID.randomUUID(), ChannelType.PRIVATE, null,
+            null, List.of(), null);
+        given(channelService.create(any(PrivateChannelCreateRequest.class))).willReturn(channelDto);
+
+        mockMvc.perform(post("/api/channels/private")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(
+                    new PrivateChannelCreateRequest(List.of(userId)))))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.type").value("PRIVATE"));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/channels/{channelId} - 성공: 채널을 삭제한다")
+    void delete_success() throws Exception {
+        UUID channelId = UUID.randomUUID();
+        willDoNothing().given(channelService).delete(channelId);
+
+        mockMvc.perform(delete("/api/channels/{channelId}", channelId))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/channels/{channelId} - 실패: 존재하지 않는 채널")
+    void delete_fail_notFound() throws Exception {
+        UUID channelId = UUID.randomUUID();
+        willThrow(new ChannelNotFoundException(Map.of("channelId", channelId)))
+            .given(channelService).delete(channelId);
+
+        mockMvc.perform(delete("/api/channels/{channelId}", channelId))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("CHANNEL_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("PUT /api/channels/public - 지원하지 않는 HTTP 메서드 405")
+    void methodNotAllowed() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                .put("/api/channels/public")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+            .andExpect(status().isMethodNotAllowed());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/channels/{channelId} - 서버 오류 발생 시 500")
+    void delete_fail_serverError() throws Exception {
+        UUID channelId = UUID.randomUUID();
+        willThrow(new RuntimeException("unexpected error"))
+            .given(channelService).delete(channelId);
+
+        mockMvc.perform(delete("/api/channels/{channelId}", channelId))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.code").value("INTERNAL_SERVER_ERROR"));
     }
 }

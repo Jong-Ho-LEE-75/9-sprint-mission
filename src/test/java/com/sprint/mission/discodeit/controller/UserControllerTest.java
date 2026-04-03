@@ -8,15 +8,20 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -95,5 +100,40 @@ class UserControllerTest {
         mockMvc.perform(delete("/api/users/{userId}", userId))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/users/{userId} - 성공: 사용자 정보를 수정한다")
+    void update_success() throws Exception {
+        UUID userId = UUID.randomUUID();
+        UserDto userDto = new UserDto(userId, "newuser", "new@email.com", null, true);
+        given(userService.update(any(UUID.class), any(), any(Optional.class))).willReturn(userDto);
+
+        UserUpdateRequest request = new UserUpdateRequest("newuser", "new@email.com", null);
+        MockMultipartFile requestPart = new MockMultipartFile(
+            "userUpdateRequest", "", MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(request));
+
+        mockMvc.perform(multipart("/api/users/{userId}", userId)
+                .file(requestPart)
+                .with(req -> { req.setMethod("PATCH"); return req; }))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.username").value("newuser"));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/users/{userId}/userStatus - 성공: 사용자 상태를 갱신한다")
+    void updateUserStatus_success() throws Exception {
+        UUID userId = UUID.randomUUID();
+        Instant now = Instant.now();
+        UserStatusDto statusDto = new UserStatusDto(UUID.randomUUID(), userId, now);
+        given(userStatusService.updateByUserId(any(UUID.class), any(UserStatusUpdateRequest.class)))
+            .willReturn(statusDto);
+
+        mockMvc.perform(patch("/api/users/{userId}/userStatus", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new UserStatusUpdateRequest(now))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.userId").value(userId.toString()));
     }
 }
