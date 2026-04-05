@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.integration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -127,5 +128,39 @@ class MessageIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").isArray())
             .andExpect(jsonPath("$.content[0].content").value("test message"));
+    }
+
+    @Test
+    @DisplayName("첨부파일과 함께 메시지를 생성한다")
+    void create_withAttachments() throws Exception {
+        MessageCreateRequest request = new MessageCreateRequest("with attachment", channelId, userId);
+        MockMultipartFile msgPart = new MockMultipartFile(
+            "messageCreateRequest", "", MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(request));
+        MockMultipartFile attachment = new MockMultipartFile(
+            "attachments", "doc.txt", "text/plain", "file content".getBytes());
+
+        mockMvc.perform(multipart("/api/messages").file(msgPart).file(attachment))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.content").value("with attachment"));
+    }
+
+    @Test
+    @DisplayName("메시지 삭제 통합 테스트")
+    void deleteMessage() throws Exception {
+        // 생성
+        MessageCreateRequest request = new MessageCreateRequest("to delete", channelId, userId);
+        MockMultipartFile msgPart = new MockMultipartFile(
+            "messageCreateRequest", "", MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(request));
+        MvcResult createResult = mockMvc.perform(multipart("/api/messages").file(msgPart))
+            .andExpect(status().isCreated())
+            .andReturn();
+        String messageId = objectMapper.readTree(createResult.getResponse().getContentAsString())
+            .get("id").asText();
+
+        // 삭제
+        mockMvc.perform(delete("/api/messages/{messageId}", messageId))
+            .andExpect(status().isNoContent());
     }
 }

@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -98,5 +99,70 @@ class UserIntegrationTest {
 
         mockMvc.perform(multipart("/api/users").file(requestPart))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("프로필 이미지와 함께 사용자를 생성한다")
+    void create_withProfile() throws Exception {
+        MockMultipartFile requestPart = createUserRequestPart("profileuser", "profile@email.com");
+        MockMultipartFile profileFile = new MockMultipartFile(
+            "profile", "avatar.png", "image/png", "fake-image-data".getBytes());
+
+        mockMvc.perform(multipart("/api/users").file(requestPart).file(profileFile))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.username").value("profileuser"));
+    }
+
+    @Test
+    @DisplayName("로그인 → 사용자 상태 업데이트 통합 테스트")
+    void loginAndUpdateStatus() throws Exception {
+        // 사용자 생성
+        MvcResult createResult = mockMvc.perform(
+                multipart("/api/users").file(createUserRequestPart("loginuser", "login@email.com")))
+            .andExpect(status().isCreated())
+            .andReturn();
+        String userId = objectMapper.readTree(createResult.getResponse().getContentAsString())
+            .get("id").asText();
+
+        // 로그인
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(
+                    new com.sprint.mission.discodeit.dto.request.LoginRequest("loginuser", "password1234"))))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.username").value("loginuser"));
+
+        // 상태 업데이트
+        mockMvc.perform(patch("/api/users/{userId}/userStatus", userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(
+                    new com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest(
+                        java.time.Instant.now()))))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("사용자 정보 수정 통합 테스트")
+    void updateUser() throws Exception {
+        // 생성
+        MvcResult createResult = mockMvc.perform(
+                multipart("/api/users").file(createUserRequestPart("origuser", "orig@email.com")))
+            .andExpect(status().isCreated())
+            .andReturn();
+        String userId = objectMapper.readTree(createResult.getResponse().getContentAsString())
+            .get("id").asText();
+
+        // 수정
+        com.sprint.mission.discodeit.dto.request.UserUpdateRequest updateReq =
+            new com.sprint.mission.discodeit.dto.request.UserUpdateRequest("newname", null, null);
+        MockMultipartFile updatePart = new MockMultipartFile(
+            "userUpdateRequest", "", MediaType.APPLICATION_JSON_VALUE,
+            objectMapper.writeValueAsBytes(updateReq));
+
+        mockMvc.perform(multipart("/api/users/{userId}", userId)
+                .file(updatePart)
+                .with(req -> { req.setMethod("PATCH"); return req; }))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.username").value("newname"));
     }
 }
