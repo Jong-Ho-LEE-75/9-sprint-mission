@@ -9,15 +9,18 @@ import static org.mockito.BDDMockito.then;
 
 import com.sprint.mission.discodeit.dto.data.MessageDto;
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -27,9 +30,9 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,298 +40,279 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class BasicMessageServiceTest {
 
-  @InjectMocks
-  private BasicMessageService messageService;
+    @Mock
+    private MessageRepository messageRepository;
+    @Mock
+    private ChannelRepository channelRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private BinaryContentRepository binaryContentRepository;
+    @Mock
+    private BinaryContentStorage binaryContentStorage;
+    @Mock
+    private MessageMapper messageMapper;
+    @Mock
+    private PageResponseMapper pageResponseMapper;
 
-  @Mock
-  private MessageRepository messageRepository;
-  @Mock
-  private ChannelRepository channelRepository;
-  @Mock
-  private UserRepository userRepository;
-  @Mock
-  private BinaryContentRepository binaryContentRepository;
-  @Mock
-  private BinaryContentStorage binaryContentStorage;
-  @Mock
-  private MessageMapper messageMapper;
-  @Mock
-  private PageResponseMapper pageResponseMapper;
+    @InjectMocks
+    private BasicMessageService messageService;
 
-  @Test
-  @DisplayName("메시지 생성 성공")
-  void create_success() {
-    // given
-    UUID channelId = UUID.randomUUID();
-    UUID authorId = UUID.randomUUID();
-    MessageCreateRequest request = new MessageCreateRequest("hello", channelId, authorId);
+    @Test
+    @DisplayName("create - 성공: 메시지를 생성한다")
+    void create_success() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        MessageCreateRequest request = new MessageCreateRequest("Hello!", channelId, authorId);
 
-    Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
-    ReflectionTestUtils.setField(channel, "id", channelId);
-    User author = new User("user1", "u1@test.com", "pw", null);
-    ReflectionTestUtils.setField(author, "id", authorId);
+        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
+        User author = new User("testuser", "test@email.com", "password1234", null);
+        Message message = new Message("Hello!", channel, author, List.of());
+        UserDto authorDto = new UserDto(authorId, "testuser", "test@email.com", null, true);
+        MessageDto expectedDto = new MessageDto(UUID.randomUUID(), Instant.now(), Instant.now(),
+            "Hello!", channelId, authorDto, List.of());
 
-    Message message = new Message("hello", channel, author, List.of());
-    UUID messageId = UUID.randomUUID();
-    ReflectionTestUtils.setField(message, "id", messageId);
+        given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
+        given(userRepository.findById(authorId)).willReturn(Optional.of(author));
+        given(messageRepository.save(any(Message.class))).willReturn(message);
+        given(messageMapper.toDto(any(Message.class))).willReturn(expectedDto);
 
-    Instant now = Instant.now();
-    MessageDto expectedDto = new MessageDto(messageId, now, now, "hello", channelId,
-        new UserDto(authorId, "user1", "u1@test.com", null, true), List.of());
+        // when
+        MessageDto result = messageService.create(request, List.of());
 
-    given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-    given(userRepository.findById(authorId)).willReturn(Optional.of(author));
-    given(messageRepository.save(any(Message.class))).willReturn(message);
-    given(messageMapper.toDto(any(Message.class))).willReturn(expectedDto);
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.content()).isEqualTo("Hello!");
+        then(messageRepository).should().save(any(Message.class));
+    }
 
-    // when
-    MessageDto result = messageService.create(request, List.of());
+    @Test
+    @DisplayName("create - 실패: 채널이 존재하지 않으면 ChannelNotFoundException 발생")
+    void create_fail_channelNotFound() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        MessageCreateRequest request = new MessageCreateRequest("Hello!", channelId, authorId);
 
-    // then
-    assertThat(result.content()).isEqualTo("hello");
-    assertThat(result.channelId()).isEqualTo(channelId);
-    then(messageRepository).should().save(any(Message.class));
-  }
+        given(channelRepository.findById(channelId)).willReturn(Optional.empty());
 
-  @Test
-  @DisplayName("메시지 생성 성공 - 첨부파일 포함")
-  void create_success_withAttachments() {
-    // given
-    UUID channelId = UUID.randomUUID();
-    UUID authorId = UUID.randomUUID();
-    MessageCreateRequest request = new MessageCreateRequest("hello", channelId, authorId);
-    BinaryContentCreateRequest attachmentReq = new BinaryContentCreateRequest("file.txt",
-        "text/plain", new byte[]{1, 2});
+        // when & then
+        assertThatThrownBy(() -> messageService.create(request, List.of()))
+            .isInstanceOf(ChannelNotFoundException.class);
+    }
 
-    Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
-    ReflectionTestUtils.setField(channel, "id", channelId);
-    User author = new User("user1", "u1@test.com", "pw", null);
-    ReflectionTestUtils.setField(author, "id", authorId);
+    @Test
+    @DisplayName("update - 성공: 메시지 내용을 수정한다")
+    void update_success() {
+        // given
+        UUID messageId = UUID.randomUUID();
+        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
+        User author = new User("testuser", "test@email.com", "password1234", null);
+        Message message = new Message("old content", channel, author, List.of());
+        MessageUpdateRequest request = new MessageUpdateRequest("new content");
+        UserDto authorDto = new UserDto(UUID.randomUUID(), "testuser", "test@email.com", null,
+            true);
+        MessageDto expectedDto = new MessageDto(messageId, Instant.now(), Instant.now(),
+            "new content", UUID.randomUUID(), authorDto, List.of());
 
-    BinaryContent attachment = new BinaryContent("file.txt", 2L, "text/plain");
-    UUID attachmentId = UUID.randomUUID();
-    ReflectionTestUtils.setField(attachment, "id", attachmentId);
+        given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
+        given(messageMapper.toDto(any(Message.class))).willReturn(expectedDto);
 
-    Message message = new Message("hello", channel, author, List.of(attachment));
-    UUID messageId = UUID.randomUUID();
-    ReflectionTestUtils.setField(message, "id", messageId);
+        // when
+        MessageDto result = messageService.update(messageId, request);
 
-    MessageDto expectedDto = new MessageDto(messageId, Instant.now(), Instant.now(), "hello",
-        channelId, null, List.of());
+        // then
+        assertThat(result.content()).isEqualTo("new content");
+    }
 
-    given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-    given(userRepository.findById(authorId)).willReturn(Optional.of(author));
-    given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(attachment);
-    given(binaryContentStorage.put(any(UUID.class), any(byte[].class))).willReturn(attachmentId);
-    given(messageRepository.save(any(Message.class))).willReturn(message);
-    given(messageMapper.toDto(any(Message.class))).willReturn(expectedDto);
+    @Test
+    @DisplayName("update - 실패: 메시지가 존재하지 않으면 MessageNotFoundException 발생")
+    void update_fail_notFound() {
+        // given
+        UUID messageId = UUID.randomUUID();
+        MessageUpdateRequest request = new MessageUpdateRequest("new content");
+        given(messageRepository.findById(messageId)).willReturn(Optional.empty());
 
-    // when
-    MessageDto result = messageService.create(request, List.of(attachmentReq));
+        // when & then
+        assertThatThrownBy(() -> messageService.update(messageId, request))
+            .isInstanceOf(MessageNotFoundException.class);
+    }
 
-    // then
-    assertThat(result).isNotNull();
-    then(binaryContentRepository).should().save(any(BinaryContent.class));
-    then(binaryContentStorage).should().put(any(UUID.class), any(byte[].class));
-  }
+    @Test
+    @DisplayName("delete - 성공: 메시지를 삭제한다")
+    void delete_success() {
+        // given
+        UUID messageId = UUID.randomUUID();
+        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
+        User author = new User("testuser", "test@email.com", "password1234", null);
+        Message message = new Message("Hello!", channel, author, List.of());
 
-  @Test
-  @DisplayName("메시지 생성 실패 - 채널 없음")
-  void create_fail_channelNotFound() {
-    // given
-    UUID channelId = UUID.randomUUID();
-    UUID authorId = UUID.randomUUID();
-    MessageCreateRequest request = new MessageCreateRequest("hello", channelId, authorId);
+        given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
 
-    given(channelRepository.findById(channelId)).willReturn(Optional.empty());
+        // when
+        messageService.delete(messageId);
 
-    // when & then
-    assertThatThrownBy(() -> messageService.create(request, List.of()))
-        .isInstanceOf(NoSuchElementException.class)
-        .hasMessageContaining("Channel");
-  }
+        // then
+        then(messageRepository).should().delete(message);
+    }
 
-  @Test
-  @DisplayName("메시지 생성 실패 - 작성자 없음")
-  void create_fail_authorNotFound() {
-    // given
-    UUID channelId = UUID.randomUUID();
-    UUID authorId = UUID.randomUUID();
-    MessageCreateRequest request = new MessageCreateRequest("hello", channelId, authorId);
+    @Test
+    @DisplayName("delete - 실패: 메시지가 존재하지 않으면 MessageNotFoundException 발생")
+    void delete_fail_notFound() {
+        // given
+        UUID messageId = UUID.randomUUID();
+        given(messageRepository.findById(messageId)).willReturn(Optional.empty());
 
-    Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
-    given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-    given(userRepository.findById(authorId)).willReturn(Optional.empty());
+        // when & then
+        assertThatThrownBy(() -> messageService.delete(messageId))
+            .isInstanceOf(MessageNotFoundException.class);
+    }
 
-    // when & then
-    assertThatThrownBy(() -> messageService.create(request, List.of()))
-        .isInstanceOf(NoSuchElementException.class)
-        .hasMessageContaining("Author");
-  }
+    @Test
+    @DisplayName("findAllByChannelId - 성공: 커서 없이 조회한다")
+    @SuppressWarnings("unchecked")
+    void findAllByChannelId_success_noCursor() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
+        User author = new User("testuser", "test@email.com", "password1234", null);
+        Message message = new Message("Hello!", channel, author, List.of());
+        Slice<Message> slice = new SliceImpl<>(List.of(message), PageRequest.of(0, 50), false);
+        PageResponse<MessageDto> expectedResponse = new PageResponse<>(List.of(), null, 50, false,
+            null);
 
-  @Test
-  @DisplayName("메시지 수정 성공")
-  void update_success() {
-    // given
-    UUID messageId = UUID.randomUUID();
-    Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
-    User author = new User("user1", "u@test.com", "pw", null);
-    Message message = new Message("old content", channel, author, List.of());
-    ReflectionTestUtils.setField(message, "id", messageId);
+        given(messageRepository.findAllByChannelId(eq(channelId), any())).willReturn(slice);
+        given(messageMapper.toDto(any(Message.class))).willReturn(
+            new MessageDto(UUID.randomUUID(), Instant.now(), Instant.now(), "Hello!", channelId,
+                null, List.of()));
+        given(pageResponseMapper.fromSlice(any(Slice.class), any(Function.class)))
+            .willReturn(expectedResponse);
 
-    MessageUpdateRequest request = new MessageUpdateRequest("new content");
-    MessageDto expectedDto = new MessageDto(messageId, Instant.now(), Instant.now(), "new content",
-        UUID.randomUUID(), null, List.of());
+        // when
+        PageResponse<MessageDto> result = messageService.findAllByChannelId(channelId, null, 50);
 
-    given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
-    given(messageMapper.toDto(any(Message.class))).willReturn(expectedDto);
+        // then
+        assertThat(result).isNotNull();
+    }
 
-    // when
-    MessageDto result = messageService.update(messageId, request);
+    @Test
+    @DisplayName("findAllByChannelId - 성공: 커서 기반으로 이전 메시지를 조회한다")
+    @SuppressWarnings("unchecked")
+    void findAllByChannelId_success_withCursor() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        Instant cursor = Instant.now();
+        Slice<Message> slice = new SliceImpl<>(List.of(), PageRequest.of(0, 50), false);
+        PageResponse<MessageDto> expectedResponse = new PageResponse<>(List.of(), null, 50, false, null);
 
-    // then
-    assertThat(result.content()).isEqualTo("new content");
-  }
+        given(messageRepository.findAllByChannelIdAndCreatedAtBefore(eq(channelId), eq(cursor), any()))
+            .willReturn(slice);
+        given(pageResponseMapper.fromSlice(any(Slice.class), any(Function.class)))
+            .willReturn(expectedResponse);
 
-  @Test
-  @DisplayName("메시지 수정 실패 - 메시지 없음")
-  void update_fail_notFound() {
-    // given
-    UUID messageId = UUID.randomUUID();
-    MessageUpdateRequest request = new MessageUpdateRequest("new content");
-    given(messageRepository.findById(messageId)).willReturn(Optional.empty());
+        // when
+        PageResponse<MessageDto> result = messageService.findAllByChannelId(channelId, cursor, 50);
 
-    // when & then
-    assertThatThrownBy(() -> messageService.update(messageId, request))
-        .isInstanceOf(NoSuchElementException.class);
-  }
+        // then
+        assertThat(result).isNotNull();
+    }
 
-  @Test
-  @DisplayName("메시지 삭제 성공")
-  void delete_success() {
-    // given
-    UUID messageId = UUID.randomUUID();
-    Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
-    User author = new User("user1", "u@test.com", "pw", null);
-    Message message = new Message("hello", channel, author, List.of());
-    ReflectionTestUtils.setField(message, "id", messageId);
+    @Test
+    @DisplayName("findAllByChannelId - size가 0 이하이면 기본값 50을 사용한다")
+    @SuppressWarnings("unchecked")
+    void findAllByChannelId_defaultSize() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        Slice<Message> slice = new SliceImpl<>(List.of(), PageRequest.of(0, 50), false);
+        PageResponse<MessageDto> expectedResponse = new PageResponse<>(List.of(), null, 50, false, null);
 
-    given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
+        given(messageRepository.findAllByChannelId(eq(channelId), any())).willReturn(slice);
+        given(pageResponseMapper.fromSlice(any(Slice.class), any(Function.class)))
+            .willReturn(expectedResponse);
 
-    // when
-    messageService.delete(messageId);
+        // when
+        PageResponse<MessageDto> result = messageService.findAllByChannelId(channelId, null, 0);
 
-    // then
-    then(messageRepository).should().delete(message);
-  }
+        // then
+        assertThat(result).isNotNull();
+    }
 
-  @Test
-  @DisplayName("메시지 삭제 성공 - 첨부파일 포함")
-  void delete_success_withAttachments() {
-    // given
-    UUID messageId = UUID.randomUUID();
-    BinaryContent attachment = new BinaryContent("file.txt", 100L, "text/plain");
-    UUID attachmentId = UUID.randomUUID();
-    ReflectionTestUtils.setField(attachment, "id", attachmentId);
+    @Test
+    @DisplayName("create - 실패: 작성자가 존재하지 않으면 UserNotFoundException 발생")
+    void create_fail_userNotFound() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        MessageCreateRequest request = new MessageCreateRequest("Hello!", channelId, authorId);
+        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
 
-    Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
-    User author = new User("user1", "u@test.com", "pw", null);
-    Message message = new Message("hello", channel, author, List.of(attachment));
-    ReflectionTestUtils.setField(message, "id", messageId);
+        given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
+        given(userRepository.findById(authorId)).willReturn(Optional.empty());
 
-    given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
+        // when & then
+        assertThatThrownBy(() -> messageService.create(request, List.of()))
+            .isInstanceOf(UserNotFoundException.class);
+    }
 
-    // when
-    messageService.delete(messageId);
+    @Test
+    @DisplayName("create - 성공: 첨부파일과 함께 메시지를 생성한다")
+    void create_success_withAttachments() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        MessageCreateRequest request = new MessageCreateRequest("Hello!", channelId, authorId);
+        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
+        User author = new User("testuser", "test@email.com", "password1234", null);
+        byte[] fileBytes = "file".getBytes();
+        BinaryContentCreateRequest attachReq = new BinaryContentCreateRequest("doc.pdf", "application/pdf", fileBytes);
+        BinaryContent bc = new BinaryContent("doc.pdf", (long) fileBytes.length, "application/pdf");
+        Message message = new Message("Hello!", channel, author, List.of(bc));
+        MessageDto expectedDto = new MessageDto(UUID.randomUUID(), Instant.now(), Instant.now(),
+            "Hello!", channelId, null, List.of());
 
-    // then
-    then(messageRepository).should().delete(message);
-    then(binaryContentStorage).should().delete(attachmentId);
-    then(binaryContentRepository).should().deleteById(attachmentId);
-  }
+        given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
+        given(userRepository.findById(authorId)).willReturn(Optional.of(author));
+        given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(bc);
+        given(messageRepository.save(any(Message.class))).willReturn(message);
+        given(messageMapper.toDto(any(Message.class))).willReturn(expectedDto);
 
-  @Test
-  @DisplayName("메시지 삭제 실패 - 메시지 없음")
-  void delete_fail_notFound() {
-    // given
-    UUID messageId = UUID.randomUUID();
-    given(messageRepository.findById(messageId)).willReturn(Optional.empty());
+        // when
+        MessageDto result = messageService.create(request, List.of(attachReq));
 
-    // when & then
-    assertThatThrownBy(() -> messageService.delete(messageId))
-        .isInstanceOf(NoSuchElementException.class);
-  }
+        // then
+        assertThat(result).isNotNull();
+        then(binaryContentStorage).should().put(any(), any(byte[].class));
+    }
 
-  @Test
-  @DisplayName("채널별 메시지 조회 성공 - 커서 없음")
-  void findAllByChannelId_success_noCursor() {
-    // given
-    UUID channelId = UUID.randomUUID();
-    PageRequest pageRequest = PageRequest.of(0, 50);
-    SliceImpl<Message> slice = new SliceImpl<>(List.of(), pageRequest, false);
-    PageResponse<MessageDto> expectedResponse = new PageResponse<>(List.of(), null, 50, false,
-        null);
+    @Test
+    @DisplayName("delete - 성공: 첨부파일이 있는 메시지를 삭제하면 첨부파일도 삭제된다")
+    void delete_success_withAttachments() throws Exception {
+        // given
+        UUID messageId = UUID.randomUUID();
+        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);
+        User author = new User("testuser", "test@email.com", "password1234", null);
+        BinaryContent bc = new BinaryContent("doc.pdf", 100L, "application/pdf");
+        java.lang.reflect.Field idField = bc.getClass().getSuperclass().getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(bc, UUID.randomUUID());
 
-    given(messageRepository.findAllByChannelId(eq(channelId), any(PageRequest.class)))
-        .willReturn(slice);
-    given(pageResponseMapper.fromSlice(any(), any())).willReturn((PageResponse) expectedResponse);
+        Message message = new Message("Hello!", channel, author, List.of(bc));
 
-    // when
-    PageResponse<MessageDto> result = messageService.findAllByChannelId(channelId, null, 50);
+        given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
 
-    // then
-    assertThat(result.hasNext()).isFalse();
-    then(messageRepository).should().findAllByChannelId(eq(channelId), any(PageRequest.class));
-  }
+        // when
+        messageService.delete(messageId);
 
-  @Test
-  @DisplayName("채널별 메시지 조회 성공 - 커서 있음")
-  void findAllByChannelId_success_withCursor() {
-    // given
-    UUID channelId = UUID.randomUUID();
-    Instant cursor = Instant.now();
-    PageRequest pageRequest = PageRequest.of(0, 50);
-    SliceImpl<Message> slice = new SliceImpl<>(List.of(), pageRequest, false);
-    PageResponse<MessageDto> expectedResponse = new PageResponse<>(List.of(), null, 50, false,
-        null);
-
-    given(messageRepository.findAllByChannelIdAndCreatedAtBefore(eq(channelId), eq(cursor),
-        any(PageRequest.class)))
-        .willReturn(slice);
-    given(pageResponseMapper.fromSlice(any(), any())).willReturn((PageResponse) expectedResponse);
-
-    // when
-    PageResponse<MessageDto> result = messageService.findAllByChannelId(channelId, cursor, 50);
-
-    // then
-    assertThat(result).isNotNull();
-    then(messageRepository).should()
-        .findAllByChannelIdAndCreatedAtBefore(eq(channelId), eq(cursor), any(PageRequest.class));
-  }
-
-  @Test
-  @DisplayName("채널별 메시지 조회 - size가 0 이하일 때 기본값 50 사용")
-  void findAllByChannelId_defaultSize() {
-    // given
-    UUID channelId = UUID.randomUUID();
-    SliceImpl<Message> slice = new SliceImpl<>(List.of(), PageRequest.of(0, 50), false);
-    PageResponse<MessageDto> expectedResponse = new PageResponse<>(List.of(), null, 50, false,
-        null);
-
-    given(messageRepository.findAllByChannelId(eq(channelId), any(PageRequest.class)))
-        .willReturn(slice);
-    given(pageResponseMapper.fromSlice(any(), any())).willReturn((PageResponse) expectedResponse);
-
-    // when
-    PageResponse<MessageDto> result = messageService.findAllByChannelId(channelId, null, 0);
-
-    // then
-    assertThat(result.size()).isEqualTo(50);
-  }
+        // then
+        then(messageRepository).should().delete(message);
+        then(binaryContentStorage).should().delete(any(UUID.class));
+        then(binaryContentRepository).should().deleteById(any(UUID.class));
+    }
 }

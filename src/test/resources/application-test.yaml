@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
-    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     username: sa
     password:
+    driver-class-name: org.h2.Driver
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -11,19 +11,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+  sql:
+    init:
+      mode: never
 
 discodeit:
   storage:
     type: local
     local:
-      root-path: ./test-storage
+      root-path: .test-storage
 
 logging:
   level:
+    com.sprint.mission.discodeit: debug
     org.hibernate.SQL: debug
-    org.springframework: info

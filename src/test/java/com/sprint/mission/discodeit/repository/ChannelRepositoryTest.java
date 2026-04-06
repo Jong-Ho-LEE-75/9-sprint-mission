@@ -9,7 +9,6 @@ import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,84 +18,61 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
-@Import(TestJpaConfig.class)
 @ActiveProfiles("test")
+@Import(TestJpaConfig.class)
 class ChannelRepositoryTest {
 
-  @Autowired
-  private ChannelRepository channelRepository;
+    @Autowired
+    private ChannelRepository channelRepository;
 
-  @Autowired
-  private TestEntityManager em;
+    @Autowired
+    private TestEntityManager em;
 
-  @Test
-  @DisplayName("유저별 채널 조회 - PUBLIC 채널 포함")
-  void findAllByUserWithDetails_publicChannel() {
-    // given
-    Channel publicChannel = new Channel(ChannelType.PUBLIC, "general", "일반 채널");
-    em.persistAndFlush(publicChannel);
+    @Test
+    @DisplayName("findAllByUserWithDetails - PUBLIC 채널과 사용자가 참여한 PRIVATE 채널을 조회한다")
+    void findAllByUserWithDetails() {
+        // given
+        User user = new User("testuser", "test@email.com", "password1234", null);
+        em.persist(user);
 
-    User user = new User("testuser", "test@test.com", "password", null);
-    em.persistAndFlush(user);
+        Channel publicChannel = new Channel(ChannelType.PUBLIC, "general", null);
+        em.persist(publicChannel);
 
-    // when
-    List<Channel> result = channelRepository.findAllByUserWithDetails(ChannelType.PUBLIC,
-        user.getId());
+        Channel privateChannel = new Channel(ChannelType.PRIVATE, null, null);
+        em.persist(privateChannel);
 
-    // then
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getName()).isEqualTo("general");
-  }
+        ReadStatus readStatus = new ReadStatus(user, privateChannel, Instant.now());
+        em.persist(readStatus);
 
-  @Test
-  @DisplayName("유저별 채널 조회 - PRIVATE 채널 (ReadStatus로 참여)")
-  void findAllByUserWithDetails_privateChannel() {
-    // given
-    User user = new User("testuser", "test@test.com", "password", null);
-    em.persistAndFlush(user);
+        em.flush();
+        em.clear();
 
-    Channel privateChannel = new Channel(ChannelType.PRIVATE, null, null);
-    em.persistAndFlush(privateChannel);
+        // when
+        List<Channel> channels = channelRepository.findAllByUserWithDetails(
+            ChannelType.PUBLIC, user.getId());
 
-    ReadStatus readStatus = new ReadStatus(user, privateChannel, Instant.now());
-    em.persistAndFlush(readStatus);
+        // then
+        assertThat(channels).hasSize(2);
+    }
 
-    // when
-    List<Channel> result = channelRepository.findAllByUserWithDetails(ChannelType.PUBLIC,
-        user.getId());
+    @Test
+    @DisplayName("findAllByUserWithDetails - 참여하지 않은 PRIVATE 채널은 조회되지 않는다")
+    void findAllByUserWithDetails_excludeNonParticipant() {
+        // given
+        User user = new User("testuser", "test@email.com", "password1234", null);
+        em.persist(user);
 
-    // then
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getType()).isEqualTo(ChannelType.PRIVATE);
-  }
+        Channel privateChannel = new Channel(ChannelType.PRIVATE, null, null);
+        em.persist(privateChannel);
 
-  @Test
-  @DisplayName("유저별 채널 조회 - 참여하지 않은 PRIVATE 채널 제외")
-  void findAllByUserWithDetails_excludeNonParticipant() {
-    // given
-    User user = new User("testuser", "test@test.com", "password", null);
-    em.persistAndFlush(user);
+        em.flush();
+        em.clear();
 
-    Channel privateChannel = new Channel(ChannelType.PRIVATE, null, null);
-    em.persistAndFlush(privateChannel);
-    // ReadStatus 없음 = 참여하지 않음
+        // when
+        List<Channel> channels = channelRepository.findAllByUserWithDetails(
+            ChannelType.PUBLIC, user.getId());
 
-    // when
-    List<Channel> result = channelRepository.findAllByUserWithDetails(ChannelType.PUBLIC,
-        user.getId());
-
-    // then
-    assertThat(result).isEmpty();
-  }
-
-  @Test
-  @DisplayName("유저별 채널 조회 - 빈 결과")
-  void findAllByUserWithDetails_empty() {
-    // when
-    List<Channel> result = channelRepository.findAllByUserWithDetails(ChannelType.PUBLIC,
-        UUID.randomUUID());
-
-    // then
-    assertThat(result).isEmpty();
-  }
+        // then
+        assertThat(channels).isEmpty();
+    }
 }

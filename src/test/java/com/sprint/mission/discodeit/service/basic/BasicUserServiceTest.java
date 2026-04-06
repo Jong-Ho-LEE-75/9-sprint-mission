@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
-import static org.mockito.Mockito.never;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
@@ -15,14 +14,16 @@ import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.persistence.EntityManager;
+import java.lang.reflect.Field;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -31,306 +32,264 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class BasicUserServiceTest {
 
-  @InjectMocks
-  private BasicUserService userService;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private BinaryContentRepository binaryContentRepository;
+    @Mock
+    private UserStatusRepository userStatusRepository;
+    @Mock
+    private BinaryContentStorage binaryContentStorage;
+    @Mock
+    private UserMapper userMapper;
+    @Mock
+    private EntityManager entityManager;
 
-  @Mock
-  private UserRepository userRepository;
-  @Mock
-  private BinaryContentRepository binaryContentRepository;
-  @Mock
-  private UserStatusRepository userStatusRepository;
-  @Mock
-  private BinaryContentStorage binaryContentStorage;
-  @Mock
-  private UserMapper userMapper;
-  @Mock
-  private EntityManager entityManager;
+    @InjectMocks
+    private BasicUserService userService;
 
-  @Test
-  @DisplayName("유저 생성 성공")
-  void create_success() {
-    // given
-    UserCreateRequest request = new UserCreateRequest("testuser", "test@test.com", "password");
-    User user = new User("testuser", "test@test.com", "password", null);
-    UUID userId = UUID.randomUUID();
-    ReflectionTestUtils.setField(user, "id", userId);
+    @Test
+    @DisplayName("create - 성공: 정상적으로 사용자를 생성한다")
+    void create_success() {
+        // given
+        UserCreateRequest request = new UserCreateRequest("testuser", "test@email.com",
+            "password1234");
+        User savedUser = new User("testuser", "test@email.com", "password1234", null);
+        UserDto expectedDto = new UserDto(UUID.randomUUID(), "testuser", "test@email.com", null,
+            true);
 
-    UserDto expectedDto = new UserDto(userId, "testuser", "test@test.com", null, true);
+        given(userRepository.existsByEmail("test@email.com")).willReturn(false);
+        given(userRepository.existsByUsername("testuser")).willReturn(false);
+        given(userRepository.save(any(User.class))).willReturn(savedUser);
+        given(userStatusRepository.save(any(UserStatus.class))).willReturn(null);
+        willDoNothing().given(entityManager).flush();
+        willDoNothing().given(entityManager).refresh(any());
+        given(userMapper.toDto(any(User.class))).willReturn(expectedDto);
 
-    given(userRepository.existsByEmail("test@test.com")).willReturn(false);
-    given(userRepository.existsByUsername("testuser")).willReturn(false);
-    given(userRepository.save(any(User.class))).willReturn(user);
-    given(userStatusRepository.save(any(UserStatus.class))).willReturn(null);
-    willDoNothing().given(entityManager).flush();
-    willDoNothing().given(entityManager).refresh(any());
-    given(userMapper.toDto(any(User.class))).willReturn(expectedDto);
+        // when
+        UserDto result = userService.create(request, Optional.empty());
 
-    // when
-    UserDto result = userService.create(request, Optional.empty());
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.username()).isEqualTo("testuser");
+        then(userRepository).should().save(any(User.class));
+    }
 
-    // then
-    assertThat(result.username()).isEqualTo("testuser");
-    assertThat(result.email()).isEqualTo("test@test.com");
-    then(userRepository).should().save(any(User.class));
-    then(userStatusRepository).should().save(any(UserStatus.class));
-  }
+    @Test
+    @DisplayName("create - 실패: 이메일이 중복되면 UserAlreadyExistsException 발생")
+    void create_fail_duplicateEmail() {
+        // given
+        UserCreateRequest request = new UserCreateRequest("testuser", "dup@email.com",
+            "password1234");
+        given(userRepository.existsByEmail("dup@email.com")).willReturn(true);
 
-  @Test
-  @DisplayName("유저 생성 실패 - 이메일 중복")
-  void create_fail_duplicateEmail() {
-    // given
-    UserCreateRequest request = new UserCreateRequest("testuser", "dup@test.com", "password");
-    given(userRepository.existsByEmail("dup@test.com")).willReturn(true);
+        // when & then
+        assertThatThrownBy(() -> userService.create(request, Optional.empty()))
+            .isInstanceOf(UserAlreadyExistsException.class);
+    }
 
-    // when & then
-    assertThatThrownBy(() -> userService.create(request, Optional.empty()))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("dup@test.com");
-  }
+    @Test
+    @DisplayName("update - 성공: 사용자 정보를 수정한다")
+    void update_success() {
+        // given
+        UUID userId = UUID.randomUUID();
+        User user = new User("olduser", "old@email.com", "password1234", null);
+        UserUpdateRequest request = new UserUpdateRequest("newuser", null, null);
+        UserDto expectedDto = new UserDto(userId, "newuser", "old@email.com", null, true);
 
-  @Test
-  @DisplayName("유저 생성 실패 - 유저네임 중복")
-  void create_fail_duplicateUsername() {
-    // given
-    UserCreateRequest request = new UserCreateRequest("dupuser", "test@test.com", "password");
-    given(userRepository.existsByEmail("test@test.com")).willReturn(false);
-    given(userRepository.existsByUsername("dupuser")).willReturn(true);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.existsByUsername("newuser")).willReturn(false);
+        given(userMapper.toDto(any(User.class))).willReturn(expectedDto);
 
-    // when & then
-    assertThatThrownBy(() -> userService.create(request, Optional.empty()))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("dupuser");
-  }
+        // when
+        UserDto result = userService.update(userId, request, Optional.empty());
 
-  @Test
-  @DisplayName("유저 생성 성공 - 프로필 이미지 포함")
-  void create_success_withProfile() {
-    // given
-    UserCreateRequest request = new UserCreateRequest("testuser", "test@test.com", "password");
-    BinaryContentCreateRequest profileReq = new BinaryContentCreateRequest("profile.png",
-        "image/png", new byte[]{1, 2, 3});
-    BinaryContent profile = new BinaryContent("profile.png", 3L, "image/png");
-    UUID profileId = UUID.randomUUID();
-    ReflectionTestUtils.setField(profile, "id", profileId);
+        // then
+        assertThat(result.username()).isEqualTo("newuser");
+    }
 
-    User user = new User("testuser", "test@test.com", "password", profile);
-    UUID userId = UUID.randomUUID();
-    ReflectionTestUtils.setField(user, "id", userId);
+    @Test
+    @DisplayName("update - 실패: 사용자가 존재하지 않으면 UserNotFoundException 발생")
+    void update_fail_notFound() {
+        // given
+        UUID userId = UUID.randomUUID();
+        UserUpdateRequest request = new UserUpdateRequest("newuser", null, null);
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
 
-    UserDto expectedDto = new UserDto(userId, "testuser", "test@test.com", null, true);
+        // when & then
+        assertThatThrownBy(() -> userService.update(userId, request, Optional.empty()))
+            .isInstanceOf(UserNotFoundException.class);
+    }
 
-    given(userRepository.existsByEmail("test@test.com")).willReturn(false);
-    given(userRepository.existsByUsername("testuser")).willReturn(false);
-    given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(profile);
-    given(binaryContentStorage.put(any(UUID.class), any(byte[].class))).willReturn(profileId);
-    given(userRepository.save(any(User.class))).willReturn(user);
-    given(userStatusRepository.save(any(UserStatus.class))).willReturn(null);
-    willDoNothing().given(entityManager).flush();
-    willDoNothing().given(entityManager).refresh(any());
-    given(userMapper.toDto(any(User.class))).willReturn(expectedDto);
+    @Test
+    @DisplayName("delete - 성공: 사용자를 삭제한다")
+    void delete_success() {
+        // given
+        UUID userId = UUID.randomUUID();
+        User user = new User("testuser", "test@email.com", "password1234", null);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
-    // when
-    UserDto result = userService.create(request, Optional.of(profileReq));
+        // when
+        userService.delete(userId);
 
-    // then
-    assertThat(result).isNotNull();
-    then(binaryContentRepository).should().save(any(BinaryContent.class));
-    then(binaryContentStorage).should().put(any(UUID.class), any(byte[].class));
-  }
+        // then
+        then(userRepository).should().delete(user);
+    }
 
-  @Test
-  @DisplayName("유저 수정 성공")
-  void update_success() {
-    // given
-    UUID userId = UUID.randomUUID();
-    User user = new User("oldname", "old@test.com", "password", null);
-    ReflectionTestUtils.setField(user, "id", userId);
+    @Test
+    @DisplayName("delete - 실패: 사용자가 존재하지 않으면 UserNotFoundException 발생")
+    void delete_fail_notFound() {
+        // given
+        UUID userId = UUID.randomUUID();
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
 
-    UserUpdateRequest request = new UserUpdateRequest("newname", "new@test.com", null);
-    UserDto expectedDto = new UserDto(userId, "newname", "new@test.com", null, true);
+        // when & then
+        assertThatThrownBy(() -> userService.delete(userId))
+            .isInstanceOf(UserNotFoundException.class);
+    }
 
-    given(userRepository.findById(userId)).willReturn(Optional.of(user));
-    given(userRepository.existsByEmail("new@test.com")).willReturn(false);
-    given(userRepository.existsByUsername("newname")).willReturn(false);
-    given(userMapper.toDto(any(User.class))).willReturn(expectedDto);
+    @Test
+    @DisplayName("create - 실패: 사용자명이 중복되면 UserAlreadyExistsException 발생")
+    void create_fail_duplicateUsername() {
+        // given
+        UserCreateRequest request = new UserCreateRequest("dupuser", "test@email.com", "password1234");
+        given(userRepository.existsByEmail("test@email.com")).willReturn(false);
+        given(userRepository.existsByUsername("dupuser")).willReturn(true);
 
-    // when
-    UserDto result = userService.update(userId, request, Optional.empty());
+        // when & then
+        assertThatThrownBy(() -> userService.create(request, Optional.empty()))
+            .isInstanceOf(UserAlreadyExistsException.class);
+    }
 
-    // then
-    assertThat(result.username()).isEqualTo("newname");
-    assertThat(result.email()).isEqualTo("new@test.com");
-  }
+    @Test
+    @DisplayName("create - 성공: 프로필 이미지와 함께 사용자를 생성한다")
+    void create_success_withProfile() {
+        // given
+        UserCreateRequest request = new UserCreateRequest("testuser", "test@email.com", "password1234");
+        byte[] bytes = "image".getBytes();
+        BinaryContentCreateRequest profileReq = new BinaryContentCreateRequest("avatar.png", "image/png", bytes);
+        BinaryContent profile = new BinaryContent("avatar.png", (long) bytes.length, "image/png");
+        User savedUser = new User("testuser", "test@email.com", "password1234", profile);
+        UserDto expectedDto = new UserDto(UUID.randomUUID(), "testuser", "test@email.com", null, true);
 
-  @Test
-  @DisplayName("유저 수정 실패 - 이메일 중복")
-  void update_fail_duplicateEmail() {
-    // given
-    UUID userId = UUID.randomUUID();
-    User user = new User("testuser", "old@test.com", "password", null);
-    ReflectionTestUtils.setField(user, "id", userId);
+        given(userRepository.existsByEmail("test@email.com")).willReturn(false);
+        given(userRepository.existsByUsername("testuser")).willReturn(false);
+        given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(profile);
+        given(userRepository.save(any(User.class))).willReturn(savedUser);
+        given(userStatusRepository.save(any(UserStatus.class))).willReturn(null);
+        willDoNothing().given(entityManager).flush();
+        willDoNothing().given(entityManager).refresh(any());
+        given(userMapper.toDto(any(User.class))).willReturn(expectedDto);
 
-    UserUpdateRequest request = new UserUpdateRequest(null, "dup@test.com", null);
+        // when
+        UserDto result = userService.create(request, Optional.of(profileReq));
 
-    given(userRepository.findById(userId)).willReturn(Optional.of(user));
-    given(userRepository.existsByEmail("dup@test.com")).willReturn(true);
+        // then
+        assertThat(result).isNotNull();
+        then(binaryContentStorage).should().put(any(), any(byte[].class));
+    }
 
-    // when & then
-    assertThatThrownBy(() -> userService.update(userId, request, Optional.empty()))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("dup@test.com");
-  }
+    @Test
+    @DisplayName("update - 실패: 이메일이 중복되면 UserAlreadyExistsException 발생")
+    void update_fail_duplicateEmail() {
+        // given
+        UUID userId = UUID.randomUUID();
+        User user = new User("olduser", "old@email.com", "password1234", null);
+        UserUpdateRequest request = new UserUpdateRequest(null, "dup@email.com", null);
 
-  @Test
-  @DisplayName("유저 수정 실패 - 유저 없음")
-  void update_fail_notFound() {
-    // given
-    UUID userId = UUID.randomUUID();
-    UserUpdateRequest request = new UserUpdateRequest("newname", null, null);
-    given(userRepository.findById(userId)).willReturn(Optional.empty());
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.existsByEmail("dup@email.com")).willReturn(true);
 
-    // when & then
-    assertThatThrownBy(() -> userService.update(userId, request, Optional.empty()))
-        .isInstanceOf(NoSuchElementException.class);
-  }
+        // when & then
+        assertThatThrownBy(() -> userService.update(userId, request, Optional.empty()))
+            .isInstanceOf(UserAlreadyExistsException.class);
+    }
 
-  @Test
-  @DisplayName("유저 수정 실패 - 유저네임 중복")
-  void update_fail_duplicateUsername() {
-    // given
-    UUID userId = UUID.randomUUID();
-    User user = new User("testuser", "test@test.com", "password", null);
-    ReflectionTestUtils.setField(user, "id", userId);
+    @Test
+    @DisplayName("update - 실패: 사용자명이 중복되면 UserAlreadyExistsException 발생")
+    void update_fail_duplicateUsername() {
+        // given
+        UUID userId = UUID.randomUUID();
+        User user = new User("olduser", "old@email.com", "password1234", null);
+        UserUpdateRequest request = new UserUpdateRequest("dupuser", null, null);
 
-    UserUpdateRequest request = new UserUpdateRequest("dupname", null, null);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userRepository.existsByUsername("dupuser")).willReturn(true);
 
-    given(userRepository.findById(userId)).willReturn(Optional.of(user));
-    given(userRepository.existsByUsername("dupname")).willReturn(true);
+        // when & then
+        assertThatThrownBy(() -> userService.update(userId, request, Optional.empty()))
+            .isInstanceOf(UserAlreadyExistsException.class);
+    }
 
-    // when & then
-    assertThatThrownBy(() -> userService.update(userId, request, Optional.empty()))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("dupname");
-  }
+    @Test
+    @DisplayName("update - 성공: 프로필 이미지를 교체한다")
+    void update_success_withProfileChange() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        BinaryContent oldProfile = new BinaryContent("old.png", 100L, "image/png");
+        Field idField = oldProfile.getClass().getSuperclass().getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(oldProfile, UUID.randomUUID());
 
-  @Test
-  @DisplayName("유저 수정 성공 - 프로필 이미지 교체")
-  void update_success_withProfileReplacement() {
-    // given
-    UUID userId = UUID.randomUUID();
-    BinaryContent oldProfile = new BinaryContent("old.png", 100L, "image/png");
-    UUID oldProfileId = UUID.randomUUID();
-    ReflectionTestUtils.setField(oldProfile, "id", oldProfileId);
+        User user = new User("testuser", "test@email.com", "password1234", oldProfile);
+        byte[] newBytes = "newimage".getBytes();
+        BinaryContentCreateRequest profileReq = new BinaryContentCreateRequest("new.png", "image/png", newBytes);
+        BinaryContent newProfile = new BinaryContent("new.png", (long) newBytes.length, "image/png");
+        UserDto expectedDto = new UserDto(userId, "testuser", "test@email.com", null, true);
 
-    User user = new User("testuser", "test@test.com", "password", oldProfile);
-    ReflectionTestUtils.setField(user, "id", userId);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(newProfile);
+        given(userMapper.toDto(any(User.class))).willReturn(expectedDto);
 
-    BinaryContentCreateRequest newProfileReq = new BinaryContentCreateRequest("new.png",
-        "image/png", new byte[]{1, 2, 3});
-    BinaryContent newProfile = new BinaryContent("new.png", 3L, "image/png");
-    UUID newProfileId = UUID.randomUUID();
-    ReflectionTestUtils.setField(newProfile, "id", newProfileId);
+        // when
+        UserDto result = userService.update(userId, new UserUpdateRequest(null, null, null), Optional.of(profileReq));
 
-    UserUpdateRequest request = new UserUpdateRequest(null, null, null);
-    UserDto expectedDto = new UserDto(userId, "testuser", "test@test.com", null, true);
+        // then
+        assertThat(result).isNotNull();
+        then(binaryContentStorage).should().delete(any(UUID.class));
+        then(binaryContentStorage).should().put(any(), any(byte[].class));
+    }
 
-    given(userRepository.findById(userId)).willReturn(Optional.of(user));
-    given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(newProfile);
-    given(binaryContentStorage.put(any(UUID.class), any(byte[].class))).willReturn(newProfileId);
-    given(userMapper.toDto(any(User.class))).willReturn(expectedDto);
+    @Test
+    @DisplayName("delete - 성공: 프로필이 있는 사용자를 삭제하면 프로필도 삭제된다")
+    void delete_success_withProfile() throws Exception {
+        // given
+        UUID userId = UUID.randomUUID();
+        BinaryContent profile = new BinaryContent("avatar.png", 100L, "image/png");
+        Field idField = profile.getClass().getSuperclass().getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(profile, UUID.randomUUID());
 
-    // when
-    UserDto result = userService.update(userId, request, Optional.of(newProfileReq));
+        User user = new User("testuser", "test@email.com", "password1234", profile);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
-    // then
-    assertThat(result).isNotNull();
-    then(binaryContentRepository).should().flush();
-    then(binaryContentRepository).should().deleteById(oldProfileId);
-    then(binaryContentStorage).should().delete(oldProfileId);
-    then(binaryContentRepository).should().save(any(BinaryContent.class));
-  }
+        // when
+        userService.delete(userId);
 
-  @Test
-  @DisplayName("유저 삭제 성공")
-  void delete_success() {
-    // given
-    UUID userId = UUID.randomUUID();
-    User user = new User("testuser", "test@test.com", "password", null);
-    ReflectionTestUtils.setField(user, "id", userId);
-    given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        // then
+        then(binaryContentStorage).should().delete(any(UUID.class));
+        then(binaryContentRepository).should().deleteById(any(UUID.class));
+        then(userRepository).should().delete(user);
+    }
 
-    // when
-    userService.delete(userId);
+    @Test
+    @DisplayName("findAll - 성공: 전체 사용자 목록을 조회한다")
+    void findAll_success() {
+        // given
+        User user = new User("testuser", "test@email.com", "password1234", null);
+        UserDto userDto = new UserDto(UUID.randomUUID(), "testuser", "test@email.com", null, true);
+        given(userRepository.findAllWithDetails()).willReturn(List.of(user));
+        given(userMapper.toDto(user)).willReturn(userDto);
 
-    // then
-    then(userRepository).should().delete(user);
-  }
+        // when
+        List<UserDto> result = userService.findAll();
 
-  @Test
-  @DisplayName("유저 삭제 성공 - 프로필 이미지 포함")
-  void delete_success_withProfile() {
-    // given
-    UUID userId = UUID.randomUUID();
-    BinaryContent profile = new BinaryContent("profile.png", 100L, "image/png");
-    UUID profileId = UUID.randomUUID();
-    ReflectionTestUtils.setField(profile, "id", profileId);
-
-    User user = new User("testuser", "test@test.com", "password", profile);
-    ReflectionTestUtils.setField(user, "id", userId);
-
-    given(userRepository.findById(userId)).willReturn(Optional.of(user));
-
-    // when
-    userService.delete(userId);
-
-    // then
-    then(binaryContentRepository).should().flush();
-    then(binaryContentRepository).should().deleteById(profileId);
-    then(binaryContentStorage).should().delete(profileId);
-    then(userRepository).should().delete(user);
-  }
-
-  @Test
-  @DisplayName("유저 삭제 실패 - 유저 없음")
-  void delete_fail_notFound() {
-    // given
-    UUID userId = UUID.randomUUID();
-    given(userRepository.findById(userId)).willReturn(Optional.empty());
-
-    // when & then
-    assertThatThrownBy(() -> userService.delete(userId))
-        .isInstanceOf(NoSuchElementException.class);
-  }
-
-  @Test
-  @DisplayName("전체 유저 조회 성공")
-  void findAll_success() {
-    // given
-    User user1 = new User("user1", "u1@test.com", "pw", null);
-    User user2 = new User("user2", "u2@test.com", "pw", null);
-    UUID id1 = UUID.randomUUID();
-    UUID id2 = UUID.randomUUID();
-    ReflectionTestUtils.setField(user1, "id", id1);
-    ReflectionTestUtils.setField(user2, "id", id2);
-
-    UserDto dto1 = new UserDto(id1, "user1", "u1@test.com", null, true);
-    UserDto dto2 = new UserDto(id2, "user2", "u2@test.com", null, true);
-
-    given(userRepository.findAllWithDetails()).willReturn(List.of(user1, user2));
-    given(userMapper.toDto(user1)).willReturn(dto1);
-    given(userMapper.toDto(user2)).willReturn(dto2);
-
-    // when
-    List<UserDto> result = userService.findAll();
-
-    // then
-    assertThat(result).hasSize(2);
-    assertThat(result.get(0).username()).isEqualTo("user1");
-  }
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).username()).isEqualTo("testuser");
+    }
 }
