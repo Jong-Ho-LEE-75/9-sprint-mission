@@ -47,10 +47,12 @@ class ChannelControllerTest {
     @Test
     @DisplayName("POST /api/channels/public - 성공: PUBLIC 채널을 생성한다")
     void createPublic_success() throws Exception {
+        // given
         ChannelDto channelDto = new ChannelDto(UUID.randomUUID(), ChannelType.PUBLIC, "general",
             "일반 채널", List.of(), null);
         given(channelService.create(any(PublicChannelCreateRequest.class))).willReturn(channelDto);
 
+        // when & then
         mockMvc.perform(post("/api/channels/public")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
@@ -63,12 +65,14 @@ class ChannelControllerTest {
     @Test
     @DisplayName("PATCH /api/channels/{channelId} - 성공: 채널을 수정한다")
     void update_success() throws Exception {
+        // given
         UUID channelId = UUID.randomUUID();
         ChannelDto channelDto = new ChannelDto(channelId, ChannelType.PUBLIC, "new-name",
             "new-desc", List.of(), null);
         given(channelService.update(eq(channelId), any(PublicChannelUpdateRequest.class)))
             .willReturn(channelDto);
 
+        // when & then
         mockMvc.perform(patch("/api/channels/{channelId}", channelId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
@@ -80,10 +84,12 @@ class ChannelControllerTest {
     @Test
     @DisplayName("PATCH /api/channels/{channelId} - 실패: PRIVATE 채널 수정 시도")
     void update_fail_privateChannel() throws Exception {
+        // given
         UUID channelId = UUID.randomUUID();
         willThrow(new PrivateChannelUpdateException(Map.of("channelId", channelId)))
             .given(channelService).update(eq(channelId), any(PublicChannelUpdateRequest.class));
 
+        // when & then
         mockMvc.perform(patch("/api/channels/{channelId}", channelId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
@@ -95,11 +101,13 @@ class ChannelControllerTest {
     @Test
     @DisplayName("GET /api/channels - 성공: 사용자의 채널 목록을 조회한다")
     void findAll_success() throws Exception {
+        // given
         UUID userId = UUID.randomUUID();
         ChannelDto channelDto = new ChannelDto(UUID.randomUUID(), ChannelType.PUBLIC, "general",
             null, List.of(), null);
         given(channelService.findAllByUserId(userId)).willReturn(List.of(channelDto));
 
+        // when & then
         mockMvc.perform(get("/api/channels").param("userId", userId.toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].name").value("general"));
@@ -108,11 +116,13 @@ class ChannelControllerTest {
     @Test
     @DisplayName("POST /api/channels/private - 성공: PRIVATE 채널을 생성한다")
     void createPrivate_success() throws Exception {
+        // given
         UUID userId = UUID.randomUUID();
         ChannelDto channelDto = new ChannelDto(UUID.randomUUID(), ChannelType.PRIVATE, null,
             null, List.of(), null);
         given(channelService.create(any(PrivateChannelCreateRequest.class))).willReturn(channelDto);
 
+        // when & then
         mockMvc.perform(post("/api/channels/private")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(
@@ -124,9 +134,11 @@ class ChannelControllerTest {
     @Test
     @DisplayName("DELETE /api/channels/{channelId} - 성공: 채널을 삭제한다")
     void delete_success() throws Exception {
+        // given
         UUID channelId = UUID.randomUUID();
         willDoNothing().given(channelService).delete(channelId);
 
+        // when & then
         mockMvc.perform(delete("/api/channels/{channelId}", channelId))
             .andExpect(status().isNoContent());
     }
@@ -134,10 +146,12 @@ class ChannelControllerTest {
     @Test
     @DisplayName("DELETE /api/channels/{channelId} - 실패: 존재하지 않는 채널")
     void delete_fail_notFound() throws Exception {
+        // given
         UUID channelId = UUID.randomUUID();
         willThrow(new ChannelNotFoundException(Map.of("channelId", channelId)))
             .given(channelService).delete(channelId);
 
+        // when & then
         mockMvc.perform(delete("/api/channels/{channelId}", channelId))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("CHANNEL_NOT_FOUND"));
@@ -146,6 +160,7 @@ class ChannelControllerTest {
     @Test
     @DisplayName("PUT /api/channels/public - 지원하지 않는 HTTP 메서드 405")
     void methodNotAllowed() throws Exception {
+        // when & then
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                 .put("/api/channels/public")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -156,10 +171,12 @@ class ChannelControllerTest {
     @Test
     @DisplayName("DELETE /api/channels/{channelId} - 서버 오류 발생 시 500")
     void delete_fail_serverError() throws Exception {
+        // given
         UUID channelId = UUID.randomUUID();
         willThrow(new RuntimeException("unexpected error"))
             .given(channelService).delete(channelId);
 
+        // when & then
         mockMvc.perform(delete("/api/channels/{channelId}", channelId))
             .andExpect(status().isInternalServerError())
             .andExpect(jsonPath("$.code").value("INTERNAL_SERVER_ERROR"));

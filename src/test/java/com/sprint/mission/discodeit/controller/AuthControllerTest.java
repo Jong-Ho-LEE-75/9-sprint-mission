@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.exception.auth.InvalidPasswordException;
-import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.service.AuthService;
 import java.util.Map;
 import java.util.UUID;
@@ -38,9 +37,11 @@ class AuthControllerTest {
     @Test
     @DisplayName("POST /api/auth/login - 성공: 로그인한다")
     void login_success() throws Exception {
+        // given
         UserDto userDto = new UserDto(UUID.randomUUID(), "testuser", "test@email.com", null, true);
         given(authService.login(any(LoginRequest.class))).willReturn(userDto);
 
+        // when & then
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new LoginRequest("testuser", "password123"))))
@@ -49,24 +50,28 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/auth/login - 실패: 사용자 없음")
+    @DisplayName("POST /api/auth/login - 실패: 사용자 없음 (보안상 401 통일)")
     void login_fail_userNotFound() throws Exception {
-        willThrow(new UserNotFoundException(Map.of("username", "nonexistent")))
+        // given
+        willThrow(new InvalidPasswordException(Map.of("username", "nonexistent")))
             .given(authService).login(any(LoginRequest.class));
 
+        // when & then
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new LoginRequest("nonexistent", "password123"))))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.code").value("INVALID_PASSWORD"));
     }
 
     @Test
     @DisplayName("POST /api/auth/login - 실패: 비밀번호 불일치")
     void login_fail_invalidPassword() throws Exception {
+        // given
         willThrow(new InvalidPasswordException(Map.of("username", "testuser")))
             .given(authService).login(any(LoginRequest.class));
 
+        // when & then
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new LoginRequest("testuser", "wrong"))))
@@ -77,6 +82,9 @@ class AuthControllerTest {
     @Test
     @DisplayName("POST /api/auth/login - 실패: 유효성 검사 실패 (빈 사용자명)")
     void login_fail_validation() throws Exception {
+        // given - 빈 사용자명 요청
+
+        // when & then
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new LoginRequest("", "password123"))))

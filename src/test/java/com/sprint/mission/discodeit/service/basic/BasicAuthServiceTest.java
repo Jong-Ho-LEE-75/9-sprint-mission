@@ -8,7 +8,6 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.auth.InvalidPasswordException;
-import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import java.util.Optional;
@@ -52,7 +51,7 @@ class BasicAuthServiceTest {
     }
 
     @Test
-    @DisplayName("로그인 실패 - 사용자 없음")
+    @DisplayName("로그인 실패 - 사용자 없음 (보안상 InvalidPasswordException 통일)")
     void login_fail_userNotFound() {
         // given
         LoginRequest request = new LoginRequest("nonexistent", "password123");
@@ -60,7 +59,7 @@ class BasicAuthServiceTest {
 
         // when & then
         assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(InvalidPasswordException.class);
     }
 
     @Test

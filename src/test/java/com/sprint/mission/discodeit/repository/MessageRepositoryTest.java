@@ -51,8 +51,7 @@ class MessageRepositoryTest {
     void findAllByChannelId() {
         // given
         for (int i = 0; i < 5; i++) {
-            Message message = new Message("message " + i, channel, author, List.of());
-            em.persist(message);
+            persistMessage("message " + i);
         }
         em.flush();
         em.clear();
@@ -70,8 +69,7 @@ class MessageRepositoryTest {
     @DisplayName("findAllByChannelIdAndCreatedAtBefore - 커서 이전 메시지를 조회한다")
     void findAllByChannelIdAndCreatedAtBefore() {
         // given
-        Message message = new Message("old message", channel, author, List.of());
-        em.persist(message);
+        persistMessage("old message");
         em.flush();
         em.clear();
 
@@ -87,8 +85,8 @@ class MessageRepositoryTest {
     @DisplayName("findLastCreatedAtByChannelId - 채널의 마지막 메시지 시각을 조회한다")
     void findLastCreatedAtByChannelId() {
         // given
-        em.persist(new Message("message1", channel, author, List.of()));
-        em.persist(new Message("message2", channel, author, List.of()));
+        persistMessage("message1");
+        persistMessage("message2");
         em.flush();
         em.clear();
 
@@ -104,7 +102,7 @@ class MessageRepositoryTest {
     @DisplayName("findLastCreatedAtByChannelIds - 여러 채널의 마지막 메시지 시각을 일괄 조회한다")
     void findLastCreatedAtByChannelIds() {
         // given
-        em.persist(new Message("msg", channel, author, List.of()));
+        persistMessage("msg");
         em.flush();
         em.clear();
 
@@ -114,5 +112,10 @@ class MessageRepositoryTest {
 
         // then
         assertThat(results).hasSize(1);
+    }
+
+    private Message persistMessage(String content) {
+        Message message = new Message(content, channel, author, List.of());
+        return em.persist(message);
     }
 }

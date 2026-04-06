@@ -53,6 +53,7 @@ class UserControllerTest {
     @Test
     @DisplayName("POST /api/users - 성공: 사용자를 생성한다")
     void create_success() throws Exception {
+        // given
         UUID userId = UUID.randomUUID();
         UserDto userDto = new UserDto(userId, "testuser", "test@email.com", null, true);
         given(userService.create(any(), any(Optional.class))).willReturn(userDto);
@@ -63,6 +64,7 @@ class UserControllerTest {
             "userCreateRequest", "", MediaType.APPLICATION_JSON_VALUE,
             objectMapper.writeValueAsBytes(request));
 
+        // when & then
         mockMvc.perform(multipart("/api/users").file(requestPart))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.username").value("testuser"))
@@ -72,9 +74,11 @@ class UserControllerTest {
     @Test
     @DisplayName("GET /api/users - 성공: 사용자 목록을 조회한다")
     void findAll_success() throws Exception {
+        // given
         UserDto userDto = new UserDto(UUID.randomUUID(), "testuser", "test@email.com", null, true);
         given(userService.findAll()).willReturn(List.of(userDto));
 
+        // when & then
         mockMvc.perform(get("/api/users"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$[0].username").value("testuser"));
@@ -83,9 +87,11 @@ class UserControllerTest {
     @Test
     @DisplayName("DELETE /api/users/{userId} - 성공: 사용자를 삭제한다")
     void delete_success() throws Exception {
+        // given
         UUID userId = UUID.randomUUID();
         willDoNothing().given(userService).delete(userId);
 
+        // when & then
         mockMvc.perform(delete("/api/users/{userId}", userId))
             .andExpect(status().isNoContent());
     }
@@ -93,10 +99,12 @@ class UserControllerTest {
     @Test
     @DisplayName("DELETE /api/users/{userId} - 실패: 존재하지 않는 사용자")
     void delete_fail_notFound() throws Exception {
+        // given
         UUID userId = UUID.randomUUID();
         willThrow(new UserNotFoundException(Map.of("userId", userId)))
             .given(userService).delete(userId);
 
+        // when & then
         mockMvc.perform(delete("/api/users/{userId}", userId))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
@@ -105,6 +113,7 @@ class UserControllerTest {
     @Test
     @DisplayName("PATCH /api/users/{userId} - 성공: 사용자 정보를 수정한다")
     void update_success() throws Exception {
+        // given
         UUID userId = UUID.randomUUID();
         UserDto userDto = new UserDto(userId, "newuser", "new@email.com", null, true);
         given(userService.update(any(UUID.class), any(), any(Optional.class))).willReturn(userDto);
@@ -114,6 +123,7 @@ class UserControllerTest {
             "userUpdateRequest", "", MediaType.APPLICATION_JSON_VALUE,
             objectMapper.writeValueAsBytes(request));
 
+        // when & then
         mockMvc.perform(multipart("/api/users/{userId}", userId)
                 .file(requestPart)
                 .with(req -> { req.setMethod("PATCH"); return req; }))
@@ -124,12 +134,14 @@ class UserControllerTest {
     @Test
     @DisplayName("PATCH /api/users/{userId}/userStatus - 성공: 사용자 상태를 갱신한다")
     void updateUserStatus_success() throws Exception {
+        // given
         UUID userId = UUID.randomUUID();
         Instant now = Instant.now();
         UserStatusDto statusDto = new UserStatusDto(UUID.randomUUID(), userId, now);
         given(userStatusService.updateByUserId(any(UUID.class), any(UserStatusUpdateRequest.class)))
             .willReturn(statusDto);
 
+        // when & then
         mockMvc.perform(patch("/api/users/{userId}/userStatus", userId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new UserStatusUpdateRequest(now))))
