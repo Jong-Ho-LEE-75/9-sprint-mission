@@ -8,4 +8,8 @@ public class InvalidPasswordException extends AuthException {
     public InvalidPasswordException(Map<String, Object> details) {
         super(ErrorCode.INVALID_PASSWORD, details);
     }
+
+    public static InvalidPasswordException withUsername(String username) {
+        return new InvalidPasswordException(Map.of("username", username));
+    }
 }
