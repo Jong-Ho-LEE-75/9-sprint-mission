@@ -1,21 +1,29 @@
+# ============================================================
+# 개발 환경용 Docker Compose (app + PostgreSQL)
+# 사용법: docker compose up -d --build
+# 환경변수: .env 파일에서 로드 (.env는 형상관리 제외)
+# ============================================================
+
 services:
+  # Spring Boot 애플리케이션
   app:
-    build: .
+    build: .                              # 로컬 Dockerfile로 이미지 빌드
     ports:
-      - "${APP_PORT:-8080}:80"
+      - "${APP_PORT:-8080}:80"            # 호스트:컨테이너 포트 매핑
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_healthy        # DB 헬스체크 통과 후 앱 시작
     volumes:
-      - app-storage:/app/.discodeit/storage
+      - app-storage:/app/.discodeit/storage  # 파일 저장소 데이터 영속화
     env_file:
-      - .env
+      - .env                              # AWS, 스토리지 등 환경변수 로드
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB:-discodeit}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-discodeit_user}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-discodeit1234}
 
+  # PostgreSQL 데이터베이스
   db:
     image: postgres:17
     environment:
@@ -23,8 +31,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-discodeit_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-discodeit1234}
     volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - db-data:/var/lib/postgresql/data  # DB 데이터 영속화
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql  # 최초 실행 시 스키마 자동 적용
     ports:
       - "${DB_PORT:-5432}:5432"
     healthcheck:
@@ -34,5 +42,5 @@ services:
       retries: 5
 
 volumes:
-  app-storage:
-  db-data:
+  app-storage:    # 앱 파일 저장소
+  db-data:        # PostgreSQL 데이터
