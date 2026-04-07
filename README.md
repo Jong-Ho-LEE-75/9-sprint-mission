@@ -1,6 +1,6 @@
 # Discodeit
 
-[![codecov](https://codecov.io/gh/Jong-Ho-LEE-75/9-sprint-mission/branch/main/graph/badge.svg)](https://codecov.io/gh/Jong-Ho-LEE-75/9-sprint-mission)
+[![codecov](https://codecov.io/gh/Jong-Ho-LEE-75/9-sprint-mission/graph/badge.svg)](https://codecov.io/gh/Jong-Ho-LEE-75/9-sprint-mission)
 
 Discord-like 메시징 애플리케이션 (Spring Boot 3.4.0 + Java 17)
 
