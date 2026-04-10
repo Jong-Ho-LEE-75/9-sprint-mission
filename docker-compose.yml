@@ -9,7 +9,7 @@ services:
   app:
     build: .                              # 로컬 Dockerfile로 이미지 빌드
     ports:
-      - "${APP_PORT:-8081}:80"            # 호스트:컨테이너 포트 매핑
+      - "${APP_PORT:-8080}:80"            # 호스트:컨테이너 포트 매핑
     depends_on:
       db:
         condition: service_healthy        # DB 헬스체크 통과 후 앱 시작
