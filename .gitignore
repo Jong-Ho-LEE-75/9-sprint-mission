@@ -35,6 +35,9 @@ bin/
 ### VS Code ###
 .vscode/
 
+### Continue ###
+.continue/
+
 ### Mac OS ###
 .DS_Store
 

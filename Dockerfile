@@ -1,4 +1,4 @@
-ollama pull gemma# ============================================================
+# ============================================================
 # 멀티 스테이지 빌드: 빌드 환경과 런타임 환경을 분리하여 최종 이미지 크기를 최소화
 # ============================================================
 
@@ -14,7 +14,7 @@ RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
 
 # 소스 코드 복사 후 테스트 제외하고 빌드 (-x test)
 COPY src ./src
-RUN ./gradlew clean build -x test --no-daemon
+RUN ./gradlew clean bootJar -x test --no-daemon
 
 # Stage 2: 런타임 (Alpine 경량 이미지로 실행만 담당)
 FROM amazoncorretto:17-alpine
@@ -31,4 +31,4 @@ COPY --from=build /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar app.jar
 
 EXPOSE 80
 
-ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -Dserver.port=80 -jar app.jar"]
