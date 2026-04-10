@@ -44,26 +44,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: 태스크 정의 업데이트
-        id: update-task-def
+      - name: 기존 태스크 정의 다운로드
         run: |
-          # 기존 태스크 정의 조회
-          TASK_DEF=$(aws ecs describe-task-definition \
+          aws ecs describe-task-definition \
             --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
-            --query 'taskDefinition')
+            --query taskDefinition > task-definition.json
 
-          # 컨테이너 이미지를 새 이미지로 교체하여 새 태스크 정의 등록
-          NEW_TASK_DEF=$(echo "$TASK_DEF" | jq \
-            --arg IMAGE "${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}" \
-            '.containerDefinitions[0].image = $IMAGE |
-            del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
-
-          NEW_TASK_ARN=$(aws ecs register-task-definition \
-            --cli-input-json "$NEW_TASK_DEF" \
-            --query 'taskDefinition.taskDefinitionArn' \
-            --output text)
-
-          echo "task-definition-arn=$NEW_TASK_ARN" >> $GITHUB_OUTPUT
+      - name: 새 이미지로 태스크 정의 렌더링
+        id: render-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: discodeit-app
+          image: ${{ vars.ECR_REPOSITORY_URI }}:${{ github.sha }}
 
       - name: 기존 서비스 중단 (프리티어 리소스 절약)
         run: |
@@ -71,11 +64,20 @@ jobs:
             --cluster ${{ vars.ECS_CLUSTER }} \
             --service ${{ vars.ECS_SERVICE }} \
             --desired-count 0
+          aws ecs wait services-stable \
+            --cluster ${{ vars.ECS_CLUSTER }} \
+            --services ${{ vars.ECS_SERVICE }}
 
-      - name: ECS 서비스 업데이트 (새 태스크 정의 적용)
+      - name: ECS 서비스에 새 태스크 정의 배포
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
+          cluster: ${{ vars.ECS_CLUSTER }}
+          service: ${{ vars.ECS_SERVICE }}
+
+      - name: 서비스 스케일 복원 (desired-count 1)
         run: |
           aws ecs update-service \
             --cluster ${{ vars.ECS_CLUSTER }} \
             --service ${{ vars.ECS_SERVICE }} \
-            --task-definition ${{ steps.update-task-def.outputs.task-definition-arn }} \
             --desired-count 1

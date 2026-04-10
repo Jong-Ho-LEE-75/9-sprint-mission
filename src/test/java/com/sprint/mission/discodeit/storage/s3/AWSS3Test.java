@@ -28,7 +28,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 
 /**
  * AWS S3 SDK 직접 테스트.
- * .env 파일에 AWS 자격증명이 설정되어 있을 때만 실행된다.
+ * AWS 자격증명은 .env 파일(로컬) 또는 환경변수(CI)에서 로드된다.
  */
 class AWSS3Test {
 
@@ -38,12 +38,7 @@ class AWSS3Test {
 
   @BeforeEach
   void setUp() throws IOException {
-    assumeTrue(Files.exists(Paths.get(".env")), ".env 파일이 없으므로 S3 테스트를 건너뜁니다");
-
-    Properties props = new Properties();
-    try (FileInputStream fis = new FileInputStream(".env")) {
-      props.load(fis);
-    }
+    Properties props = loadConfig();
 
     String accessKey = props.getProperty("AWS_S3_ACCESS_KEY", "").trim();
     String secretKey = props.getProperty("AWS_S3_SECRET_KEY", "").trim();
@@ -51,7 +46,7 @@ class AWSS3Test {
     bucket = props.getProperty("AWS_S3_BUCKET", "").trim();
 
     assumeTrue(!accessKey.isEmpty() && !secretKey.isEmpty() && !bucket.isEmpty(),
-        "AWS S3 자격증명이 설정되지 않아 테스트를 건너뜁니다");
+        "AWS S3 자격증명이 설정되지 않아 테스트를 건너뜁니다 (.env 또는 환경변수)");
 
     StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(
         AwsBasicCredentials.create(accessKey, secretKey)
@@ -131,5 +126,28 @@ class AWSS3Test {
 
     // 정리
     s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
+  }
+
+  /**
+   * 설정 로드: .env 파일이 있으면 파일에서, 없으면 환경변수에서 로드한다.
+   * 로컬 개발 환경은 .env 파일, CI 환경은 GitHub Secrets 주입 환경변수를 사용한다.
+   */
+  private Properties loadConfig() throws IOException {
+    Properties props = new Properties();
+    if (Files.exists(Paths.get(".env"))) {
+      try (FileInputStream fis = new FileInputStream(".env")) {
+        props.load(fis);
+      }
+    } else {
+      for (String key : new String[]{
+          "AWS_S3_ACCESS_KEY", "AWS_S3_SECRET_KEY", "AWS_S3_REGION",
+          "AWS_S3_BUCKET", "AWS_S3_PRESIGNED_URL_EXPIRATION"}) {
+        String value = System.getenv(key);
+        if (value != null) {
+          props.setProperty(key, value);
+        }
+      }
+    }
+    return props;
   }
 }
